@@ -1,0 +1,24 @@
+{
+  "name": "Orion — Gestão Multi-Empresa e Performance",
+  "short_name": "Orion",
+  "description": "Dashboard de metas, vendas e performance da equipe em tempo real.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait",
+  "background_color": "#0a0f1c",
+  "theme_color": "#0a3d8a",
+  "lang": "pt-BR",
+  "categories": ["business", "productivity"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Dashboard", "short_name": "Dashboard", "url": "/?p=dashboard", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Minhas Metas", "short_name": "Metas", "url": "/?p=minhas-metas", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Ranking", "short_name": "Ranking", "url": "/?p=ranking", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

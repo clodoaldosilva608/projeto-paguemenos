@@ -1,0 +1,13 @@
+# Orion Dashboard
+
+> Painel Orion de gestão multi-empresa: acompanhamento em tempo real de metas, vendas, performance de equipe, gamificação e relatórios para times de varejo.
+
+O Orion é um aplicativo interno de gestão comercial. A área pública é limitada à landing/login; o restante do produto exige autenticação.
+
+## Pages
+
+- [Início](/): Visão geral do produto Orion — metas, indicadores de vendas e performance da equipe.
+
+## Optional
+
+- [Entrar](/auth): Tela de login e cadastro por convite (acesso restrito).
