@@ -18,6 +18,8 @@ const titulos: Record<Pagina, { titulo: string; subtitulo: string }> = {
   configuracoes: { titulo: "Configurações", subtitulo: "Personalize indicadores, regras e parâmetros." },
   auditoria: { titulo: "Auditoria", subtitulo: "Logs de ações e histórico de alterações." },
   ia: { titulo: "Assistente IA", subtitulo: "Análises e insights gerados por Inteligência Artificial." },
+  tour: { titulo: "Tour Guiado", subtitulo: "Conheça as funcionalidades da plataforma." },
+  "dashboard-funcionario": { titulo: "Dashboard do Funcionário", subtitulo: "Atendimento do Coração, Compromissos, Rotinas, Metas, Treinamentos e Checklist." },
 };
 
 interface TopbarProps { pagina: Pagina; onAbrirMenu: () => void }

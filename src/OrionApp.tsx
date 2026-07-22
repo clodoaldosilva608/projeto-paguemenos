@@ -7,6 +7,9 @@ import { NavbarBottomDock, NavbarSidebarFloat, NavbarTopMinimal } from "./compon
 import Topbar from "./components/Topbar";
 import QuickAccessLauncher from "./components/QuickAccessLauncher";
 import IAAssistantFAB from "./components/IAAssistantFAB";
+import { AdminTour } from "./components/tour/AdminTour";
+import { DashboardFuncionarioPage } from "./components/pages/DashboardFuncionarioPage";
+import { TourFAB } from "./components/tour/AdminTour";
 import TrialBanner from "./components/TrialBanner";
 import { useAutoSync } from "./hooks/useAutoSync";
 
@@ -32,6 +35,7 @@ export default function OrionApp() {
   const navigate = useNavigate();
   useAutoSync(120_000); // sincroniza com Google Sheets a cada 2min
 
+  const [tourAberto, setTourAberto] = useState(false);
   const [pagina, setPagina] = useState<Pagina>(() => {
     if (typeof window === "undefined") return "dashboard";
     return (window.localStorage.getItem("orion-page") as Pagina) || "dashboard";
@@ -49,11 +53,12 @@ export default function OrionApp() {
   }, [autenticado, usuario, navigate]);
 
   useEffect(() => { if (typeof window !== "undefined") window.localStorage.setItem("orion-page", pagina); }, [pagina]);
+  useEffect(() => { if (pagina === "tour") { const t = setTimeout(() => setTourAberto(true), 300); return () => clearTimeout(t); } }, [pagina]);
 
   if (carregando) return <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-300"><div className="font-display text-2xl">Orion</div></div>;
   if (!autenticado) return null;
 
-  const paginasVendedor: Pagina[] = ["dashboard", "minhas-metas", "ranking", "relatorios", "relatorio-vendas", "gamificacao", "ia"];
+  const paginasVendedor: Pagina[] = ["dashboard", "minhas-metas", "ranking", "relatorios", "relatorio-vendas", "gamificacao", "ia", "dashboard-funcionario"];
   const paginaEfetiva: Pagina = usuario?.perfil === "vendedor" && !paginasVendedor.includes(pagina) ? "dashboard" : pagina;
 
   const renderPagina = () => {
@@ -72,6 +77,7 @@ export default function OrionApp() {
       case "configuracoes": return <ConfiguracoesPage />;
       case "auditoria": return <AuditoriaPage />;
       case "ia": return <IAPage />;
+      case "dashboard-funcionario": return <DashboardFuncionarioPage />;
       case "funcionarios": return <FuncionariosPage />;
       default: return <DashboardView />;
     }
@@ -104,6 +110,8 @@ export default function OrionApp() {
         </AnimatePresence>
       </main>
       <IAAssistantFAB />
+      <TourFAB onAbrirTour={() => setTourAberto(true)} />
+      <AdminTour aberto={tourAberto} onClose={() => { setTourAberto(false); setPagina("dashboard"); }} />
       {variant !== "top-minimal" && renderNavbar()}
     </div>
   );
