@@ -154,14 +154,15 @@
   --pm-purple: #6b2c91;
   --pm-green: #189f3a;
   --pm-yellow: #f4c20d;
-  --pm-paper: #f4f6fb;
+  --pm-paper: #eef1f7;
 }
 
 html, body, #root { height: 100%; }
 
 body {
   font-family: "DM Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  background: #f4f6fb;
+  background: #eef1f7;
+  color: #1a1a2e;
   color: #0f172a;
   -webkit-font-smoothing: antialiased;
 }
@@ -173,12 +174,16 @@ body {
 .font-body { font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif; }
 
 .paper-grid {
+  color: #1a1a2e;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
   background-image:
     linear-gradient(rgba(10, 61, 138, 0.04) 1px, transparent 1px),
     linear-gradient(90deg, rgba(10, 61, 138, 0.04) 1px, transparent 1px);
   background-size: 28px 28px;
 }
 .dark .paper-grid {
+  color: #1a1a2e;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
   background-image:
     linear-gradient(rgba(148, 163, 184, 0.06) 1px, transparent 1px),
     linear-gradient(90deg, rgba(148, 163, 184, 0.06) 1px, transparent 1px);

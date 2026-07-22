@@ -69,7 +69,7 @@ export default function FuncionariosPage() {
   useEffect(() => { carregar(); }, []);
 
   const filtrados = useMemo(() => {
-    let list = funcionarios.filter(f => f.id !== gestor?.id); // não mostra o próprio gestor
+    let list = funcionarios; // mostra todos inclusive o gestor
     if (filtro === "Ativos") list = list.filter(f => f.ativo);
     if (filtro === "Inativos") list = list.filter(f => !f.ativo);
     if (filtroPerfil !== "Todos") list = list.filter(f => f.role === filtroPerfil);

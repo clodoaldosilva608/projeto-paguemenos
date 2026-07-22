@@ -9,6 +9,7 @@ import QuickAccessLauncher from "./components/QuickAccessLauncher";
 import IAAssistantFAB from "./components/IAAssistantFAB";
 import { AdminTour } from "./components/tour/AdminTour";
 import { DashboardFuncionarioPage } from "./components/pages/DashboardFuncionarioPage";
+import { CurriculoPage } from "./components/pages/CurriculoPage";
 import { TourFAB } from "./components/tour/AdminTour";
 import TrialBanner from "./components/TrialBanner";
 import { useAutoSync } from "./hooks/useAutoSync";
@@ -58,7 +59,7 @@ export default function OrionApp() {
   if (carregando) return <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-300"><div className="font-display text-2xl">Orion</div></div>;
   if (!autenticado) return null;
 
-  const paginasVendedor: Pagina[] = ["dashboard", "minhas-metas", "ranking", "relatorios", "relatorio-vendas", "gamificacao", "ia", "dashboard-funcionario"];
+  const paginasVendedor: Pagina[] = ["dashboard", "minhas-metas", "ranking", "relatorios", "relatorio-vendas", "gamificacao", "ia", "dashboard-funcionario", "curriculo"];
   const paginaEfetiva: Pagina = usuario?.perfil === "vendedor" && !paginasVendedor.includes(pagina) ? "dashboard" : pagina;
 
   const renderPagina = () => {
@@ -78,6 +79,7 @@ export default function OrionApp() {
       case "auditoria": return <AuditoriaPage />;
       case "ia": return <IAPage />;
       case "dashboard-funcionario": return <DashboardFuncionarioPage />;
+      case "curriculo": return <CurriculoPage />;
       case "funcionarios": return <FuncionariosPage />;
       default: return <DashboardView />;
     }

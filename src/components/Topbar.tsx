@@ -20,6 +20,7 @@ const titulos: Record<Pagina, { titulo: string; subtitulo: string }> = {
   ia: { titulo: "Assistente IA", subtitulo: "Análises e insights gerados por Inteligência Artificial." },
   tour: { titulo: "Tour Guiado", subtitulo: "Conheça as funcionalidades da plataforma." },
   "dashboard-funcionario": { titulo: "Dashboard do Funcionário", subtitulo: "Atendimento do Coração, Compromissos, Rotinas, Metas, Treinamentos e Checklist." },
+  curriculo: { titulo: "Meu Currículo", subtitulo: "Histórico de cursos e treinamentos concluídos." },
 };
 
 interface TopbarProps { pagina: Pagina; onAbrirMenu: () => void }
