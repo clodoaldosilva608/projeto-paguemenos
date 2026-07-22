@@ -59,7 +59,7 @@ export default function OrionApp() {
   if (carregando) return <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-300"><div className="font-display text-2xl">Orion</div></div>;
   if (!autenticado) return null;
 
-  const paginasVendedor: Pagina[] = ["dashboard", "minhas-metas", "ranking", "relatorios", "relatorio-vendas", "gamificacao", "ia", "dashboard-funcionario", "curriculo"];
+  const paginasVendedor: Pagina[] = ["dashboard", "minhas-metas", "ranking", "relatorios", "relatorio-vendas", "gamificacao", "ia", "dashboard-funcionario", "curriculo", "campanhas"];
   const paginaEfetiva: Pagina = usuario?.perfil === "vendedor" && !paginasVendedor.includes(pagina) ? "dashboard" : pagina;
 
   const renderPagina = () => {

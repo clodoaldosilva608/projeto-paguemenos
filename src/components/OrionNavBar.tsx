@@ -27,7 +27,7 @@ const ITEMS: Item[] = [
   { id: "relatorio-vendas", label: "Vendas", Icon: ShoppingBag, perfilMinimo: "vendedor" },
   { id: "relatorios", label: "Relatórios", Icon: FileBarChart, perfilMinimo: "vendedor" },
   { id: "funcionarios", label: "Funcionários", Icon: Users2, perfilMinimo: "supervisor" },
-  { id: "campanhas", label: "Campanhas", Icon: Megaphone, perfilMinimo: "supervisor" },
+  { id: "campanhas", label: "Campanhas", Icon: Megaphone, perfilMinimo: "vendedor" },
   { id: "gamificacao", label: "Gamificação", Icon: Sparkles, perfilMinimo: "supervisor" },
   { id: "ia", label: "IA", Icon: Bot, perfilMinimo: "gerente" },
   { id: "equipes", label: "Equipes", Icon: Users2, perfilMinimo: "gerente" },
