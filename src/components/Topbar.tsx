@@ -19,7 +19,7 @@ const titulos: Record<Pagina, { titulo: string; subtitulo: string }> = {
   auditoria: { titulo: "Auditoria", subtitulo: "Logs de ações e histórico de alterações." },
   ia: { titulo: "Assistente IA", subtitulo: "Análises e insights gerados por Inteligência Artificial." },
   tour: { titulo: "Tour Guiado", subtitulo: "Conheça as funcionalidades da plataforma." },
-  "dashboard-funcionario": { titulo: "Dashboard do Funcionário", subtitulo: "Atendimento do Coração, Compromissos, Rotinas, Metas, Treinamentos e Checklist." },
+  "dashboard-funcionario": { titulo: "Dashboard do Funcionário", subtitulo: "Atendimento de Coração, Compromissos, Rotinas, Metas, Treinamentos e Checklist." },
   curriculo: { titulo: "Meu Currículo", subtitulo: "Histórico de cursos e treinamentos concluídos." },
   documentos: { titulo: "Meus Documentos", subtitulo: "Crie e gerencie seus documentos." },
 };

@@ -4,7 +4,7 @@ import { CheckCircle2, Star, BookOpen, Users, Target, RefreshCw, ClipboardList, 
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
-// Módulo 1: Atendimento do Coração
+// Módulo 1: Atendimento de Coração
 const CARDS_CORACAO = [
   { id: "receber", titulo: "RECEBER", descricao: "Aproxime-se, receba o cliente com atenção e um sorriso.", dicas: ["Vá até o cliente.", "Seja empático.", "Atenda de coração.", "Olhe nos olhos."], mensagem: "Fale para o cliente seu nome.", rodape: "ATENCIOSO & DE CORAÇÃO", checklist: ["Cumprimentei", "Sorri", "Me apresentei"] },
   { id: "atender", titulo: "ATENDER", descricao: "Solicite o cadastro. Explique benefícios. Ofereça soluções.", dicas: ["Chame pelo nome.", "Atenda com sorriso.", "Explique produtos."], mensagem: "Solucione o problema do cliente.", rodape: "EMPÁTICO & RESOLUTIVO", checklist: ["Solicitei cadastro", "Expliquei benefícios", "Apresentei ofertas"] },
@@ -62,9 +62,9 @@ export function DashboardFuncionarioPage() {
         <p className="mt-1 text-sm text-white/80">{new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })}</p>
       </div>
 
-      {/* Módulo 1: Atendimento do Coração */}
+      {/* Módulo 1: Atendimento de Coração */}
       <section className="rounded-2xl bg-gradient-to-br from-[#1B4F8C] to-[#0F2D5C] p-6 shadow-xl">
-        <div className="mb-6 text-center"><h2 className="text-2xl font-extrabold uppercase tracking-wide text-white">Atendimento do Coração</h2><p className="mt-1 text-sm italic text-white/80">Todos os dias, em todas as lojas, para todos os clientes.</p></div>
+        <div className="mb-6 text-center"><h2 className="text-2xl font-extrabold uppercase tracking-wide text-white">Atendimento de Coração</h2><p className="mt-1 text-sm italic text-white/80">Todos os dias, em todas as lojas, para todos os clientes.</p></div>
         <div className="grid gap-4 lg:grid-cols-3">
           {CARDS_CORACAO.map((card, idx) => (
             <motion.div key={card.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }} className="flex flex-col overflow-hidden rounded-xl bg-[#F5F5F5] shadow-lg">
