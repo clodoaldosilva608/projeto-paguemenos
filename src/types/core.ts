@@ -39,6 +39,7 @@ export interface Usuario {
   onboardingCompleto?: boolean;
   plano?: "trial" | "limitado" | "ativo";
   trialExpiresAt?: string | null;
+  aprovado?: boolean;
 }
 
 // ---- Empresa ----

@@ -41,7 +41,7 @@ function AuthPage() {
         if (ok) navigate({ to: "/" });
       } else if (modo === "signup") {
         const ok = await cadastrar(email, senha, nome || email.split("@")[0]);
-        if (ok) setMsg("Conta criada! Se seu e-mail estava na lista de convites, seu perfil já está ativo. Faça login.");
+        if (ok === "aguardando_aprovacao" as any) setMsg("✅ Conta criada! Aguardando aprovação do gestor. Você poderá fazer login após ser aprovado."); else if (ok) setMsg("Conta criada! Faça login.");
       } else {
         const { supabase } = await import("@/integrations/supabase/client");
         const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
@@ -100,7 +100,7 @@ function AuthPage() {
             {modo !== "recover" && (
               <div>
                 <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-400">Senha</label>
-                <input type="password" required minLength={6} value={senha} onChange={(e) => setSenha(e.target.value)} placeholder="••••••••" className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" />
+                <input type="password" required minLength={4} value={senha} onChange={(e) => setSenha(e.target.value)} placeholder="••••••••" className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" />
               </div>
             )}
 

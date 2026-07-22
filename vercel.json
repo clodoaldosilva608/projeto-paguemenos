@@ -1,0 +1,15 @@
+{
+  "buildCommand": "NITRO_PRESET=vercel bun run build",
+  "installCommand": "bun install",
+  "framework": "nitro",
+  "build": {
+    "env": {
+      "NITRO_PRESET": "vercel",
+      "SUPABASE_URL": "https://wfvihysxlzkwwrwobmpv.supabase.co",
+      "SUPABASE_PUBLISHABLE_KEY": "sb_publishable_IAEHjjaGnKBAtrT4DsmUqw_mrwFvul1",
+      "SUPABASE_SERVICE_ROLE_KEY": "sb_secret_HetybEr5FvTi8aabdMS0Lg_7ihJjxOg",
+      "VITE_SUPABASE_URL": "https://wfvihysxlzkwwrwobmpv.supabase.co",
+      "VITE_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_IAEHjjaGnKBAtrT4DsmUqw_mrwFvul1"
+    }
+  }
+}

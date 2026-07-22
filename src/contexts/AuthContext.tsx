@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import type { Usuario, Perfil, Permissao } from "../types/core";
 import { gerarPermissoes } from "../data/store";
+import { criarUsuarioConfirmado } from "@/lib/auth.functions";
+import { useServerFn } from "@tanstack/react-start";
 
 interface AuthContexto {
   usuario: Usuario | null;
@@ -19,6 +21,7 @@ interface AuthContexto {
   refresh: () => Promise<void>;
   // Compat com Topbar antigo; agora no-op (perfil real vem do banco)
   trocarPerfil: (perfil: Perfil) => void;
+  perfisDisponiveis: Perfil[];
 }
 
 const AuthCtx = createContext<AuthContexto | undefined>(undefined);
@@ -73,6 +76,7 @@ async function carregarUsuario(session: Session | null): Promise<Usuario | null>
     onboardingCompleto: (profile as any)?.onboarding_completo ?? true,
     plano: (profile as any)?.plano || "ativo",
     trialExpiresAt: (profile as any)?.trial_expires_at || null,
+    aprovado: (profile as any)?.aprovado ?? false,
   };
   return usuario;
 }
@@ -82,6 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [usuario, setUsuario] = useState<Usuario | null>(null);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
+  const criarUsuario = useServerFn(criarUsuarioConfirmado);
 
   const hidratar = useCallback(async (s: Session | null) => {
     try {
@@ -110,31 +115,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(async (email: string, senha: string) => {
     setErro(null); setCarregando(true);
-    const { error } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password: senha });
+    const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password: senha });
+    if (error) { setCarregando(false); setErro(error.message === "Invalid login credentials" ? "E-mail ou senha inválidos." : error.message); return false; }
+    if (data.user) {
+      const { data: profile } = await (supabase as any).from("profiles").select("aprovado").eq("id", data.user.id).maybeSingle();
+      if (profile && !profile.aprovado) {
+        await supabase.auth.signOut();
+        setCarregando(false);
+        setErro("Sua conta está aguardando aprovação do gestor.");
+        return false;
+      }
+    }
     setCarregando(false);
-    if (error) { setErro(error.message === "Invalid login credentials" ? "E-mail ou senha inválidos." : error.message); return false; }
     return true;
   }, []);
 
   const cadastrar = useCallback(async (email: string, senha: string, nome: string) => {
     setErro(null); setCarregando(true);
-    const redirectUrl = typeof window !== "undefined" ? window.location.origin : undefined;
-    const { error } = await supabase.auth.signUp({
-      email: email.trim().toLowerCase(),
-      password: senha,
-      options: { emailRedirectTo: redirectUrl, data: { nome } },
-    });
-    setCarregando(false);
-    if (error) { setErro(error.message); return false; }
-    return true;
-  }, []);
+    try {
+      const result = await criarUsuario({ data: { email: email.trim().toLowerCase(), password: senha, nome: nome.trim() } });
+      if (!result.ok) { setErro(result.error || "Erro ao criar conta"); setCarregando(false); return false; }
+      setCarregando(false);
+      setErro(null);
+      return "aguardando_aprovacao" as any;
+    } catch (e: any) { setErro(e.message || "Erro ao criar conta"); setCarregando(false); return false; }
+  }, [criarUsuario]);
 
   const loginGoogle = useCallback(async () => {
     setErro(null);
+    // Usar Supabase nativo
+    const { error: googleError } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: typeof window !== "undefined" ? window.location.origin : undefined } });
+    if (googleError) { setErro(googleError.message); return false; }
+    return true;
+    /* antigo:
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: typeof window !== "undefined" ? window.location.origin : undefined,
     });
-    if (result.error) { setErro(result.error.message || "Falha no login com Google."); return false; }
+    */
+    if (false) { setErro(""); return false; }
     return true;
   }, []);
 
@@ -171,7 +189,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logout,
         temPermissao,
         refresh,
-        trocarPerfil: () => {},
+        trocarPerfil: (perfil: Perfil) => { if (usuario) { const u = { ...usuario, perfil, permissoes: gerarPermissoes(perfil) }; setUsuario(u); } },
+        perfisDisponiveis: (usuario?.perfil === "admin" ? ["admin", "vendedor"] : [usuario?.perfil || "vendedor"]) as Perfil[],
       }}
     >
       {children}

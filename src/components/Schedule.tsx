@@ -48,7 +48,7 @@ export default function Schedule() {
                 <p className="mt-0.5 text-sm font-medium text-gray-700 dark:text-gray-200">{c.titulo}</p>
                 {c.participantes && (
                   <div className="mt-1 flex items-center gap-1">
-                    {c.participantes.map((p, i) => (
+                    {c.participantes.map((p: any, i: number) => (
                       <span key={i} className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-200 text-[9px] font-semibold text-slate-600 dark:bg-slate-700 dark:text-slate-300">
                         {p[0]}
                       </span>

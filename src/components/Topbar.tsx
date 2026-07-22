@@ -23,9 +23,9 @@ const titulos: Record<Pagina, { titulo: string; subtitulo: string }> = {
 interface TopbarProps { pagina: Pagina; onAbrirMenu: () => void }
 
 export default function Topbar({ pagina }: TopbarProps) {
-  const { usuario } = useAuth();
+  const { usuario, trocarPerfil, perfisDisponiveis } = useAuth();
   const { titulo, subtitulo } = titulos[pagina];
-  const perfilLabel: Record<string, string> = { admin: "Administrador", gerente: "Gerente", supervisor: "Supervisor", vendedor: "Vendedor" };
+  const perfilLabel: Record<string, string> = { admin: "Administrador", gerente: "Gerente", supervisor: "Supervisor", vendedor: "Atendente" };
 
   return (
     <header className="mb-6 flex items-start justify-between gap-4">
@@ -34,6 +34,13 @@ export default function Topbar({ pagina }: TopbarProps) {
         <p className="text-sm text-gray-500 dark:text-slate-400">{subtitulo}</p>
       </div>
       <div className="hidden items-center gap-3 sm:flex">
+        {perfisDisponiveis?.length > 1 && (
+          <div className="flex items-center gap-1 rounded-xl border border-gray-200 bg-white p-1 shadow-sm">
+            {perfisDisponiveis.map((p: any) => (
+              <button key={p} onClick={() => trocarPerfil(p)} className={`rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase transition ${usuario?.perfil === p ? "bg-blue-600 text-white shadow" : "text-slate-500 hover:bg-slate-100"}`}>{p === "admin" ? "👑 Admin" : "🧑 Atendente"}</button>
+            ))}
+          </div>
+        )}
         <div className="flex items-center gap-2.5 rounded-xl border border-gray-200 bg-white py-1.5 pl-1.5 pr-4 shadow-sm dark:border-white/10 dark:bg-slate-800">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-[10px] font-bold text-white">{usuario?.iniciais}</div>
           <div className="leading-tight">
