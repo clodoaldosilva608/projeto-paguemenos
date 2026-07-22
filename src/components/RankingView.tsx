@@ -73,6 +73,14 @@ const nameCellCls =
 const ativos = colaboradores.filter((c) => !c.ferias && c.resultados);
 
 export default function RankingView() {
+  if (!colaboradores?.length || !resultadoLoja) {
+    return (
+      <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-12 text-center">
+        <p className="font-medium text-slate-600">Nenhum resultado disponível</p>
+        <p className="mt-1 text-sm text-slate-500">Os resultados aparecerão aqui quando houver dados.</p>
+      </div>
+    );
+  }
   const [hoverRow, setHoverRow] = useState<string | null>(null);
 
   return (

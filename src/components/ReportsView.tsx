@@ -42,6 +42,14 @@ const rankingFaturamento = colaboradores
   .sort((a, b) => b.realizado - a.realizado);
 
 export default function ReportsView() {
+  if (!colaboradores?.length || !resultadoLoja) {
+    return (
+      <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-12 text-center">
+        <p className="font-medium text-slate-600">Nenhum relatório disponível</p>
+        <p className="mt-1 text-sm text-slate-500">Os relatórios aparecerão aqui quando houver dados.</p>
+      </div>
+    );
+  }
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}

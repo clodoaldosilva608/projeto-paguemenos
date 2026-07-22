@@ -89,6 +89,14 @@ interface EditState {
 }
 
 export default function RelatorioVendasPage() {
+  if (!listaVendedores?.length) {
+    return (
+      <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-12 text-center">
+        <p className="font-medium text-slate-600">Nenhuma venda registrada</p>
+        <p className="mt-1 text-sm text-slate-500">As vendas aparecerão aqui quando forem lançadas.</p>
+      </div>
+    );
+  }
   const { store } = useVendasStore();
   const [dataInicial, setDataInicial] = useState("2026-07-01");
   const [dataFinal, setDataFinal] = useState("2026-07-16");

@@ -1,11 +1,12 @@
 import { motion } from "framer-motion";
 import { brlMoeda, pct } from "../../utils/format";
 
-const filiais = [
-  { id: 7537, cidade: "Fortaleza - CE", gerente: "Carlos Mendes", atingimento: 39.2, realizado: 300387, meta: 766254.66, status: "green" },
-  { id: 7412, cidade: "Recife - PE", gerente: "Márcia Lopes", atingimento: 45.1, realizado: 412300, meta: 914200, status: "green" },
-  { id: 7893, cidade: "Salvador - BA", gerente: "Ricardo Nunes", atingimento: 31.8, realizado: 256700, meta: 807400, status: "red" },
-  { id: 7651, cidade: "Manaus - AM", gerente: "Luciana Torres", atingimento: 52.3, realizado: 389600, meta: 745200, status: "green" },
+// Filiais vindas do localStorage/Supabase — sem dados fake
+const filiais: any[] = [
+  
+  
+  
+  
 ];
 
 export default function FiliaisPage() {

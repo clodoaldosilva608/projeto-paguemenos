@@ -139,8 +139,8 @@ export default function MinhasMetasPage() {
   const salvarMeta = (meta: MetaFuncionario) => {
     // Segurança: só permite salvar metas do próprio usuário
     if (meta.usuarioId !== usuario.id) return;
-    if (meta.id && store.getMetas().some((m) => m.id === meta.id)) {
-      const existente = store.getMetas().find((m) => m.id === meta.id);
+    if (meta.id && (store.getMetas() as any[]).some((m: any) => m.id === meta.id)) {
+      const existente = (store.getMetas() as any[]).find((m: any) => m.id === meta.id);
       if (existente && existente.usuarioId !== usuario.id) return;
       store.updateMeta(meta);
     } else {
@@ -149,7 +149,7 @@ export default function MinhasMetasPage() {
   };
 
   const excluirMeta = (id: string) => {
-    const m = store.getMetas().find((x) => x.id === id);
+    const m = store.getMetas().find((x: any) => x.id === id);
     if (!m || m.usuarioId !== usuario.id) return;
     store.deleteMeta(id);
     setMetaEditando(null);

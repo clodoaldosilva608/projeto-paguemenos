@@ -29,12 +29,12 @@ export default function UsuariosPage() {
 
   const usuarios = useMemo(() => {
     let list = todos;
-    if (filtro === "Ativos") list = list.filter((u) => u.ativo);
-    if (filtro === "Inativos") list = list.filter((u) => !u.ativo);
-    if (filtroPerfil !== "Todos") list = list.filter((u) => u.perfil === filtroPerfil);
+    if (filtro === "Ativos") list = list.filter((u: any) => u.ativo);
+    if (filtro === "Inativos") list = list.filter((u: any) => !u.ativo);
+    if (filtroPerfil !== "Todos") list = list.filter((u: any) => u.perfil === filtroPerfil);
     if (busca.trim()) {
       const q = busca.toLowerCase();
-      list = list.filter((u) => u.nome.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
+      list = list.filter((u: any) => u.nome.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
     }
     return list;
   }, [todos, filtro, filtroPerfil, busca]);
@@ -42,17 +42,17 @@ export default function UsuariosPage() {
   const stats = useMemo(
     () => ({
       total: todos.length,
-      ativos: todos.filter((u) => u.ativo).length,
-      inativos: todos.filter((u) => !u.ativo).length,
-      admins: todos.filter((u) => u.perfil === "admin").length,
-      gerentes: todos.filter((u) => u.perfil === "gerente").length,
-      supervisores: todos.filter((u) => u.perfil === "supervisor").length,
-      vendedores: todos.filter((u) => u.perfil === "vendedor").length,
+      ativos: todos.filter((u: any) => u.ativo).length,
+      inativos: todos.filter((u: any) => !u.ativo).length,
+      admins: todos.filter((u: any) => u.perfil === "admin").length,
+      gerentes: todos.filter((u: any) => u.perfil === "gerente").length,
+      supervisores: todos.filter((u: any) => u.perfil === "supervisor").length,
+      vendedores: todos.filter((u: any) => u.perfil === "vendedor").length,
     }),
     [todos]
   );
 
-  const adminsAtivos = useMemo(() => todos.filter((u) => u.perfil === "admin" && u.ativo).length, [todos]);
+  const adminsAtivos = useMemo(() => todos.filter((u: any) => u.perfil === "admin" && u.ativo).length, [todos]);
 
   const podeExcluir = (u: Usuario) => {
     if (u.id === usuarioLogado?.id) return false;
@@ -169,7 +169,7 @@ export default function UsuariosPage() {
                 </tr>
               </thead>
               <tbody>
-                {usuarios.map((u) => (
+                {usuarios.map((u: any) => (
                   <tr key={u.id} className="border-b border-slate-50 transition hover:bg-slate-50/60 dark:border-slate-800 dark:hover:bg-slate-800/50">
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-3">

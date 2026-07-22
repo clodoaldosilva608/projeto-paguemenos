@@ -241,7 +241,7 @@ export default function FuncionarioModal({ aberto, onFechar, usuario, onSaved, p
                 onChange={(e) => setFilialId(e.target.value)}
                 className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
               >
-                {filiais.map((f) => (
+                {filiais.map((f: any) => (
                   <option key={f.id} value={f.id}>
                     Filial {f.codigo} - {f.nome}
                   </option>

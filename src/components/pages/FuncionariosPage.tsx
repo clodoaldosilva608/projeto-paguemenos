@@ -22,7 +22,7 @@ export default function FuncionariosPage() {
   const [usuarioEditando, setUsuarioEditando] = useState<Usuario | undefined>();
   const [excluindoId, setExcluindoId] = useState<string | null>(null);
 
-  const allUsers = useMemo(() => store.getUsuarios().filter((u) => u.perfil !== "admin"), [store, version]);
+  const allUsers = useMemo(() => (store.getUsuarios() as any[]).filter((u: any) => u.perfil !== "admin"), [store, version]);
 
   const usuarios = useMemo(() => {
     let list = allUsers;
@@ -147,7 +147,7 @@ export default function FuncionariosPage() {
                 </tr>
               </thead>
               <tbody>
-                {usuarios.map((u) => (
+                {usuarios.map((u: any) => (
                   <tr
                     key={u.id}
                     className="border-b border-slate-50 transition hover:bg-blue-50/40 dark:border-slate-800 dark:hover:bg-slate-800/50"
