@@ -1,1 +1,122 @@
+# ================================================================
+# ORION · Pague Menos — Configuração Supabase Local
+# ================================================================
+# Documentação: https://supabase.com/docs/guides/local-development/cli/config
+#
+# Como usar:
+#   1. Instale Docker e o Supabase CLI (>= 2.10)
+#   2. Na raiz do projeto rode:  supabase start
+#   3. O Supabase Studio abrirá em http://127.0.0.1:54323
+#   4. Para parar:                supabase stop
+#   5. Para resetar + aplicar migrations + seed:
+#                                 supabase db reset
+#
+# O projeto foi configurado para espelhar o ambiente cloud já existente
+# (project_id = ekaydicjiygflainmgdn) — não altere esse ID sem rebater
+# com `supabase link --project-ref <novo_id>` depois.
+# ================================================================
+
 project_id = "ekaydicjiygflainmgdn"
+
+# ----------------------------------------------------------------
+# API (PostgREST + GraphQL)
+# ----------------------------------------------------------------
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[api.tls]
+enabled = false
+
+# ----------------------------------------------------------------
+# Banco de dados local (Postgres 17)
+# ----------------------------------------------------------------
+[db]
+port = 54322
+shadow_port = 54320
+health_timeout = "2m"
+major_version = 17
+
+# Pooler (Supavisor) — útil para testes de concorrência
+[db.pooler]
+enabled = false
+port = 54329
+pool_mode = "transaction"
+default_pool_size = 20
+max_client_conn = 100
+
+# Migrações — carrega todos os arquivos em supabase/migrations/*.sql
+[db.migrations]
+enabled = true
+schema_paths = []
+
+# Seed — popular dados de teste após reset
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+
+# ----------------------------------------------------------------
+# Realtime (canais ao vivo para chat/notificações)
+# ----------------------------------------------------------------
+[realtime]
+enabled = true
+
+# ----------------------------------------------------------------
+# Supabase Studio (painel admin em http://127.0.0.1:54323)
+# ----------------------------------------------------------------
+[studio]
+enabled = true
+port = 54323
+api_url = "http://127.0.0.1"
+
+# ----------------------------------------------------------------
+# Auth (recuperação de senha, magic link, OAuth)
+# ----------------------------------------------------------------
+[auth]
+enabled = true
+site_url = "http://localhost:8080"
+additional_redirect_urls = [
+  "http://localhost:8080/auth/callback",
+  "http://127.0.0.1:8080/auth/callback",
+]
+jwt_expiry = 3600
+refresh_token_rotation_enabled = true
+refresh_token_reuse_interval = 10
+enable_signup = true
+enable_anonymous_sign_ins = false
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = false
+
+[auth.sms]
+enable_signup = false
+
+# ----------------------------------------------------------------
+# Edge Functions
+# ----------------------------------------------------------------
+[functions]
+verify_jwt = true
+
+# ----------------------------------------------------------------
+# Storage (uploads de avatar, notas fiscais, etc)
+# ----------------------------------------------------------------
+[storage]
+enabled = true
+file_size_limit = "50MiB"
+
+# ----------------------------------------------------------------
+# Analytics (opcional — desligado por padrão)
+# ----------------------------------------------------------------
+[analytics]
+enabled = false
+
+# ----------------------------------------------------------------
+# Experimental / Logs
+# ----------------------------------------------------------------
+[experimental]
+s3_enabled = false
