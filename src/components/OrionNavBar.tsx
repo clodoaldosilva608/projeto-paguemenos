@@ -7,7 +7,7 @@ import type { Pagina } from "./Sidebar";
 import {
   LayoutDashboard, Target, Trophy, FileBarChart, ShoppingBag, Users2,
   Megaphone, Sparkles, Bot, Building2, ShieldCheck, Settings2, ClipboardList, LogOut,
-  Menu, X, Sun, Moon, Heart, HelpCircle, Award,
+  Menu, X, Sun, Moon, Heart, HelpCircle, Award, FileText,
 } from "lucide-react";
 
 interface Item {
@@ -37,6 +37,7 @@ const ITEMS: Item[] = [
   { id: "auditoria", label: "Auditoria", Icon: ClipboardList, perfilMinimo: "admin" },
   { id: "dashboard-funcionario", label: "Dashboard Func", Icon: Heart, perfilMinimo: "vendedor" },
   { id: "curriculo", label: "Currículo", Icon: Award, perfilMinimo: "vendedor" },
+  { id: "documentos", label: "Documentos", Icon: FileText, perfilMinimo: "vendedor" },
   { id: "tour", label: "Tour", Icon: HelpCircle, perfilMinimo: "vendedor" },
 ];
 
