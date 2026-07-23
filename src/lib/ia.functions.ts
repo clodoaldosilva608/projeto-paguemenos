@@ -41,7 +41,7 @@ export const chatIA = createServerFn({ method: "POST" })
     }
 
     // 2) 🔬 MODO DEMO — sem API externa
-    if (cfg?.provider === "demo") {
+    if (cfg?.provider === "demo" || cfg?.model?.startsWith("demo-")) {
       const t0 = Date.now();
       await new Promise((r) => setTimeout(r, 800 + Math.random() * 700));
       const tempo_ms = Date.now() - t0;

@@ -343,7 +343,8 @@ export const testarConexaoIA = createServerFn({ method: "POST" })
     }
 
     // 🔬 MODO DEMO — responde localmente sem chamar API externa
-    if (cfg.provider === "demo") {
+    // Detecta pelo provider=demo OU model com prefixo "demo-"
+    if (cfg.provider === "demo" || cfg.model?.startsWith("demo-")) {
       const t0 = Date.now();
       await new Promise((r) => setTimeout(r, 200)); // simular latência
       const tempo_ms = Date.now() - t0;
@@ -473,7 +474,7 @@ export const validarChaveIA = createServerFn({ method: "POST" })
     const model = data.model || prov.models[0];
 
     // 🔬 MODO DEMO — sempre válido sem chamar API externa
-    if (data.provider === "demo") {
+    if (data.provider === "demo" || (data.model && data.model.startsWith("demo-"))) {
       return {
         ok: true,
         mensagem: "✅ Modo demonstração ativado — nenhuma chave necessária.",
