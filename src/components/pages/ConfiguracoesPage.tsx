@@ -215,7 +215,6 @@ export default function ConfiguracoesPage() {
               <p className="mb-3 text-xs text-slate-500 dark:text-slate-400">Escolha como a barra de navegação principal deve aparecer.</p>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 {([
-                  { v: "pill-capsule", nome: "💊 Pílula Cápsula", desc: "Pílula retrátil com 2 cores (azul+vermelho)", preview: <NavPreviewPillCapsule /> },
                   { v: "pill", nome: "Guidão flutuante", desc: "Pílula com ícone central em destaque", preview: <NavPreviewPill /> },
                   { v: "bottom-dock", nome: "Dock inferior", desc: "Estilo dock iOS com blur", preview: <NavPreviewDock /> },
                   { v: "sidebar-float", nome: "Lateral flutuante", desc: "Vertical minimal (desktop)", preview: <NavPreviewSidebar /> },
@@ -245,23 +244,6 @@ export default function ConfiguracoesPage() {
         )}
       </div>
     </motion.div>
-  );
-}
-
-function NavPreviewPillCapsule() {
-  return (
-    <div className="flex flex-col items-center gap-1">
-      <div
-        className="flex h-7 w-24 items-center justify-center rounded-full text-[10px] font-bold text-white shadow-md"
-        style={{
-          background:
-            "linear-gradient(90deg, #1B4F8C 0%, #1B4F8C 50%, #D64541 50%, #D64541 100%)",
-        }}
-      >
-        💊
-      </div>
-      <div className="text-[8px] text-slate-400">retrátil</div>
-    </div>
   );
 }
 
