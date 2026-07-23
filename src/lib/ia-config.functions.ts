@@ -541,7 +541,7 @@ export const testarChatIA = createServerFn({ method: "POST" })
     }
 
     // 🔬 MODO DEMO — gera resposta local baseada no prompt + pergunta
-    if (cfg.provider === "demo") {
+    if (cfg.provider === "demo" || cfg.model?.startsWith("demo-")) {
       const t0 = Date.now();
       await new Promise((r) => setTimeout(r, 800 + Math.random() * 700)); // simular latência realista
       const tempo_ms = Date.now() - t0;
