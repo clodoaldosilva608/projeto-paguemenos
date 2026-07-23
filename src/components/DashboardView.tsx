@@ -5,14 +5,16 @@ import { useAuth } from "@/contexts/AuthContext";
 import FilialHeader from "./FilialHeader";
 import MotivationalFooter from "./MotivationalFooter";
 import CountUp from "./CountUp";
+import ModalLancarVendas from "./ModalLancarVendas";
 import { brlMoeda, pct } from "../utils/format";
-import { Target, TrendingUp, Award, Loader2, AlertCircle } from "lucide-react";
+import { Target, TrendingUp, Award, Loader2, AlertCircle, DollarSign } from "lucide-react";
 
 export default function DashboardView() {
   const { usuario } = useAuth();
   const [metas, setMetas] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
+  const [modalVendasAberto, setModalVendasAberto] = useState(false);
 
   useEffect(() => {
     if (!usuario) return;
@@ -67,6 +69,26 @@ export default function DashboardView() {
           <div className="text-right"><p className="text-xs uppercase text-white/60">% da Meta</p><p className={`text-3xl font-extrabold ${percentual >= 100 ? "text-emerald-300" : percentual >= 50 ? "text-amber-300" : "text-red-300"}`}>{pct(percentual)}</p></div>
         </div>
       </div>
+
+      {/* BOTÃO LANÇAR VENDAS */}
+      <button
+        onClick={() => setModalVendasAberto(true)}
+        className="group flex w-full items-center justify-between gap-3 rounded-xl border-2 border-emerald-300 bg-gradient-to-r from-emerald-50 to-green-50 p-4 shadow-sm transition hover:border-emerald-500 hover:shadow-md dark:border-emerald-700 dark:from-emerald-950/30 dark:to-green-950/30"
+      >
+        <div className="flex items-center gap-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 transition group-hover:scale-110">
+            <DollarSign className="h-6 w-6" />
+          </div>
+          <div className="text-left">
+            <p className="font-bold text-slate-800 dark:text-slate-100">Lançar Vendas Diárias</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Registre seu faturamento, clientes e observações do dia</p>
+          </div>
+        </div>
+        <div className="rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm group-hover:bg-emerald-500">
+          Abrir →
+        </div>
+      </button>
+
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <KpiCard label="Meta Mensal" value={<CountUp value={totalMeta} prefix="R$ " />} icon={Target} />
         <KpiCard label="Realizado" value={<CountUp value={totalRealizado} prefix="R$ " />} icon={TrendingUp} />
@@ -86,6 +108,27 @@ export default function DashboardView() {
         </div>
       )}
       <MotivationalFooter />
+
+      {/* MODAL LANÇAR VENDAS */}
+      <ModalLancarVendas
+        aberto={modalVendasAberto}
+        onClose={() => setModalVendasAberto(false)}
+        onSalvou={() => {
+          // Recarregar metas após lançar venda
+          if (usuario) {
+            (async () => {
+              try {
+                const { data } = await (supabase as any)
+                  .from("metas_individuais")
+                  .select("*")
+                  .eq("usuario_id", usuario.id)
+                  .order("categoria, periodo");
+                setMetas(data || []);
+              } catch {}
+            })();
+          }
+        }}
+      />
     </motion.div>
   );
 }
