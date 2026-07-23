@@ -14,7 +14,7 @@ export interface Permissao {
   exportar: boolean;
 }
 
-export type NavbarVariant = "pill" | "bottom-dock" | "sidebar-float" | "top-minimal";
+export type NavbarVariant = "pill" | "pill-capsule" | "bottom-dock" | "sidebar-float" | "top-minimal";
 
 export interface Usuario {
   id: string;

@@ -8,6 +8,7 @@ import {
   NavbarSidebarFloat,
   NavbarTopMinimal,
 } from "./components/navbars/NavbarVariants";
+import PillNavBar from "./components/navbars/PillNavBar";
 import Topbar from "./components/Topbar";
 import QuickAccessLauncher from "./components/QuickAccessLauncher";
 import IAAssistantFAB from "./components/IAAssistantFAB";
@@ -172,6 +173,8 @@ export default function OrionApp() {
         return <NavbarSidebarFloat paginaAtual={paginaEfetiva} onNavegar={setPagina} />;
       case "top-minimal":
         return <NavbarTopMinimal paginaAtual={paginaEfetiva} onNavegar={setPagina} />;
+      case "pill-capsule":
+        return <PillNavBar paginaAtual={paginaEfetiva} onNavegar={setPagina} />;
       default:
         return <OrionNavBar paginaAtual={paginaEfetiva} onNavegar={setPagina} />;
     }
