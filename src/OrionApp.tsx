@@ -111,11 +111,10 @@ export default function OrionApp() {
     usuario?.perfil === "vendedor" && !paginasVendedor.includes(pagina) ? "dashboard" : pagina;
 
   const renderPagina = () => {
-    // Se admin/gerente está impersonando um vendedor, mostra o dashboard do vendedor
-    if (estaImpersonando) {
-      // Em modo impersonate, qualquer página vira o dashboard do vendedor
-      return <DashboardView />;
-    }
+    // Nota: quando admin/gerente está impersonando um vendedor, usuario.perfil
+    // passa a ser "vendedor", então o switch abaixo já renderiza as páginas
+    // do vendedor naturalmente (DashboardView, MinhasMetasPage, RankingView, etc.)
+    // O banner amarelo + botão "Voltar" continuam visíveis no topo.
     switch (paginaEfetiva) {
       case "dashboard":
         // Admin/gerente vê painel da equipe; vendedor vê dashboard próprio

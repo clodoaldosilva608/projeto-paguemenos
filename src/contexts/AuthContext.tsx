@@ -105,6 +105,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    // Limpar qualquer estado de impersonate persistido (não restauramos
+    // automaticamente após reload — admin precisa clicar em "Acessar como" de novo)
+    try {
+      window.localStorage.removeItem("orion-impersonate-userid");
+    } catch {}
+
     const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
       setSession(s);
       // hidratação assíncrona fora do callback (evita deadlock)
