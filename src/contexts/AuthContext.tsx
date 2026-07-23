@@ -9,6 +9,7 @@ import { useServerFn } from "@tanstack/react-start";
 
 interface AuthContexto {
   usuario: Usuario | null;
+  usuarioOriginal: Usuario | null; // admin original quando impersonating
   session: Session | null;
   autenticado: boolean;
   carregando: boolean;
@@ -22,6 +23,10 @@ interface AuthContexto {
   // Compat com Topbar antigo; agora no-op (perfil real vem do banco)
   trocarPerfil: (perfil: Perfil) => void;
   perfisDisponiveis: Perfil[];
+  // Modo impersonate: admin/gerente assume identidade de um vendedor sem novo login
+  impersonarVendedor: (userId: string, nome: string) => Promise<void>;
+  voltarParaAdmin: () => void;
+  estaImpersonando: boolean;
 }
 
 const AuthCtx = createContext<AuthContexto | undefined>(undefined);
@@ -84,6 +89,7 @@ async function carregarUsuario(session: Session | null): Promise<Usuario | null>
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [usuario, setUsuario] = useState<Usuario | null>(null);
+  const [usuarioOriginal, setUsuarioOriginal] = useState<Usuario | null>(null);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
   const criarUsuario = useServerFn(criarUsuarioConfirmado);
@@ -175,10 +181,60 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refresh = useCallback(async () => { await hidratar(session); }, [hidratar, session]);
 
+  // ===== IMPERSONATE =====
+  // Admin/gerente assume a identidade de um vendedor para acessar dashboards sem novo login
+  const impersonarVendedor = useCallback(async (userId: string, _nome: string) => {
+    if (!usuario) return;
+    // Só admin ou gerente pode impersonar
+    if (usuario.perfil !== "admin" && usuario.perfil !== "gerente") {
+      throw new Error("Sem permissão para acessar como outro usuário");
+    }
+    // Guardar usuário original (apenas se ainda não estiver impersonando)
+    if (!usuarioOriginal) {
+      setUsuarioOriginal(usuario);
+    }
+    // Buscar dados do vendedor alvo
+    const { data: profile } = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle();
+    if (!profile) throw new Error("Vendedor não encontrado");
+    // Montar novo usuário (preserva session original)
+    const novoUsuario: Usuario = {
+      ...usuario,
+      id: userId,
+      nome: profile.nome || _nome,
+      email: profile.email || "",
+      iniciais: profile.iniciais || iniciaisDe(profile.nome || _nome),
+      perfil: "vendedor",
+      ativo: profile.ativo ?? true,
+      filialId: profile.filial_id || undefined,
+      permissoes: gerarPermissoes("vendedor"),
+    };
+    setUsuario(novoUsuario);
+    // Persistir em localStorage para restaurar após reload
+    try {
+      window.localStorage.setItem("orion-impersonate-userid", userId);
+    } catch {}
+  }, [usuario, usuarioOriginal]);
+
+  const voltarParaAdmin = useCallback(() => {
+    if (usuarioOriginal) {
+      setUsuario(usuarioOriginal);
+      setUsuarioOriginal(null);
+      try {
+        window.localStorage.removeItem("orion-impersonate-userid");
+        window.localStorage.setItem("orion-page", "dashboard");
+      } catch {}
+    }
+  }, [usuarioOriginal]);
+
+  // Restaurar impersonate após reload (se admin original ainda está logado)
+  // Mas isso só funciona se tivermos como saber quem é o admin — usamos session.user.id
+  // Para simplicidade, não restauramos automaticamente (admin precisa clicar em "Voltar" antes de reload)
+
   return (
     <AuthCtx.Provider
       value={{
         usuario,
+        usuarioOriginal,
         session,
         autenticado: !!usuario,
         carregando,
@@ -191,6 +247,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         refresh,
         trocarPerfil: (perfil: Perfil) => { if (usuario) { const u = { ...usuario, perfil, permissoes: gerarPermissoes(perfil) }; setUsuario(u); } },
         perfisDisponiveis: (usuario?.perfil === "admin" ? ["admin", "vendedor"] : [usuario?.perfil || "vendedor"]) as Perfil[],
+        impersonarVendedor,
+        voltarParaAdmin,
+        estaImpersonando: !!usuarioOriginal,
       }}
     >
       {children}

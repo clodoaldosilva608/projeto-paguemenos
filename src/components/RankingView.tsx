@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { brlMoeda, pct } from "../utils/format";
-import { Trophy, Loader2, Target } from "lucide-react";
+import { Trophy, Loader2, Target, TrendingUp } from "lucide-react";
 
 export default function RankingView() {
   const { usuario } = useAuth();
@@ -39,6 +39,8 @@ export default function RankingView() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {metas.map((m, i) => {
           const pctVal = m.valor_meta > 0 ? (m.valor_realizado / m.valor_meta) * 100 : 0;
+          const projecao = Number(m.valor_projecao || 0);
+          const projPct = m.valor_meta > 0 && projecao > 0 ? (projecao / m.valor_meta) * 100 : 0;
           return (
             <motion.div key={m.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
               className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -49,8 +51,26 @@ export default function RankingView() {
               <div className="mt-3 space-y-1 text-sm">
                 <div className="flex justify-between"><span className="text-slate-500">Meta:</span><span className="font-semibold">{brlMoeda(m.valor_meta)}</span></div>
                 <div className="flex justify-between"><span className="text-slate-500">Realizado:</span><span className="font-semibold text-emerald-600">{brlMoeda(m.valor_realizado)}</span></div>
+                {projecao > 0 && (
+                  <div className="flex justify-between border-t border-slate-100 pt-1">
+                    <span className="flex items-center gap-1 text-slate-500"><TrendingUp className="h-3 w-3" /> Projeção:</span>
+                    <span className={`font-semibold ${projPct >= 100 ? "text-emerald-600" : "text-blue-600"}`}>
+                      {brlMoeda(projecao)} <span className="text-[10px] font-normal text-slate-400">({projPct.toFixed(1)}%)</span>
+                    </span>
+                  </div>
+                )}
               </div>
-              <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100"><div className={`h-full rounded-full ${pctVal >= 100 ? "bg-emerald-500" : pctVal >= 50 ? "bg-amber-500" : "bg-red-500"}`} style={{ width: `${Math.min(100, pctVal)}%` }} /></div>
+              <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100">
+                <div className={`h-full rounded-full ${pctVal >= 100 ? "bg-emerald-500" : pctVal >= 50 ? "bg-amber-500" : "bg-red-500"}`} style={{ width: `${Math.min(100, pctVal)}%` }} />
+                {/* Marcador de projeção */}
+                {projecao > 0 && (
+                  <div
+                    className="relative -mt-2 h-2 w-0.5 bg-slate-700 dark:bg-white"
+                    style={{ marginLeft: `calc(${Math.min(100, projPct)}% - 1px)`, position: "relative", top: "-8px" }}
+                    title={`Projeção: ${projPct.toFixed(1)}%`}
+                  />
+                )}
+              </div>
             </motion.div>
           );
         })}
@@ -58,3 +78,4 @@ export default function RankingView() {
     </motion.div>
   );
 }
+

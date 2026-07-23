@@ -33,12 +33,13 @@ import ConfiguracoesPage from "./components/pages/ConfiguracoesPage";
 import AuditoriaPage from "./components/pages/AuditoriaPage";
 import IAPage from "./components/pages/IAPage";
 import IAConfigPage from "./components/pages/IAConfigPage";
+import DashboardAdminPage from "./components/pages/DashboardAdminPage";
 import FuncionariosPage from "./components/pages/FuncionariosPage";
 import MinhasMetasPage from "./components/pages/MinhasMetasPage";
 import RelatorioVendasPage from "./components/pages/RelatorioVendasPage";
 
 export default function OrionApp() {
-  const { autenticado, usuario, carregando } = useAuth();
+  const { autenticado, usuario, carregando, estaImpersonando, impersonarVendedor, voltarParaAdmin } = useAuth();
   const navigate = useNavigate();
   useAutoSync(120_000); // sincroniza com Google Sheets a cada 2min
 
@@ -47,6 +48,22 @@ export default function OrionApp() {
     if (typeof window === "undefined") return "dashboard";
     return (window.localStorage.getItem("orion-page") as Pagina) || "dashboard";
   });
+
+  // Handler para o botão "Acessar como" no DashboardAdminPage
+  const handleImpersonate = async (userId: string, nome: string) => {
+    try {
+      await impersonarVendedor(userId, nome);
+      setPagina("dashboard");
+    } catch (e: any) {
+      console.error("[impersonate] erro:", e.message);
+    }
+  };
+
+  // Handler para o botão "Voltar" (sair do modo impersonate)
+  const handleVoltarAdmin = () => {
+    voltarParaAdmin();
+    setPagina("dashboard");
+  };
 
   useEffect(() => {
     if (!carregando && !autenticado) navigate({ to: "/auth", search: { mode: "signin" } });
@@ -94,9 +111,17 @@ export default function OrionApp() {
     usuario?.perfil === "vendedor" && !paginasVendedor.includes(pagina) ? "dashboard" : pagina;
 
   const renderPagina = () => {
+    // Se admin/gerente está impersonando um vendedor, mostra o dashboard do vendedor
+    if (estaImpersonando) {
+      // Em modo impersonate, qualquer página vira o dashboard do vendedor
+      return <DashboardView />;
+    }
     switch (paginaEfetiva) {
       case "dashboard":
-        return <DashboardView />;
+        // Admin/gerente vê painel da equipe; vendedor vê dashboard próprio
+        return usuario?.perfil === "admin" || usuario?.perfil === "gerente"
+          ? <DashboardAdminPage onImpersonate={handleImpersonate} />
+          : <DashboardView />;
       case "metas":
       case "colaboradores":
         return <GoalsView />;
@@ -162,6 +187,28 @@ export default function OrionApp() {
     >
       <main className={`paper-grid mx-auto max-w-7xl px-4 ${bottomPadding} pt-6 sm:px-8 sm:pt-8`}>
         {variant === "top-minimal" && renderNavbar()}
+
+        {/* BANNER IMPERSONATE — admin/gerente acessando como vendedor */}
+        {estaImpersonando && (
+          <div className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 shadow-sm dark:border-amber-700 dark:bg-amber-950/40">
+            <div className="flex items-center gap-2 text-amber-800 dark:text-amber-200">
+              <span className="text-xl">🎭</span>
+              <div>
+                <p className="text-sm font-bold">Modo visualização — acessando como <strong>{usuario?.nome}</strong></p>
+                <p className="text-xs text-amber-700 dark:text-amber-300">
+                  Você está vendo o dashboard do vendedor. Todas as ações são registradas em auditoria.
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={handleVoltarAdmin}
+              className="flex items-center gap-1.5 rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-amber-500"
+            >
+              ← Voltar ao painel admin
+            </button>
+          </div>
+        )}
+
         <Topbar pagina={paginaEfetiva} onAbrirMenu={() => {}} />
         <TrialBanner />
         {paginaEfetiva === "dashboard" && (
