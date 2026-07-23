@@ -1,8 +1,33 @@
 -- =====================================================================
--- Migration: Configuração da IA
--- Cria tabelas ai_config, ai_logs, ai_prompt_versions para gerenciar
--- dinamicamente provedor, modelo, prompts, chaves, estilo e auditoria.
+-- Migration: Configuração da IA (versão autocontida)
+-- Cria tabelas ai_config, ai_logs, ai_prompt_versions + função has_role
 -- =====================================================================
+
+-- 0) Função auxiliar has_role (cria se não existir)
+-- A coluna role em user_roles é do tipo app_role (enum), por isso precisamos do cast.
+CREATE OR REPLACE FUNCTION public.has_role(_role text, _user_id uuid)
+RETURNS boolean
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.user_roles
+    WHERE user_id = _user_id AND role = (_role::app_role)
+  );
+$$;
+
+CREATE OR REPLACE FUNCTION public.has_any_role(_roles text[], _user_id uuid)
+RETURNS boolean
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.user_roles
+    WHERE user_id = _user_id AND role = ANY(_roles::app_role[])
+  );
+$$;
 
 -- 1) Tabela principal de configuração da IA (single-row ativa)
 CREATE TABLE IF NOT EXISTS public.ai_config (
@@ -16,13 +41,13 @@ CREATE TABLE IF NOT EXISTS public.ai_config (
   -- Card 4 — Modelo
   model text NOT NULL DEFAULT 'google/gemini-2.5-flash',
 
-  -- URL base do provedor (OpenAI/Anthropic/Azure/OpenRouter têm endpoints diferentes)
+  -- URL base do provedor
   base_url text NOT NULL DEFAULT 'https://ai.gateway.lovable.dev/v1/chat/completions',
 
-  -- Link do painel do provedor (documentação)
+  -- Link do painel do provedor
   provider_panel_url text NOT NULL DEFAULT 'https://lovable.dev',
 
-  -- Card 2 — Chave da API (mascarada em leitura)
+  -- Card 2 — Chave da API
   api_key_ciphertext text,
 
   -- Card 5 — Prompt Mestre (system prompt)
@@ -130,22 +155,22 @@ ALTER TABLE public.ai_logs ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS ai_config_admin_all ON public.ai_config;
 CREATE POLICY ai_config_admin_all ON public.ai_config
   FOR ALL TO authenticated
-  USING (has_role('admin', auth.uid()))
-  WITH CHECK (has_role('admin', auth.uid()));
+  USING (public.has_role('admin'::text, auth.uid()))
+  WITH CHECK (public.has_role('admin'::text, auth.uid()));
 
 -- ai_prompt_versions: apenas admin
 DROP POLICY IF EXISTS ai_prompt_versions_admin_all ON public.ai_prompt_versions;
 CREATE POLICY ai_prompt_versions_admin_all ON public.ai_prompt_versions
   FOR ALL TO authenticated
-  USING (has_role('admin', auth.uid()))
-  WITH CHECK (has_role('admin', auth.uid()));
+  USING (public.has_role('admin'::text, auth.uid()))
+  WITH CHECK (public.has_role('admin'::text, auth.uid()));
 
 -- ai_logs: admin vê todos, usuário comum vê apenas os próprios
 DROP POLICY IF EXISTS ai_logs_admin_all ON public.ai_logs;
 CREATE POLICY ai_logs_admin_all ON public.ai_logs
   FOR ALL TO authenticated
-  USING (has_role('admin', auth.uid()))
-  WITH CHECK (has_role('admin', auth.uid()));
+  USING (public.has_role('admin'::text, auth.uid()))
+  WITH CHECK (public.has_role('admin'::text, auth.uid()));
 
 DROP POLICY IF EXISTS ai_logs_owner_select ON public.ai_logs;
 CREATE POLICY ai_logs_owner_select ON public.ai_logs
