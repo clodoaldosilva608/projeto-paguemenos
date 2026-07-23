@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { gerarRespostaDemo } from "./ia-config.functions";
 
 const MsgSchema = z.object({
   role: z.enum(["system", "user", "assistant"]),
@@ -39,7 +40,32 @@ export const chatIA = createServerFn({ method: "POST" })
       // Tabela pode não existir ainda (antes da migration) — usa fallback
     }
 
-    // 2) Determinar chave: banco > env
+    // 2) 🔬 MODO DEMO — sem API externa
+    if (cfg?.provider === "demo") {
+      const t0 = Date.now();
+      await new Promise((r) => setTimeout(r, 800 + Math.random() * 700));
+      const tempo_ms = Date.now() - t0;
+      const ultimaMsg = data.messages[data.messages.length - 1];
+      const resposta = gerarRespostaDemo(ultimaMsg?.content || "", cfg);
+      // Log de uso
+      try {
+        await supabaseAdmin.from("ai_logs").insert({
+          user_id: context.userId,
+          user_email: context.claims?.email,
+          pergunta: (ultimaMsg?.content || "").slice(0, 2000),
+          resposta: resposta.slice(0, 5000),
+          tempo_ms,
+          modelo: cfg.model,
+          provedor: cfg.provider,
+          status: "ok",
+        });
+      } catch {
+        // tabela pode não existir — ignora
+      }
+      return { text: resposta };
+    }
+
+    // 3) Determinar chave: banco > env
     const apiKey = cfg?.api_key_ciphertext || process.env.LOVABLE_API_KEY;
     if (!apiKey)
       throw new Error("Nenhuma API key configurada. Acesse Configuração da IA no painel admin.");

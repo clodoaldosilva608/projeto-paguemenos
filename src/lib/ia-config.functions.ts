@@ -50,8 +50,44 @@ function maskApiKey(key: string | null | undefined): string {
   return "•".repeat(8) + key.slice(-4);
 }
 
+// 🔬 Gerador de resposta demo — simula uma IA real baseada no prompt + pergunta
+export function gerarRespostaDemo(pergunta: string, cfg: any): string {
+  const p = pergunta.toLowerCase().trim();
+  const estilo = `Tom: ${cfg.tom} | Detalhes: ${cfg.nivel_detalhes} | Idioma: ${cfg.idioma}`;
+
+  // Respostas contextuais baseadas em palavras-chave comuns em farmácia
+  if (/metas?|vendas?|faturamento/.test(p)) {
+    return `[🔬 MODO DEMO — ${estilo}]\n\nPara impulsionar suas metas de vendas, recomendo focar em 3 pilares:\n\n1. **Ticket médio** — Treine a equipe para oferecer produtos complementares (cross-sell). Ex: cliente que compra vitamina → ofereça vitamina C + ômega 3.\n\n2. **Conversão** — A cada 10 clientes que entram, quantos compram? Capacite a equipe com roteiros de atendimento (Atendimento de Coração: Receber → Atender → Fidelizar).\n\n3. **Mix de produtos** — Trabalhe marcas exclusivas e genéricos com maior margem. Análise de curva ABC mensal.\n\n📊 Dica: defina metas diárias individuais (não só mensais) para criar senso de urgência e acompanhamento próximo.\n\n⚠️ Nota: Esta resposta foi gerada pelo modo demonstração. Para respostas com dados reais do seu banco, configure um provedor real (OpenAI, Anthropic, OpenRouter) no Card 3.`;
+  }
+
+  if (/treinamento|capacita/.test(p)) {
+    return `[🔬 MODO DEMO — ${estilo}]\n\n**Plano de treinamento sugerido para a equipe de farmácia:**\n\n**Semanal (30 min):**\n- Revisão de metas individuais\n- Estudo de 1 categoria farmacêutica (ex: anti-hipertensivos)\n- Role-play de atendimento (Atendimento de Coração)\n\n**Mensal (2h):**\n- Análise de resultados do período\n- Treinamento de novo produto/linha\n- Workshops de vendas consultivas\n\n**Trimestral:**\n- Avaliação 360° entre pares\n- Reciclagem de boas práticas farmacêuticas\n- Atualização sobre regulamentações ANVISA\n\n⚠️ Esta resposta foi gerada pelo modo demonstração.`;
+  }
+
+  if (/estoque|inventario/.test(p)) {
+    return `[🔬 MODO DEMO — ${estilo}]\n\n**Gestão de estoque em farmácia — melhores práticas:**\n\n1. **Curva ABC** — Classifique produtos por giro financeiro (A = 80% do faturamento, B = 15%, C = 5%)\n2. **Estoque mínimo** — Defina ponto de reposição por produto\n3. **Giro de estoque** — Monitore produtos parados (>90 dias sem venda)\n4. **Validade** - Alerta 90/60/30 dias antes do vencimento\n5. **Inventário rotativo** - 1 categoria por semana em vez de inventário geral anual\n\n⚠️ Modo demonstração ativo.`;
+  }
+
+  if (/cliente|atendimento|fideliza/.test(p)) {
+    return `[🔬 MODO DEMO — ${estilo}]\n\n**Atendimento de Coração — metodologia Pague Menos:**\n\n**1. RECEBER** 🤝\n- Vá até o cliente (não espere vir até você)\n- Sorria e olhe nos olhos\n- Apresente-se pelo nome\n\n**2. ATENDER** 💊\n- Chame o cliente pelo nome\n- Pergunte sobre a necessidade real\n- Ofereça soluções (não apenas produtos)\n- Explique benefícios (não só features)\n\n**3. FIDELIZAR** ❤️\n- No caixa, pergunte: "Foi tudo bem?"\n- Informe descontos e programas de fidelidade\n- Acompanhe até a saída\n- "Conte sempre com a Pague Menos"\n\n⚠️ Modo demonstração ativo.`;
+  }
+
+  if (/oi|olá|ola|bom dia|boa tarde|boa noite|hello/.test(p)) {
+    return `[🔬 MODO DEMO — ${estilo}]\n\nOlá! 👋 Sou o assistente IA do Orion, especializado em gestão farmacêutica da Pague Menos.\n\nPosso ajudar com:\n- 📊 Metas e indicadores de vendas\n- 👥 Gestão de equipe e treinamentos\n- 💊 Atendimento ao cliente e fidelização\n- 📦 Gestão de estoque\n- 🏪 Performance por filial\n\n⚠️ Estou rodando em modo demonstração. Configure um provedor real no Card 3 para respostas com IA generativa.`;
+  }
+
+  // Resposta padrão
+  return `[🔬 MODO DEMO — ${estilo}]\n\nRecebi sua pergunta: "${pergunta}"\n\nComo estou em modo demonstração, não tenho acesso a dados reais nem a um modelo de IA generativa. Mas toda a infraestrutura está funcionando corretamente:\n\n✅ Config carregada do banco\n✅ System prompt aplicado\n✅ Especialização aplicada\n✅ Estilo aplicado (${cfg.tom})\n✅ Log registrado em ai_logs\n✅ Auditoria registrada\n\nPara respostas reais, configure um provedor no Card 3 (OpenAI, Anthropic, OpenRouter, Google Gemini) com uma chave de API válida.`;
+}
+
 // Catálogo de provedores (Card 3 + Card 4)
 export const PROVIDERS = {
+  demo: {
+    label: "🔬 Modo Demonstração (sem API externa)",
+    panel_url: "#",
+    base_url: "internal://demo",
+    models: ["demo-local-v1"],
+  },
   lovable: {
     label: "Lovable (gateway padrão)",
     panel_url: "https://lovable.dev",
@@ -143,7 +179,7 @@ export const obterIAConfig = createServerFn({ method: "GET" })
 // 2) Salvar config (Card 2-7)
 // ------------------------------------------------------------------
 const configSchema = z.object({
-  provider: z.enum(["lovable", "openai", "google", "anthropic", "azure", "openrouter"]),
+  provider: z.enum(["demo", "lovable", "openai", "google", "anthropic", "azure", "openrouter"]),
   model: z.string().min(1).max(120),
   base_url: z.string().max(500).optional(),
   provider_panel_url: z.string().max(500).optional(),
@@ -306,6 +342,35 @@ export const testarConexaoIA = createServerFn({ method: "POST" })
       return { ok: false, erro: "Nenhuma configuração ativa encontrada." };
     }
 
+    // 🔬 MODO DEMO — responde localmente sem chamar API externa
+    if (cfg.provider === "demo") {
+      const t0 = Date.now();
+      await new Promise((r) => setTimeout(r, 200)); // simular latência
+      const tempo_ms = Date.now() - t0;
+      await supabaseAdmin
+        .from("ai_config")
+        .update({
+          status: "conectado",
+          last_error: null,
+          last_validation: new Date().toISOString(),
+          last_tested_by: context.userId,
+        })
+        .eq("id", cfg.id);
+      await logAudit(supabaseAdmin, {
+        actor_user_id: context.userId,
+        actor_email: context.claims?.email,
+        action: "ia_config.testar_conexao",
+        entity: "ai_config",
+        entity_id: cfg.id,
+        after: { status: "conectado", tempo_ms, modo: "demo" },
+      });
+      return {
+        ok: true,
+        tempo_ms,
+        response_preview: "pong (modo demonstração)",
+      };
+    }
+
     const apiKey = cfg.api_key_ciphertext || process.env.LOVABLE_API_KEY;
     if (!apiKey) {
       return { ok: false, erro: "Nenhuma API key configurada nem LOVABLE_API_KEY no ambiente." };
@@ -391,8 +456,8 @@ export const testarConexaoIA = createServerFn({ method: "POST" })
 // 4) Validar chave (Card 2 — botão Validar)
 // ------------------------------------------------------------------
 const validarChaveSchema = z.object({
-  provider: z.enum(["lovable", "openai", "google", "anthropic", "azure", "openrouter"]),
-  api_key: z.string().min(10).max(500),
+  provider: z.enum(["demo", "lovable", "openai", "google", "anthropic", "azure", "openrouter"]),
+  api_key: z.string().min(1).max(500),
   base_url: z.string().optional(),
   model: z.string().optional(),
 });
@@ -406,6 +471,14 @@ export const validarChaveIA = createServerFn({ method: "POST" })
     const prov = PROVIDERS[data.provider as AIProvider];
     const base_url = data.base_url || prov.base_url;
     const model = data.model || prov.models[0];
+
+    // 🔬 MODO DEMO — sempre válido sem chamar API externa
+    if (data.provider === "demo") {
+      return {
+        ok: true,
+        mensagem: "✅ Modo demonstração ativado — nenhuma chave necessária.",
+      };
+    }
 
     if (!base_url) {
       return { ok: false, erro: "URL base não configurada para este provedor." };
@@ -464,6 +537,34 @@ export const testarChatIA = createServerFn({ method: "POST" })
 
     if (!cfg) {
       return { ok: false, erro: "Nenhuma configuração ativa encontrada." };
+    }
+
+    // 🔬 MODO DEMO — gera resposta local baseada no prompt + pergunta
+    if (cfg.provider === "demo") {
+      const t0 = Date.now();
+      await new Promise((r) => setTimeout(r, 800 + Math.random() * 700)); // simular latência realista
+      const tempo_ms = Date.now() - t0;
+
+      const resposta = gerarRespostaDemo(data.pergunta, cfg);
+
+      await supabaseAdmin.from("ai_logs").insert({
+        user_id: context.userId,
+        user_email: context.claims?.email,
+        pergunta: data.pergunta,
+        resposta,
+        tempo_ms,
+        modelo: cfg.model,
+        provedor: cfg.provider,
+        status: "ok",
+      });
+
+      return {
+        ok: true,
+        resposta,
+        tempo_ms,
+        modelo: cfg.model,
+        provedor: cfg.provider,
+      };
     }
 
     const apiKey = cfg.api_key_ciphertext || process.env.LOVABLE_API_KEY;
