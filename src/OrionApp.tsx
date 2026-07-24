@@ -44,7 +44,7 @@ export default function OrionApp() {
   });
 
   useEffect(() => {
-    if (!carregando && !autenticado) navigate({ to: "/auth" });
+    if (!carregando && !autenticado) navigate({ to: "/auth", search: { mode: "signin" } });
   }, [autenticado, carregando, navigate]);
 
   // Onboarding guard: se ainda não completou, envia para /welcome

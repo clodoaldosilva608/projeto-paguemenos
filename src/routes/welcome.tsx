@@ -72,7 +72,7 @@ function WelcomePage() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (!carregando && !autenticado) navigate({ to: "/auth" });
+    if (!carregando && !autenticado) navigate({ to: "/auth", search: { mode: "signin" } });
     if (usuario) { setNome(usuario.nome || ""); setTelefone(usuario.telefone ? maskTelBR(usuario.telefone) : ""); }
   }, [autenticado, carregando, usuario, navigate]);
 

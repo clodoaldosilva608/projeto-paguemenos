@@ -6,6 +6,7 @@ export default defineConfig({
     nitro: { preset: "vercel" },
   },
   vite: {
+    build: { rollupOptions: {} },
     server: {
       allowedHosts: true,
       host: "0.0.0.0",
