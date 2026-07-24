@@ -211,25 +211,39 @@ export default function ConfiguracoesPage() {
             </div>
 
             <div className="border-t border-slate-100 pt-5 dark:border-slate-800">
-              <h4 className="mb-1 text-sm font-bold text-slate-800 dark:text-white">Estilo de navegação</h4>
-              <p className="mb-3 text-xs text-slate-500 dark:text-slate-400">Escolha como a barra de navegação principal deve aparecer.</p>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <h4 className="mb-1 text-sm font-bold text-slate-800 dark:text-white">📱 Configuração de Tela</h4>
+              <p className="mb-3 text-xs text-slate-500 dark:text-slate-400">
+                Personalize sua dashboard — escolha o estilo de navegação que melhor se adapta ao seu fluxo de trabalho.
+              </p>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {([
-                  { v: "pill", nome: "Guidão flutuante", desc: "Pílula com ícone central em destaque", preview: <NavPreviewPill /> },
-                  { v: "bottom-dock", nome: "Dock inferior", desc: "Estilo dock iOS com blur", preview: <NavPreviewDock /> },
-                  { v: "sidebar-float", nome: "Lateral flutuante", desc: "Vertical minimal (desktop)", preview: <NavPreviewSidebar /> },
-                  { v: "top-minimal", nome: "Topo minimal", desc: "Barra superior com underline", preview: <NavPreviewTop /> },
+                  // Originais
+                  { v: "pill", nome: "Guidão flutuante", desc: "Pílula com ícone central em destaque", preview: <NavPreviewPill />, cat: "Clássico" },
+                  { v: "bottom-dock", nome: "Dock inferior", desc: "Estilo dock iOS com blur", preview: <NavPreviewDock />, cat: "Clássico" },
+                  { v: "sidebar-float", nome: "Lateral flutuante", desc: "Vertical minimal (desktop)", preview: <NavPreviewSidebar />, cat: "Clássico" },
+                  { v: "top-minimal", nome: "Topo minimal", desc: "Barra superior com underline", preview: <NavPreviewTop />, cat: "Clássico" },
+                  // Novos 7 estilos premium
+                  { v: "nav-bottom-flutuante", nome: "Cápsula Flutuante ⭐", desc: "Bottom nav com menu radial expansível (glassmorphism)", preview: <NavPreviewCapsule />, cat: "Premium" },
+                  { v: "nav-fab-inteligente", nome: "FAB Inteligente ⭐", desc: "Botão flutuante com menu circular adaptável por perfil", preview: <NavPreviewFAB />, cat: "Premium" },
+                  { v: "nav-perfil-dinamico", nome: "Nav por Perfil ⭐", desc: "Menu muda automaticamente conforme perfil do usuário", preview: <NavPreviewPerfil />, cat: "Premium" },
+                  { v: "nav-dock-animado", nome: "Dock Animado (macOS)", desc: "Ícones crescem ao passar o mouse (efeito magnify)", preview: <NavPreviewDockAnimado />, cat: "Premium" },
+                  { v: "nav-morphing", nome: "Nav Morphing ⭐", desc: "Barra se transforma em grid completo ao tocar em Menu", preview: <NavPreviewMorph />, cat: "Premium" },
+                  { v: "nav-quick-actions", nome: "Quick Actions", desc: "Botão central muda conforme página atual (contexto)", preview: <NavPreviewQuick />, cat: "Premium" },
+                  { v: "nav-inteligente", nome: "Nav Inteligente", desc: "Barra se oculta ao rolar para baixo, reaparece ao subir", preview: <NavPreviewSmart />, cat: "Premium" },
                 ] as const).map((opt) => {
                   const ativo = variantAtual === opt.v;
                   return (
                     <button key={opt.v} type="button" onClick={() => trocarNavbar(opt.v as NavbarVariant)}
                       className={cn(
-                        "group flex flex-col gap-2 rounded-xl border p-3 text-left transition",
+                        "group relative flex flex-col gap-2 rounded-xl border p-3 text-left transition",
                         ativo
                           ? "border-blue-500 bg-blue-50 shadow-md ring-2 ring-blue-500/30 dark:bg-blue-500/10"
                           : "border-slate-200 bg-white hover:border-blue-400 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800"
                       )}>
-                      <div className="flex h-16 items-end justify-center rounded-lg bg-slate-100 p-2 dark:bg-slate-950">{opt.preview}</div>
+                      <span className="absolute left-2 top-2 rounded-full bg-slate-100 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider text-slate-500 dark:bg-slate-700 dark:text-slate-300">
+                        {opt.cat}
+                      </span>
+                      <div className="mt-3 flex h-16 items-end justify-center rounded-lg bg-slate-100 p-2 dark:bg-slate-950">{opt.preview}</div>
                       <div>
                         <p className="text-xs font-bold text-slate-800 dark:text-white">{opt.nome}</p>
                         <p className="text-[10px] text-slate-500 dark:text-slate-400">{opt.desc}</p>
@@ -285,6 +299,85 @@ function NavPreviewTop() {
         ))}
       </div>
       <div className="h-3 w-2/3 rounded bg-slate-300/40" />
+    </div>
+  );
+}
+
+// ===== Previews dos 7 novos estilos premium =====
+
+function NavPreviewCapsule() {
+  return (
+    <div className="flex items-end gap-1">
+      {[0,1].map((i) => <div key={i} className="h-5 w-4 rounded-full bg-slate-400/60" />)}
+      <div className="-mt-2 h-7 w-7 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 shadow-md ring-2 ring-white/30" />
+      {[0,1].map((i) => <div key={i} className="h-5 w-4 rounded-full bg-slate-400/60" />)}
+    </div>
+  );
+}
+
+function NavPreviewFAB() {
+  return (
+    <div className="relative flex h-12 w-full items-center justify-end">
+      <div className="absolute right-0 flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 shadow-md">
+        <span className="text-[8px] text-white">+</span>
+      </div>
+      <div className="absolute right-6 top-0 h-3 w-3 rounded-full bg-amber-400" />
+      <div className="absolute right-12 top-1 h-2 w-2 rounded-full bg-blue-300" />
+    </div>
+  );
+}
+
+function NavPreviewPerfil() {
+  return (
+    <div className="flex w-full gap-0.5 rounded-md bg-slate-200/50 p-0.5">
+      {[0,1,2,3].map((i) => (
+        <div key={i} className={`h-4 flex-1 rounded ${i===0?"bg-blue-600":"bg-slate-400/60"}`} />
+      ))}
+    </div>
+  );
+}
+
+function NavPreviewDockAnimado() {
+  return (
+    <div className="flex items-end gap-1 rounded-md bg-white/40 p-1 backdrop-blur">
+      {[5,6,7,6,5].map((h, i) => (
+        <div
+          key={i}
+          className={`w-3 rounded ${i===2?"bg-gradient-to-br from-blue-500 to-indigo-600":"bg-slate-400/60"}`}
+          style={{ height: `${h * 2}px` }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function NavPreviewMorph() {
+  return (
+    <div className="flex w-full gap-0.5">
+      {[0,1,2].map((i) => <div key={i} className="h-4 flex-1 rounded bg-slate-400/60" />)}
+      <div className="h-4 w-4 rounded bg-slate-600" />
+    </div>
+  );
+}
+
+function NavPreviewQuick() {
+  return (
+    <div className="flex w-full items-end gap-0.5">
+      {[0,1,2].map((i) => <div key={i} className="h-4 flex-1 rounded bg-slate-400/60" />)}
+      <div className="h-6 w-6 rounded bg-gradient-to-br from-emerald-500 to-teal-600 shadow-md" />
+    </div>
+  );
+}
+
+function NavPreviewSmart() {
+  return (
+    <div className="flex w-full flex-col items-center gap-1">
+      <div className="flex gap-1 rounded-md bg-slate-900/80 p-0.5">
+        {[0,1,2,3].map((i) => (
+          <div key={i} className={`h-3 w-3 rounded ${i===0?"bg-blue-500":"bg-slate-500"}`} />
+        ))}
+      </div>
+      <div className="text-[7px] font-bold uppercase text-slate-400">oculta ao rolar</div>
     </div>
   );
 }

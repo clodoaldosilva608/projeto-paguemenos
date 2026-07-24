@@ -14,7 +14,18 @@ export interface Permissao {
   exportar: boolean;
 }
 
-export type NavbarVariant = "pill" | "bottom-dock" | "sidebar-float" | "top-minimal";
+export type NavbarVariant =
+  | "pill"
+  | "bottom-dock"
+  | "sidebar-float"
+  | "top-minimal"
+  | "nav-bottom-flutuante"
+  | "nav-fab-inteligente"
+  | "nav-perfil-dinamico"
+  | "nav-dock-animado"
+  | "nav-morphing"
+  | "nav-quick-actions"
+  | "nav-inteligente";
 
 export interface Usuario {
   id: string;

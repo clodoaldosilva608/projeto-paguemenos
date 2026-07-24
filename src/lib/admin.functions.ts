@@ -238,7 +238,11 @@ export const atualizarPerfilProprio = createServerFn({ method: "POST" })
       telefone: z.string().max(20).optional().nullable(),
       nome: z.string().min(1).max(100).optional(),
       nova_senha: z.string().min(6).max(72).optional().nullable(),
-      navbar_variant: z.enum(["pill", "bottom-dock", "sidebar-float", "top-minimal"]).optional(),
+      navbar_variant: z.enum([
+        "pill", "bottom-dock", "sidebar-float", "top-minimal",
+        "nav-bottom-flutuante", "nav-fab-inteligente", "nav-perfil-dinamico",
+        "nav-dock-animado", "nav-morphing", "nav-quick-actions", "nav-inteligente",
+      ]).optional(),
       onboarding_completo: z.boolean().optional(),
     }).parse(v),
   )

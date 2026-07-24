@@ -8,6 +8,10 @@ import {
   NavbarSidebarFloat,
   NavbarTopMinimal,
 } from "./components/navbars/NavbarVariants";
+import {
+  NavBottomFlutuante, NavFABInteligente, NavPerfilDinamico,
+  NavDockAnimado, NavMorphing, NavQuickActions, NavInteligente,
+} from "./components/navbars/NavVariants";
 import Topbar from "./components/Topbar";
 import QuickAccessLauncher from "./components/QuickAccessLauncher";
 import IAAssistantFAB from "./components/IAAssistantFAB";
@@ -172,6 +176,20 @@ export default function OrionApp() {
         return <NavbarSidebarFloat paginaAtual={paginaEfetiva} onNavegar={setPagina} />;
       case "top-minimal":
         return <NavbarTopMinimal paginaAtual={paginaEfetiva} onNavegar={setPagina} />;
+      case "nav-bottom-flutuante":
+        return <NavBottomFlutuante paginaAtual={paginaEfetiva} onNavegar={setPagina} />;
+      case "nav-fab-inteligente":
+        return <NavFABInteligente paginaAtual={paginaEfetiva} onNavegar={setPagina} />;
+      case "nav-perfil-dinamico":
+        return <NavPerfilDinamico paginaAtual={paginaEfetiva} onNavegar={setPagina} />;
+      case "nav-dock-animado":
+        return <NavDockAnimado paginaAtual={paginaEfetiva} onNavegar={setPagina} />;
+      case "nav-morphing":
+        return <NavMorphing paginaAtual={paginaEfetiva} onNavegar={setPagina} />;
+      case "nav-quick-actions":
+        return <NavQuickActions paginaAtual={paginaEfetiva} onNavegar={setPagina} />;
+      case "nav-inteligente":
+        return <NavInteligente paginaAtual={paginaEfetiva} onNavegar={setPagina} />;
       default:
         return <OrionNavBar paginaAtual={paginaEfetiva} onNavegar={setPagina} />;
     }
