@@ -28,8 +28,8 @@ export default function QuickLancamentoVenda({ aberto, onClose, vendedorPreSelec
     if (!v) return setErro("Selecione um vendedor.");
     const liq = Number(valorLiq.replace(",", "."));
     const qLiq = Number(qtdeLiq);
-    if (!Number.isFinite(liq) || liq < 0) return setErro("Valor líquido inválido.");
-    if (!Number.isFinite(qLiq) || qLiq < 0) return setErro("Qtd. clientes inválida.");
+    if (!Number.isFinite(liq) || liq <= 0) return setErro("Valor líquido inválido. Insira um valor maior que zero.");
+    if (!Number.isFinite(qLiq) || qLiq <= 0) return setErro("Qtd. clientes inválida. Deve ser maior que zero.");
     const rec = Number((valorRec || "0").replace(",", "."));
     const qRec = Number(qtdeRec || "0");
 
