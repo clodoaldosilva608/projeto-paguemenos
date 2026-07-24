@@ -5,9 +5,29 @@ import { useIAChat } from "@/hooks/useIAChat";
 
 export default function IAAssistantFAB() {
   const { msgs, carregando, enviar, sugestoes, usuario } = useIAChat();
+  // Bug 3 fix: IA não abre automaticamente. Estado persistido por usuário.
+  // Só abre se o usuário clicar explicitamente no botão.
   const [aberto, setAberto] = useState(false);
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Restaurar preferência do usuário (se fechou, continua fechado)
+    try {
+      const preferencia = window.localStorage.getItem(`orion-ia-fechado-${usuario?.id || "anon"}`);
+      if (preferencia === "true") setAberto(false);
+    } catch {}
+  }, [usuario?.id]);
+
+  function abrirIA() {
+    setAberto(true);
+    try { window.localStorage.removeItem(`orion-ia-fechado-${usuario?.id || "anon"}`); } catch {}
+  }
+
+  function fecharIA() {
+    setAberto(false);
+    try { window.localStorage.setItem(`orion-ia-fechado-${usuario?.id || "anon"}`, "true"); } catch {}
+  }
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -26,7 +46,7 @@ export default function IAAssistantFAB() {
     <>
       {/* FAB pulsante */}
       <button
-        onClick={() => setAberto(true)}
+        onClick={abrirIA}
         aria-label="Assistente IA"
         className="group fixed bottom-24 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-xl shadow-blue-600/40 transition hover:scale-110 sm:bottom-28 sm:right-8"
       >
@@ -40,7 +60,7 @@ export default function IAAssistantFAB() {
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-[80] flex items-end justify-center bg-black/50 backdrop-blur-sm p-3 sm:items-center"
-            onClick={() => setAberto(false)}
+            onClick={fecharIA}
           >
             <motion.div
               initial={{ opacity: 0, y: 20, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20 }}
@@ -55,7 +75,7 @@ export default function IAAssistantFAB() {
                   <h3 className="font-display text-lg text-white">Assistente Orion</h3>
                   <p className="text-[11px] text-slate-400">IA generativa · powered by Lovable</p>
                 </div>
-                <button onClick={() => setAberto(false)} className="rounded-lg p-2 text-slate-400 hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></button>
+                <button onClick={fecharIA} aria-label="Fechar assistente IA" title="Fechar" className="rounded-lg p-2 text-slate-400 hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></button>
               </header>
 
               <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto p-4">

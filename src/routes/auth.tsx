@@ -40,6 +40,9 @@ function AuthPage() {
         const ok = await login(email, senha);
         if (ok) navigate({ to: "/" });
       } else if (modo === "signup") {
+        // Melhoria 9: validação de senha forte
+        const erroSenha = validarSenhaForte(senha);
+        if (erroSenha) { setMsg(erroSenha); return; }
         const ok = await cadastrar(email, senha, nome || email.split("@")[0]);
         if (ok === "aguardando_aprovacao" as any) setMsg("✅ Conta criada! Aguardando aprovação do gestor. Você poderá fazer login após ser aprovado."); else if (ok) setMsg("Conta criada! Faça login.");
       } else {
@@ -100,7 +103,18 @@ function AuthPage() {
             {modo !== "recover" && (
               <div>
                 <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-400">Senha</label>
-                <input type="password" required minLength={4} value={senha} onChange={(e) => setSenha(e.target.value)} placeholder="••••••••" className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" />
+                <input type="password" required minLength={modo === "signup" ? 8 : 4} value={senha} onChange={(e) => setSenha(e.target.value)} placeholder="••••••••" className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" />
+                {modo === "signup" && (
+                  <div className="mt-2 space-y-1">
+                    <p className="text-[10px] font-semibold uppercase text-slate-500">A senha deve ter:</p>
+                    <ul className="space-y-0.5 text-[10px] text-slate-400">
+                      <li className={senha.length >= 8 ? "text-emerald-400" : ""}>✓ Mínimo 8 caracteres</li>
+                      <li className={/[A-Z]/.test(senha) ? "text-emerald-400" : ""}>✓ 1 letra maiúscula</li>
+                      <li className={/[0-9]/.test(senha) ? "text-emerald-400" : ""}>✓ 1 número</li>
+                      <li className={/[!@#$%^&*(),.?":{}|<>]/.test(senha) ? "text-emerald-400" : ""}>✓ 1 caractere especial</li>
+                    </ul>
+                  </div>
+                )}
               </div>
             )}
 
@@ -130,4 +144,13 @@ function AuthPage() {
       </motion.div>
     </div>
   );
+}
+
+// Melhoria 9: validação de senha forte no cadastro
+function validarSenhaForte(senha: string): string | null {
+  if (senha.length < 8) return "A senha deve ter no mínimo 8 caracteres.";
+  if (!/[A-Z]/.test(senha)) return "A senha deve ter pelo menos 1 letra maiúscula.";
+  if (!/[0-9]/.test(senha)) return "A senha deve ter pelo menos 1 número.";
+  if (!/[!@#$%^&*(),.?":{}|<>]/.test(senha)) return "A senha deve ter pelo menos 1 caractere especial (!@#$%&*).";
+  return null;
 }

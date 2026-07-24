@@ -81,10 +81,14 @@ export default function FuncionariosPage() {
   }, [funcionarios, filtro, filtroPerfil, busca, gestor]);
 
   const toggleAtivo = async (f: Funcionario) => {
+    // Melhoria 8: confirmação antes de desativar (evita desativação acidental)
+    if (f.ativo) {
+      if (!confirm(`Desativar ${f.nome}?\n\nO funcionário perderá acesso ao sistema até ser reativado.`)) return;
+    }
     try {
       const { error } = await (supabase as any).from("profiles").update({ ativo: !f.ativo }).eq("id", f.id);
       if (error) throw error;
-      toast.success(f.ativo ? "Desativado" : "Ativado");
+      toast.success(f.ativo ? `${f.nome} desativado` : `${f.nome} ativado`);
       carregar();
     } catch (e: any) { toast.error(e.message); }
   };

@@ -80,6 +80,22 @@ export default function OrionApp() {
     }
   }, [autenticado, usuario, navigate]);
 
+  // Melhoria 12: modal de boas-vindas no primeiro login (uma vez por usuário)
+  const [mostrarBoasVindas, setMostrarBoasVindas] = useState(false);
+  useEffect(() => {
+    if (!autenticado || !usuario) return;
+    try {
+      const visto = window.localStorage.getItem(`orion-boas-vindas-${usuario.id}`);
+      if (!visto) {
+        const t = setTimeout(() => {
+          setMostrarBoasVindas(true);
+          window.localStorage.setItem(`orion-boas-vindas-${usuario.id}`, "true");
+        }, 2000);
+        return () => clearTimeout(t);
+      }
+    } catch {}
+  }, [autenticado, usuario]);
+
   useEffect(() => {
     if (typeof window !== "undefined") window.localStorage.setItem("orion-page", pagina);
   }, [pagina]);
@@ -254,6 +270,70 @@ export default function OrionApp() {
           setPagina("dashboard");
         }}
       />
+
+      {/* Modal de boas-vindas no primeiro login */}
+      <AnimatePresence>
+        {mostrarBoasVindas && usuario && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setMostrarBoasVindas(false)}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-2xl dark:bg-slate-900"
+            >
+              <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-6 text-center text-white">
+                <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-white/20 text-3xl">
+                  👋
+                </div>
+                <h2 className="text-xl font-bold">Bem-vindo(a), {usuario.nome.split(" ")[0]}!</h2>
+                <p className="mt-1 text-sm text-blue-200">
+                  Sistema Orion · Gestão Multi-Empresa Pague Menos
+                </p>
+              </div>
+              <div className="p-6 space-y-3">
+                <p className="text-sm text-slate-600 dark:text-slate-300">
+                  Estamos felizes em ter você aqui! O Orion é sua plataforma para:
+                </p>
+                <ul className="space-y-2 text-sm text-slate-700 dark:text-slate-200">
+                  <li className="flex items-start gap-2">
+                    <span className="text-blue-600">📊</span>
+                    <span>Acompanhar metas e resultados diários</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-blue-600">💰</span>
+                    <span>Lançar suas vendas e ver ticket médio automático</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-blue-600">🤖</span>
+                    <span>Usar a IA para dicas e insights de vendas</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-blue-600">📚</span>
+                    <span>Cumprir checklist diário e treinamentos</span>
+                  </li>
+                </ul>
+                <div className="rounded-lg bg-blue-50 p-3 text-xs text-blue-700 dark:bg-blue-950/30 dark:text-blue-300">
+                  💡 <strong>Dica:</strong> Use o botão <strong>Tour Guiado</strong> (canto inferior esquerdo) para conhecer todas as funcionalidades.
+                </div>
+                <button
+                  onClick={() => setMostrarBoasVindas(false)}
+                  className="w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-bold text-white shadow-lg hover:bg-blue-500"
+                >
+                  Começar a usar →
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {variant !== "top-minimal" && renderNavbar()}
     </div>
   );

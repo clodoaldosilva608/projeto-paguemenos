@@ -145,7 +145,8 @@ export default function IAConfigPage() {
         },
       });
       setLogs(r.logs);
-      setLogsTotal(r.total);
+      // Bug 2 fix: usar logs.length como fallback se total vier 0
+      setLogsTotal(r.total && r.total > 0 ? r.total : (r.logs?.length || 0));
     } catch (e: any) {
       toast.error("Erro ao carregar logs: " + e.message);
     }
