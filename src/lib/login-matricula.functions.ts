@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
 // ------------------------------------------------------------------
@@ -7,13 +8,13 @@ import { z } from "zod";
 // para o client fazer signInWithPassword com email + matricula (como senha)
 // ------------------------------------------------------------------
 
-const loginMatriculaSchema = z.object({
-  primeiro_nome: z.string().min(2).max(50),
-  matricula: z.string().min(4).max(20),
-});
-
 export const buscarEmailPorMatricula = createServerFn({ method: "POST" })
-  .validator((v: unknown) => loginMatriculaSchema.parse(v))
+  .inputValidator((v: unknown) =>
+    z.object({
+      primeiro_nome: z.string().min(2).max(50),
+      matricula: z.string().min(4).max(20),
+    }).parse(v),
+  )
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
@@ -39,7 +40,7 @@ export const buscarEmailPorMatricula = createServerFn({ method: "POST" })
 
     return {
       email: authUser.user.email,
-      senha: data.matricula.trim(), // matrícula é a senha
+      senha: data.matricula.trim(),
       primeiroNome: registro.primeiro_nome,
     };
   });
@@ -47,14 +48,6 @@ export const buscarEmailPorMatricula = createServerFn({ method: "POST" })
 // ------------------------------------------------------------------
 // CRUD de credenciais (admin/gerente gerencia)
 // ------------------------------------------------------------------
-
-const credencialSchema = z.object({
-  id: z.string().uuid().optional(),
-  user_id: z.string().uuid(),
-  primeiro_nome: z.string().min(2).max(50),
-  matricula: z.string().min(4).max(20),
-  ativo: z.boolean().default(true),
-});
 
 async function ensureAdmin(supabase: any, userId: string) {
   const { data, error } = await supabase
@@ -67,7 +60,7 @@ async function ensureAdmin(supabase: any, userId: string) {
 }
 
 export const listarCredenciais = createServerFn({ method: "GET" })
-  .middleware((await import("@/integrations/supabase/auth-middleware")).requireSupabaseAuth)
+  .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await ensureAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -79,7 +72,6 @@ export const listarCredenciais = createServerFn({ method: "GET" })
 
     if (error) throw new Error(error.message);
 
-    // Buscar nomes completos dos usuários
     const userIds = (creds || []).map((c: any) => c.user_id);
     const { data: profiles } = await supabaseAdmin
       .from("profiles")
@@ -98,8 +90,16 @@ export const listarCredenciais = createServerFn({ method: "GET" })
   });
 
 export const salvarCredencial = createServerFn({ method: "POST" })
-  .middleware((await import("@/integrations/supabase/auth-middleware")).requireSupabaseAuth)
-  .validator((v: unknown) => credencialSchema.parse(v))
+  .middleware([requireSupabaseAuth])
+  .inputValidator((v: unknown) =>
+    z.object({
+      id: z.string().uuid().optional(),
+      user_id: z.string().uuid(),
+      primeiro_nome: z.string().min(2).max(50),
+      matricula: z.string().min(4).max(20),
+      ativo: z.boolean().default(true),
+    }).parse(v),
+  )
   .handler(async ({ data, context }) => {
     await ensureAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -113,10 +113,8 @@ export const salvarCredencial = createServerFn({ method: "POST" })
     };
 
     if (data.id) {
-      // Update
       const { error } = await supabaseAdmin.from("login_matricula").update(payload).eq("id", data.id);
       if (error) throw new Error(error.message);
-      // Atualizar senha do usuário no auth (matrícula = senha)
       const { error: errPw } = await supabaseAdmin.auth.admin.updateUserById(data.user_id, {
         password: data.matricula.trim(),
         email_confirm: true,
@@ -124,10 +122,8 @@ export const salvarCredencial = createServerFn({ method: "POST" })
       if (errPw) throw new Error("Credencial atualizada, mas erro ao trocar senha: " + errPw.message);
       return { ok: true };
     } else {
-      // Insert
       const { error } = await supabaseAdmin.from("login_matricula").insert(payload);
       if (error) throw new Error(error.message);
-      // Definir senha do usuário no auth (matrícula = senha)
       const { error: errPw } = await supabaseAdmin.auth.admin.updateUserById(data.user_id, {
         password: data.matricula.trim(),
         email_confirm: true,
@@ -138,8 +134,8 @@ export const salvarCredencial = createServerFn({ method: "POST" })
   });
 
 export const excluirCredencial = createServerFn({ method: "POST" })
-  .middleware((await import("@/integrations/supabase/auth-middleware")).requireSupabaseAuth)
-  .validator((v: unknown) => z.object({ id: z.string().uuid() }).parse(v))
+  .middleware([requireSupabaseAuth])
+  .inputValidator((v: unknown) => z.object({ id: z.string().uuid() }).parse(v))
   .handler(async ({ data, context }) => {
     await ensureAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
