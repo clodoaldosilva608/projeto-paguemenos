@@ -2,6 +2,8 @@ import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router"
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
+import { useServerFn } from "@tanstack/react-start";
+import { buscarEmailPorMatricula } from "@/lib/login-matricula.functions";
 
 export const Route = createFileRoute("/auth")({
   component: AuthPage,
@@ -24,6 +26,7 @@ function AuthPage() {
   const navigate = useNavigate();
   const search = useSearch({ from: "/auth" });
   const { login, loginGoogle, cadastrar, autenticado, carregando, erro } = useAuth();
+  const fnBuscarMatricula = useServerFn(buscarEmailPorMatricula);
   const [modo, setModo] = useState<"signin" | "signup" | "recover">(search.mode === "signup" ? "signup" : "signin");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -37,8 +40,23 @@ function AuthPage() {
     e.preventDefault(); setMsg(null); setBusy(true);
     try {
       if (modo === "signin") {
-        const ok = await login(email, senha);
-        if (ok) navigate({ to: "/" });
+        // Detectar login por matrícula (sem @) vs email
+        const ehEmail = email.trim().includes("@");
+        if (!ehEmail) {
+          // Login por primeiro nome + matrícula
+          try {
+            const r = await fnBuscarMatricula({ data: { primeiro_nome: email.trim(), matricula: senha.trim() } });
+            // Agora faz login com email + matrícula (como senha)
+            const ok = await login(r.email, r.senha);
+            if (ok) navigate({ to: "/" });
+          } catch (err: any) {
+            setMsg(err.message || "Erro ao validar credenciais por matrícula.");
+          }
+        } else {
+          // Login normal por email
+          const ok = await login(email, senha);
+          if (ok) navigate({ to: "/" });
+        }
       } else if (modo === "signup") {
         // Melhoria 9: validação de senha forte
         const erroSenha = validarSenhaForte(senha);
@@ -97,13 +115,22 @@ function AuthPage() {
               </div>
             )}
             <div>
-              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-400">E-mail</label>
-              <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="voce@empresa.com" className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" />
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-400">
+                {modo === "signin" ? "E-mail ou Primeiro Nome" : "E-mail"}
+              </label>
+              <input type={modo === "signin" ? "text" : "email"} required value={email} onChange={(e) => setEmail(e.target.value)}
+                placeholder={modo === "signin" ? "ex: clodoaldo ou voce@empresa.com" : "voce@empresa.com"}
+                className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" />
+              {modo === "signin" && (
+                <p className="mt-1.5 text-[10px] text-slate-500">
+                  💡 Vendedores: digite seu <strong>primeiro nome</strong> e <strong>matrícula</strong> na senha.
+                </p>
+              )}
             </div>
             {modo !== "recover" && (
               <div>
                 <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-400">Senha</label>
-                <input type="password" required minLength={modo === "signup" ? 8 : 4} value={senha} onChange={(e) => setSenha(e.target.value)} placeholder="••••••••" className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" />
+                <input type="password" required minLength={modo === "signup" ? 8 : 1} value={senha} onChange={(e) => setSenha(e.target.value)} placeholder={modo === "signin" ? "sua matrícula ou senha" : "••••••••"} className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" />
                 {modo === "signup" && (
                   <div className="mt-2 space-y-1">
                     <p className="text-[10px] font-semibold uppercase text-slate-500">A senha deve ter:</p>

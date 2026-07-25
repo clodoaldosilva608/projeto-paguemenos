@@ -8,12 +8,13 @@ import {
   salvarQuickLink, excluirQuickLink, listarAuditoria,
 } from "@/lib/admin.functions";
 import { useServerFn } from "@tanstack/react-start";
-import { Copy, Trash2, Plus, Send, Power, MessageCircle, Instagram, Facebook, Twitter, Youtube, Send as Telegram, Link as LinkIcon, History, RefreshCw, Plug } from "lucide-react";
+import { Copy, Trash2, Plus, Send, Power, MessageCircle, Instagram, Facebook, Twitter, Youtube, Send as Telegram, Link as LinkIcon, History, RefreshCw, Plug, KeyRound } from "lucide-react";
 import { IntegracoesTab } from "@/components/admin/IntegracoesTab";
+import CredenciaisMatriculaTab from "@/components/admin/CredenciaisMatriculaTab";
 
 type Perfil = "admin" | "gerente" | "supervisor" | "vendedor";
 
-type AbaAdmin = "usuarios" | "convites" | "acessos" | "integracoes" | "auditoria";
+type AbaAdmin = "usuarios" | "convites" | "acessos" | "credenciais" | "integracoes" | "auditoria";
 
 
 
@@ -76,6 +77,7 @@ export default function AdminPage() {
           { id: "usuarios", label: "Usuários", Icon: Power },
           { id: "convites", label: "Convites", Icon: Send },
           { id: "acessos", label: "Acessos rápidos", Icon: LinkIcon },
+          { id: "credenciais", label: "Credenciais", Icon: KeyRound },
           { id: "integracoes", label: "Integrações", Icon: Plug },
           { id: "auditoria", label: "Auditoria", Icon: History },
         ] as const).map(({ id, label, Icon }) => (
@@ -124,6 +126,8 @@ export default function AdminPage() {
       )}
 
       {aba === "integracoes" && <IntegracoesTab />}
+
+      {aba === "credenciais" && <CredenciaisMatriculaTab />}
 
       {aba === "auditoria" && <AuditoriaTab />}
     </div>
