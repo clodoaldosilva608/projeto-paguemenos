@@ -189,8 +189,8 @@ export default function CredenciaisMatriculaTab() {
           <p className="mt-1 text-xs text-slate-500">Clique em "Nova Credencial" para criar a primeira.</p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-white/10">
-          <table className="w-full text-sm">
+        <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-white/10">
+          <table className="w-full min-w-[640px] text-sm">
             <thead className="bg-slate-50 text-left text-xs uppercase text-slate-500 dark:bg-white/5">
               <tr>
                 <th className="px-3 py-2"><User className="mr-1 inline h-3 w-3" /> Funcionário</th>
