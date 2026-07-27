@@ -87,7 +87,7 @@ function GoogleSheetsCard() {
     // Linha de totais
     const totalMeta = dadosVendas.filter(m => m.periodo === "mensal").reduce((s, m) => s + Number(m.valor_meta), 0);
     const totalRealizado = dadosVendas.filter(m => m.periodo === "mensal").reduce((s, m) => s + Number(m.valor_realizado), 0);
-    linhas.push(["", "", "TOTAL", "mensal", totalMeta.toFixed(2), totalRealizado.toFixed(2), "", ""]);
+    linhas.push(["", "", "TOTAL", "mensal", totalMeta.toFixed(2), totalRealizado.toFixed(2), "", ""].join(","));
 
     const csv = linhas.join("\n");
 

@@ -88,6 +88,8 @@ export default function CredenciaisMatriculaTab() {
     if (!form.user_id) { toast.error("Selecione um funcionário."); return; }
     if (!form.primeiro_nome.trim()) { toast.error("Informe o primeiro nome."); return; }
     if (!form.matricula.trim()) { toast.error("Informe a matrícula."); return; }
+    if (form.matricula.trim().length < 6) { toast.error("Matrícula deve ter pelo menos 6 dígitos."); return; }
+    if (!/^\d+$/.test(form.matricula.trim())) { toast.error("Matrícula deve conter apenas números."); return; }
     try {
       await fnSalvar({
         data: {

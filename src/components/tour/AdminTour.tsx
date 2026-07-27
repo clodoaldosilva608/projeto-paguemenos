@@ -65,10 +65,10 @@ export function AdminTour({ aberto, onClose }: { aberto: boolean; onClose: () =>
 
 export function TourFAB({ onAbrirTour }: { onAbrirTour?: () => void }) {
   const [mostrar, setMostrar] = useState(true);
-  useEffect(() => { if (sessionStorage.getItem("tour-fab-dismissed")) setMostrar(false); }, []);
+  useEffect(() => { if (localStorage.getItem("tour-fab-dismissed")) setMostrar(false); }, []);
   if (!mostrar) return null;
   const handleClick = () => { if (onAbrirTour) onAbrirTour(); else { window.localStorage.setItem("orion-page", "tour"); window.location.reload(); } };
-  const handleDismiss = (e: React.MouseEvent) => { e.stopPropagation(); sessionStorage.setItem("tour-fab-dismissed", "1"); setMostrar(false); };
+  const handleDismiss = (e: React.MouseEvent) => { e.stopPropagation(); localStorage.setItem("tour-fab-dismissed", "1"); setMostrar(false); };
   return (
     <div className="group fixed bottom-24 left-5 z-40 flex items-center gap-2 sm:bottom-28 sm:left-8">
       <button onClick={handleClick} className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-xl shadow-emerald-600/40 transition hover:scale-110" title="Abrir Tour Guiado"><HelpCircle className="h-6 w-6" /></button>

@@ -1,11 +1,12 @@
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { atualizarPerfilProprio } from "@/lib/admin.functions";
 import { useAuth } from "@/contexts/AuthContext";
 import type { NavbarVariant } from "@/types/core";
 import { cn } from "../../utils/cn";
+import { Upload, X, Image as ImageIcon } from "lucide-react";
 
 const abas = [
   { id: "geral", label: "Geral", icone: "⚙️" },
@@ -22,6 +23,56 @@ export default function ConfiguracoesPage() {
   const { usuario, refresh } = useAuth();
   const salvarPerfil = useServerFn(atualizarPerfilProprio);
   const variantAtual: NavbarVariant = (usuario?.navbarVariant as NavbarVariant) || "pill";
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [dragOver, setDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Carregar logo salvo
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("orion-logo-empresa");
+      if (saved) setLogoUrl(saved);
+    } catch {}
+  }, []);
+
+  // Processar arquivo de imagem
+  function processarLogo(file: File) {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Apenas arquivos de imagem são aceitos (PNG, JPG, SVG).");
+      return;
+    }
+    if (file.size > 500 * 1024) {
+      toast.error("A imagem deve ter no máximo 500KB.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const result = e.target?.result as string;
+      setLogoUrl(result);
+      try { localStorage.setItem("orion-logo-empresa", result); } catch {}
+      toast.success("Logo carregado! Clique em Salvar para confirmar.");
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) processarLogo(file);
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) processarLogo(file);
+  }
+
+  function removerLogo() {
+    setLogoUrl(null);
+    try { localStorage.removeItem("orion-logo-empresa"); } catch {}
+    toast.success("Logo removido.");
+  }
+
   const trocarNavbar = async (v: NavbarVariant) => {
     try {
       await salvarPerfil({ data: { navbar_variant: v } });
@@ -205,9 +256,42 @@ export default function ConfiguracoesPage() {
             </div>
             <div>
               <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Logo da Empresa</label>
-              <div className="flex h-24 items-center justify-center rounded-lg border-2 border-dashed border-slate-200 bg-slate-50 text-sm text-slate-400 dark:border-slate-700 dark:bg-slate-800">
-                Arraste o logo aqui ou clique para enviar
-              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/svg+xml"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+              {logoUrl ? (
+                <div className="relative flex h-24 items-center justify-center rounded-lg border-2 border-emerald-300 bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-950/30">
+                  <img src={logoUrl} alt="Logo da empresa" className="max-h-20 max-w-full object-contain" />
+                  <button
+                    onClick={removerLogo}
+                    className="absolute right-2 top-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
+                    aria-label="Remover logo"
+                    title="Remover logo"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              ) : (
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                  onDragLeave={() => setDragOver(false)}
+                  onDrop={handleDrop}
+                  className={`flex h-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed transition ${
+                    dragOver
+                      ? "border-blue-500 bg-blue-50 dark:bg-blue-950/30"
+                      : "border-slate-200 bg-slate-50 hover:border-blue-400 hover:bg-blue-50/50 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-blue-600"
+                  }`}
+                >
+                  <Upload className="h-5 w-5 text-slate-400" />
+                  <p className="text-xs text-slate-400">Arraste o logo aqui ou clique para enviar</p>
+                  <p className="text-[10px] text-slate-300">PNG, JPG ou SVG · máx 500KB</p>
+                </div>
+              )}
             </div>
 
             <div className="border-t border-slate-100 pt-5 dark:border-slate-800">

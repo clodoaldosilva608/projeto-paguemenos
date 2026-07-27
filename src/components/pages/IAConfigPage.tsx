@@ -458,7 +458,7 @@ export default function IAConfigPage() {
                     {m}
                   </option>
                 ))}
-                {!provInfo.models.includes(form.model) && (
+                {!(provInfo.models as readonly string[]).includes(form.model) && (
                   <option value={form.model}>{form.model} (atual)</option>
                 )}
               </select>

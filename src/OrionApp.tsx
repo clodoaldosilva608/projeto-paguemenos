@@ -21,6 +21,7 @@ import { CurriculoPage } from "./components/pages/CurriculoPage";
 import { DocumentosPage } from "./components/pages/DocumentosPage";
 import { TourFAB } from "./components/tour/AdminTour";
 import TrialBanner from "./components/TrialBanner";
+import NotificacoesGerente from "./components/NotificacoesGerente";
 import { useAutoSync } from "./hooks/useAutoSync";
 
 import type { Pagina } from "./components/Sidebar";
@@ -98,6 +99,9 @@ export default function OrionApp() {
 
   useEffect(() => {
     if (typeof window !== "undefined") window.localStorage.setItem("orion-page", pagina);
+    // Item 8: fechar modais ao trocar de página
+    setMostrarBoasVindas(false);
+    if (pagina !== "tour") setTourAberto(false);
   }, [pagina]);
   useEffect(() => {
     if (pagina === "tour") {
@@ -244,6 +248,7 @@ export default function OrionApp() {
 
         <Topbar pagina={paginaEfetiva} onAbrirMenu={() => {}} />
         <TrialBanner />
+        <NotificacoesGerente />
         {paginaEfetiva === "dashboard" && (
           <div className="mb-4">
             <QuickAccessLauncher />
