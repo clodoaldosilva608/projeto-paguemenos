@@ -22,7 +22,7 @@ export const obterSheetConfig = createServerFn({ method: "GET" })
 
 export const salvarSheetConfig = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((v: unknown) => configSchema.parse(v))
+  .validator((v: unknown) => configSchema.parse(v))
   .handler(async ({ data, context }) => {
     await ensureGestor(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

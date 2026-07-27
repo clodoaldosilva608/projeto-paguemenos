@@ -45,5 +45,5 @@ ALTER TABLE public.vendas_diarias ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS vendas_diarias_owner_all ON public.vendas_diarias;
 CREATE POLICY vendas_diarias_owner_all ON public.vendas_diarias
   FOR ALL TO authenticated
-  USING (user_id = auth.uid() OR public.has_role('admin'::text, auth.uid()) OR public.has_role('gerente'::text, auth.uid()))
-  WITH CHECK (user_id = auth.uid() OR public.has_role('admin'::text, auth.uid()) OR public.has_role('gerente'::text, auth.uid()));
+  USING (usuario_id = auth.uid() OR public.has_role('admin'::text, auth.uid()) OR public.has_role('gerente'::text, auth.uid()))
+  WITH CHECK (usuario_id = auth.uid() OR public.has_role('admin'::text, auth.uid()) OR public.has_role('gerente'::text, auth.uid()));

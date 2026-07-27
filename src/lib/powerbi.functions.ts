@@ -16,7 +16,7 @@ export const listarPowerbiTokens = createServerFn({ method: "GET" })
 
 export const criarPowerbiToken = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((v: unknown) => z.object({ escopo: z.enum(["proprio", "equipe", "todos"]).default("proprio") }).parse(v))
+  .validator((v: unknown) => z.object({ escopo: z.enum(["proprio", "equipe", "todos"]).default("proprio") }).parse(v))
   .handler(async ({ data, context }) => {
     const token = crypto.randomUUID().replace(/-/g, "") + crypto.randomUUID().replace(/-/g, "");
     const { data: row, error } = await context.supabase
@@ -30,7 +30,7 @@ export const criarPowerbiToken = createServerFn({ method: "POST" })
 
 export const revogarPowerbiToken = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((v: unknown) => z.object({ id: z.string().uuid() }).parse(v))
+  .validator((v: unknown) => z.object({ id: z.string().uuid() }).parse(v))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("powerbi_tokens")

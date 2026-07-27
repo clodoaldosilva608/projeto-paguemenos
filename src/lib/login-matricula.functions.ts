@@ -9,7 +9,7 @@ import { z } from "zod";
 // ------------------------------------------------------------------
 
 export const buscarEmailPorMatricula = createServerFn({ method: "POST" })
-  .inputValidator((v: unknown) =>
+  .validator((v: unknown) =>
     z.object({
       primeiro_nome: z.string().min(2).max(50),
       matricula: z.string().min(4).max(20),
@@ -91,7 +91,7 @@ export const listarCredenciais = createServerFn({ method: "GET" })
 
 export const salvarCredencial = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((v: unknown) =>
+  .validator((v: unknown) =>
     z.object({
       id: z.string().uuid().optional(),
       user_id: z.string().uuid(),
@@ -135,7 +135,7 @@ export const salvarCredencial = createServerFn({ method: "POST" })
 
 export const excluirCredencial = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((v: unknown) => z.object({ id: z.string().uuid() }).parse(v))
+  .validator((v: unknown) => z.object({ id: z.string().uuid() }).parse(v))
   .handler(async ({ data, context }) => {
     await ensureAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 export const criarUsuarioConfirmado = createServerFn({ method: "POST" })
-  .inputValidator((v: unknown) => z.object({ email: z.string().email(), password: z.string().min(4), nome: z.string().min(1) }).parse(v))
+  .validator((v: unknown) => z.object({ email: z.string().email(), password: z.string().min(4), nome: z.string().min(1) }).parse(v))
   .handler(async ({ data }) => {
     const SUPABASE_URL = process.env.SUPABASE_URL!;
     const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;

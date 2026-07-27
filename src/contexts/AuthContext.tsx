@@ -109,7 +109,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // automaticamente após reload — admin precisa clicar em "Acessar como" de novo)
     try {
       window.localStorage.removeItem("orion-impersonate-userid");
-    } catch {}
+    } catch {
+      // localStorage pode estar indisponível em modos privados — ignorar
+    }
 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
       setSession(s);
@@ -130,8 +132,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password: senha });
     if (error) { setCarregando(false); setErro(error.message === "Invalid login credentials" ? "E-mail ou senha inválidos." : error.message); return false; }
     if (data.user) {
-      const { data: profile } = await (supabase as any).from("profiles").select("aprovado").eq("id", data.user.id).maybeSingle();
-      if (profile && !profile.aprovado) {
+      const { data: profile, error: profileErr } = await (supabase as any).from("profiles").select("aprovado").eq("id", data.user.id).maybeSingle();
+      // P2.2 fix: negar acesso por padrão em caso de erro na consulta
+      if (profileErr) {
+        await supabase.auth.signOut();
+        setCarregando(false);
+        setErro("Erro ao verificar aprovação da conta. Tente novamente.");
+        return false;
+      }
+      // Se profile não existe ou aprovado é false, negar acesso
+      if (!profile || profile.aprovado === false) {
         await supabase.auth.signOut();
         setCarregando(false);
         setErro("Sua conta está aguardando aprovação do gestor.");
@@ -158,13 +168,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Usar Supabase nativo
     const { error: googleError } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: typeof window !== "undefined" ? window.location.origin : undefined } });
     if (googleError) { setErro(googleError.message); return false; }
-    return true;
-    /* antigo:
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: typeof window !== "undefined" ? window.location.origin : undefined,
-    });
-    */
-    if (false) { setErro(""); return false; }
     return true;
   }, []);
 
@@ -218,7 +221,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Persistir em localStorage para restaurar após reload
     try {
       window.localStorage.setItem("orion-impersonate-userid", userId);
-    } catch {}
+    } catch {
+      // localStorage pode estar indisponível em modos privados — ignorar
+    }
   }, [usuario, usuarioOriginal]);
 
   const voltarParaAdmin = useCallback(() => {
@@ -228,7 +233,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         window.localStorage.removeItem("orion-impersonate-userid");
         window.localStorage.setItem("orion-page", "dashboard");
-      } catch {}
+      } catch {
+        // localStorage pode estar indisponível em modos privados — ignorar
+      }
     }
   }, [usuarioOriginal]);
 

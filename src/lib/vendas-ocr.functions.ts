@@ -42,7 +42,7 @@ Regras:
 - Preserve a ordem visual das linhas.`;
 
 export const extractVendasFromImage = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => {
+  .validator((input: unknown) => {
     const d = input as { imageDataUrl?: string };
     if (!d?.imageDataUrl || typeof d.imageDataUrl !== "string") {
       throw new Error("imageDataUrl é obrigatório");

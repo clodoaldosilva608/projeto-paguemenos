@@ -160,6 +160,9 @@ export type Database = {
       }
       profiles: {
         Row: {
+          aprovado: boolean
+          aprovado_em: string | null
+          aprovado_por: string | null
           ativo: boolean
           atualizado_em: string
           avatar_url: string | null
@@ -178,6 +181,9 @@ export type Database = {
           trial_expires_at: string | null
         }
         Insert: {
+          aprovado?: boolean
+          aprovado_em?: string | null
+          aprovado_por?: string | null
           ativo?: boolean
           atualizado_em?: string
           avatar_url?: string | null
@@ -196,6 +202,9 @@ export type Database = {
           trial_expires_at?: string | null
         }
         Update: {
+          aprovado?: boolean
+          aprovado_em?: string | null
+          aprovado_por?: string | null
           ativo?: boolean
           atualizado_em?: string
           avatar_url?: string | null
@@ -341,6 +350,286 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      metas_individuais: {
+        Row: {
+          id: string
+          usuario_id: string
+          filial_id: string | null
+          periodo: string
+          categoria: string
+          valor_meta: number
+          valor_realizado: number
+          valor_projecao: number
+          data_inicio: string
+          data_fim: string | null
+          status: string
+          observacoes: string | null
+          criado_por: string | null
+          criado_em: string
+          atualizado_em: string
+        }
+        Insert: {
+          id?: string
+          usuario_id: string
+          filial_id?: string | null
+          periodo?: string
+          categoria?: string
+          valor_meta?: number
+          valor_realizado?: number
+          valor_projecao?: number
+          data_inicio?: string
+          data_fim?: string | null
+          status?: string
+          observacoes?: string | null
+          criado_por?: string | null
+          criado_em?: string
+          atualizado_em?: string
+        }
+        Update: {
+          id?: string
+          usuario_id?: string
+          filial_id?: string | null
+          periodo?: string
+          categoria?: string
+          valor_meta?: number
+          valor_realizado?: number
+          valor_projecao?: number
+          data_inicio?: string
+          data_fim?: string | null
+          status?: string
+          observacoes?: string | null
+          criado_por?: string | null
+          criado_em?: string
+          atualizado_em?: string
+        }
+        Relationships: []
+      }
+      campanhas: {
+        Row: {
+          id: string
+          nome: string
+          descricao: string | null
+          status: string
+          data_inicio: string | null
+          data_fim: string | null
+          premio: string | null
+          regras: string | null
+          criado_por: string | null
+          criado_em: string
+          atualizado_em: string
+        }
+        Insert: {
+          id?: string
+          nome: string
+          descricao?: string | null
+          status?: string
+          data_inicio?: string | null
+          data_fim?: string | null
+          premio?: string | null
+          regras?: string | null
+          criado_por?: string | null
+          criado_em?: string
+          atualizado_em?: string
+        }
+        Update: {
+          id?: string
+          nome?: string
+          descricao?: string | null
+          status?: string
+          data_inicio?: string | null
+          data_fim?: string | null
+          premio?: string | null
+          regras?: string | null
+          criado_por?: string | null
+          criado_em?: string
+          atualizado_em?: string
+        }
+        Relationships: []
+      }
+      vendas_diarias: {
+        Row: {
+          id: string
+          usuario_id: string
+          filial_id: string | null
+          data: string
+          categoria: string
+          valor_venda: number
+          qtd_clientes: number
+          ticket_medio: number
+          observacao: string | null
+          criado_em: string
+          atualizado_em: string
+        }
+        Insert: {
+          id?: string
+          usuario_id: string
+          filial_id?: string | null
+          data: string
+          categoria?: string
+          valor_venda?: number
+          qtd_clientes?: number
+          ticket_medio?: number
+          observacao?: string | null
+          criado_em?: string
+          atualizado_em?: string
+        }
+        Update: {
+          id?: string
+          usuario_id?: string
+          filial_id?: string | null
+          data?: string
+          categoria?: string
+          valor_venda?: number
+          qtd_clientes?: number
+          ticket_medio?: number
+          observacao?: string | null
+          criado_em?: string
+          atualizado_em?: string
+        }
+        Relationships: []
+      }
+      login_matricula: {
+        Row: {
+          id: string
+          user_id: string
+          primeiro_nome: string
+          matricula: string
+          ativo: boolean
+          criado_em: string
+          atualizado_em: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          primeiro_nome: string
+          matricula: string
+          ativo?: boolean
+          criado_em?: string
+          atualizado_em?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          primeiro_nome?: string
+          matricula?: string
+          ativo?: boolean
+          criado_em?: string
+          atualizado_em?: string
+        }
+        Relationships: []
+      }
+      ai_config: {
+        Row: {
+          id: string
+          ativo: boolean
+          provider: string
+          model: string
+          base_url: string
+          provider_panel_url: string
+          api_key_ciphertext: string | null
+          system_prompt: string
+          assistant_prompt: string
+          tom: string
+          nivel_detalhes: string
+          criatividade: string
+          temperature: number
+          idioma: string
+          status: string
+          last_validation: string | null
+          last_error: string | null
+          last_tested_by: string | null
+          criado_por: string | null
+          criado_em: string
+          atualizado_em: string
+          atualizado_por: string | null
+        }
+        Insert: {
+          id?: string
+          ativo?: boolean
+          provider?: string
+          model?: string
+          base_url?: string
+          provider_panel_url?: string
+          api_key_ciphertext?: string | null
+          system_prompt?: string
+          assistant_prompt?: string
+          tom?: string
+          nivel_detalhes?: string
+          criatividade?: string
+          temperature?: number
+          idioma?: string
+          status?: string
+          last_validation?: string | null
+          last_error?: string | null
+          last_tested_by?: string | null
+          criado_por?: string | null
+          criado_em?: string
+          atualizado_em?: string
+          atualizado_por?: string | null
+        }
+        Update: {
+          [key: string]: any
+        }
+        Relationships: []
+      }
+      ai_logs: {
+        Row: {
+          id: string
+          user_id: string | null
+          user_email: string | null
+          pergunta: string
+          resposta: string | null
+          tempo_ms: number | null
+          modelo: string | null
+          provedor: string | null
+          status: string
+          erro: string | null
+          metadata: Json | null
+          criado_em: string
+        }
+        Insert: {
+          id?: string
+          user_id?: string | null
+          user_email?: string | null
+          pergunta: string
+          resposta?: string | null
+          tempo_ms?: number | null
+          modelo?: string | null
+          provedor?: string | null
+          status?: string
+          erro?: string | null
+          metadata?: Json | null
+          criado_em?: string
+        }
+        Update: {
+          [key: string]: any
+        }
+        Relationships: []
+      }
+      ai_prompt_versions: {
+        Row: {
+          id: string
+          config_id: string
+          system_prompt: string
+          assistant_prompt: string
+          criado_por: string | null
+          criado_em: string
+          observacao: string | null
+        }
+        Insert: {
+          id?: string
+          config_id: string
+          system_prompt: string
+          assistant_prompt: string
+          criado_por?: string | null
+          criado_em?: string
+          observacao?: string | null
+        }
+        Update: {
+          [key: string]: any
         }
         Relationships: []
       }

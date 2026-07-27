@@ -34,7 +34,7 @@ async function logAudit(admin: any, params: {
 // -------- Invites --------
 export const criarConvite = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((v: unknown) =>
+  .validator((v: unknown) =>
     z.object({
       email: z.string().email(),
       nome: z.string().min(1),
@@ -77,7 +77,7 @@ export const criarConvite = createServerFn({ method: "POST" })
 
 export const revogarConvite = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((v: unknown) => z.object({ id: z.string().uuid() }).parse(v))
+  .validator((v: unknown) => z.object({ id: z.string().uuid() }).parse(v))
   .handler(async ({ data, context }) => {
     await ensureAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -95,7 +95,7 @@ export const revogarConvite = createServerFn({ method: "POST" })
 // -------- Users --------
 export const alterarPerfilUsuario = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((v: unknown) => z.object({ user_id: z.string().uuid(), perfil: perfilEnum }).parse(v))
+  .validator((v: unknown) => z.object({ user_id: z.string().uuid(), perfil: perfilEnum }).parse(v))
   .handler(async ({ data, context }) => {
     await ensureAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -113,7 +113,7 @@ export const alterarPerfilUsuario = createServerFn({ method: "POST" })
 
 export const alternarAtivo = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((v: unknown) => z.object({ user_id: z.string().uuid(), ativo: z.boolean() }).parse(v))
+  .validator((v: unknown) => z.object({ user_id: z.string().uuid(), ativo: z.boolean() }).parse(v))
   .handler(async ({ data, context }) => {
     await ensureAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -130,7 +130,7 @@ export const alternarAtivo = createServerFn({ method: "POST" })
 
 export const excluirUsuario = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((v: unknown) => z.object({ user_id: z.string().uuid() }).parse(v))
+  .validator((v: unknown) => z.object({ user_id: z.string().uuid() }).parse(v))
   .handler(async ({ data, context }) => {
     await ensureAdmin(context.supabase, context.userId);
     if (data.user_id === context.userId) throw new Error("Você não pode excluir sua própria conta.");
@@ -148,7 +148,7 @@ export const excluirUsuario = createServerFn({ method: "POST" })
 // -------- Quick Links --------
 export const salvarQuickLink = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((v: unknown) =>
+  .validator((v: unknown) =>
     z.object({
       id: z.string().uuid().optional(),
       label: z.string().min(1).max(60),
@@ -184,7 +184,7 @@ export const salvarQuickLink = createServerFn({ method: "POST" })
 
 export const excluirQuickLink = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((v: unknown) => z.object({ id: z.string().uuid() }).parse(v))
+  .validator((v: unknown) => z.object({ id: z.string().uuid() }).parse(v))
   .handler(async ({ data, context }) => {
     await ensureAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -200,7 +200,7 @@ export const excluirQuickLink = createServerFn({ method: "POST" })
 
 export const reordenarQuickLinks = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((v: unknown) => z.object({ ordem: z.array(z.object({ id: z.string().uuid(), ordem: z.number().int() })) }).parse(v))
+  .validator((v: unknown) => z.object({ ordem: z.array(z.object({ id: z.string().uuid(), ordem: z.number().int() })) }).parse(v))
   .handler(async ({ data, context }) => {
     await ensureAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -217,7 +217,7 @@ export const reordenarQuickLinks = createServerFn({ method: "POST" })
 // -------- Auditoria --------
 export const listarAuditoria = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((v: unknown) => z.object({ limit: z.number().int().min(1).max(500).default(100) }).parse(v))
+  .validator((v: unknown) => z.object({ limit: z.number().int().min(1).max(500).default(100) }).parse(v))
   .handler(async ({ data, context }) => {
     await ensureAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -233,7 +233,7 @@ export const listarAuditoria = createServerFn({ method: "POST" })
 // -------- Welcome / First access --------
 export const atualizarPerfilProprio = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((v: unknown) =>
+  .validator((v: unknown) =>
     z.object({
       telefone: z.string().max(20).optional().nullable(),
       nome: z.string().min(1).max(100).optional(),
