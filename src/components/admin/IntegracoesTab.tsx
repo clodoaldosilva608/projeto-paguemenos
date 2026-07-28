@@ -3,6 +3,8 @@ import { toast } from "sonner";
 import { Table2, BarChart3, Link2, Loader2, Check, RefreshCw, ExternalLink, Plus, Trash2, X, Download, Upload, FileSpreadsheet } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useServerFn } from "@tanstack/react-start";
+import { gerarPlanilhaExecutiva } from "@/lib/planilha-executiva.functions";
 
 export function IntegracoesTab() {
   return (
@@ -23,6 +25,7 @@ function GoogleSheetsCard() {
   const [planilhaUrl, setPlanilhaUrl] = useState("");
   const [dadosPlanilha, setDadosPlanilha] = useState<any>(null);
   const { usuario } = useAuth();
+  const fnGerarPlanilha = useServerFn(gerarPlanilhaExecutiva);
 
   useEffect(() => {
     const saved = localStorage.getItem("orion-sheets-unificada");
@@ -33,265 +36,54 @@ function GoogleSheetsCard() {
     }
   }, []);
 
-  // Buscar TODOS os dados do banco para popular a planilha
-  async function buscarTodosDados() {
-    // 1. Buscar todos os vendedores
-    const { data: profiles } = await supabase
-      .from("profiles")
-      .select("id, nome, email, cargo, filial_id")
-      .eq("ativo", true);
-
-    const { data: roles } = await supabase
-      .from("user_roles")
-      .select("user_id, role")
-      .eq("role", "vendedor");
-
-    const vendedorIds = (roles || []).map((r) => r.user_id);
-    const vendedores = (profiles || []).filter((p) => vendedorIds.includes(p.id));
-
-    // 2. Buscar todas as metas mensais
-    const { data: metas } = await supabase
-      .from("metas_individuais")
-      .select("*")
-      .eq("periodo", "mensal");
-
-    // 3. Buscar todas as vendas diárias
-    const { data: vendas } = await supabase
-      .from("vendas_diarias")
-      .select("*")
-      .order("data", { ascending: false });
-
-    // 4. Montar estrutura por vendedor
-    const dadosPorVendedor = vendedores.map((v) => {
-      const metasVendedor = (metas || []).filter((m) => m.usuario_id === v.id);
-      const vendasVendedor = (vendas || []).filter((vd) => vd.usuario_id === v.id);
-
-      const faturamento = metasVendedor.find((m) => m.categoria === "faturamento");
-      const me = metasVendedor.find((m) => m.categoria === "marcas_exclusivas");
-      const gen = metasVendedor.find((m) => m.categoria === "genericos");
-      const sd = metasVendedor.find((m) => m.categoria === "super_desconto");
-
-      const totalVendas = vendasVendedor.reduce((s, vd) => s + Number(vd.valor_venda || 0), 0);
-      const totalClientes = vendasVendedor.reduce((s, vd) => s + Number(vd.qtd_clientes || 0), 0);
-
-      return {
-        id: v.id,
-        nome: v.nome,
-        email: v.email,
-        cargo: v.cargo || "Vendedor",
-        faturamento: {
-          meta: Number(faturamento?.valor_meta || 0),
-          realizado: Number(faturamento?.valor_realizado || 0),
-          projecao: Number(faturamento?.valor_projecao || 0),
-        },
-        marcas_exclusivas: {
-          meta: Number(me?.valor_meta || 0),
-          realizado: Number(me?.valor_realizado || 0),
-          projecao: Number(me?.valor_projecao || 0),
-        },
-        genericos: {
-          meta: Number(gen?.valor_meta || 0),
-          realizado: Number(gen?.valor_realizado || 0),
-          projecao: Number(gen?.valor_projecao || 0),
-        },
-        super_desconto: {
-          meta: Number(sd?.valor_meta || 0),
-          realizado: Number(sd?.valor_realizado || 0),
-          projecao: Number(sd?.valor_projecao || 0),
-        },
-        total_vendas_lancadas: totalVendas,
-        total_clientes: totalClientes,
-        ticket_medio: totalClientes > 0 ? totalVendas / totalClientes : 0,
-        vendas_detalhadas: vendasVendedor.map((vd) => ({
-          data: vd.data,
-          categoria: vd.categoria,
-          valor: Number(vd.valor_venda || 0),
-          clientes: Number(vd.qtd_clientes || 0),
-          observacao: vd.observacao || "",
-        })),
-      };
-    });
-
-    // 5. Calcular totais da loja
-    const totaisLoja = {
-      meta_faturamento: dadosPorVendedor.reduce((s, v) => s + v.faturamento.meta, 0),
-      realizado_faturamento: dadosPorVendedor.reduce((s, v) => s + v.faturamento.realizado, 0),
-      projecao_faturamento: dadosPorVendedor.reduce((s, v) => s + v.faturamento.projecao, 0),
-      meta_me: dadosPorVendedor.reduce((s, v) => s + v.marcas_exclusivas.meta, 0),
-      realizado_me: dadosPorVendedor.reduce((s, v) => s + v.marcas_exclusivas.realizado, 0),
-      meta_gen: dadosPorVendedor.reduce((s, v) => s + v.genericos.meta, 0),
-      realizado_gen: dadosPorVendedor.reduce((s, v) => s + v.genericos.realizado, 0),
-      meta_sd: dadosPorVendedor.reduce((s, v) => s + v.super_desconto.meta, 0),
-      realizado_sd: dadosPorVendedor.reduce((s, v) => s + v.super_desconto.realizado, 0),
-      total_vendedores: dadosPorVendedor.length,
-      total_clientes: dadosPorVendedor.reduce((s, v) => s + v.total_clientes, 0),
-      total_vendas: dadosPorVendedor.reduce((s, v) => s + v.total_vendas_lancadas, 0),
-    };
-
-    return { vendedores: dadosPorVendedor, totaisLoja };
-  }
-
-  // Gerar CSV da aba Panorama Geral
-  function gerarCSVPanorama(dados: any): string {
-    const t = dados.totaisLoja;
-    const linhas = [
-      "RELATÓRIO PANORAMA GERAL - FILIAL 7537",
-      `Data de geração: ${new Date().toLocaleString("pt-BR")}`,
-      "",
-      "INDICADOR,META,REALIZADO,PROJEÇÃO,% ATINGIMENTO",
-      `Faturamento,R$ ${t.meta_faturamento.toFixed(2)},R$ ${t.realizado_faturamento.toFixed(2)},R$ ${t.projecao_faturamento.toFixed(2)},${t.meta_faturamento > 0 ? ((t.realizado_faturamento / t.meta_faturamento) * 100).toFixed(1) : 0}%`,
-      `Marcas Exclusivas,R$ ${t.meta_me.toFixed(2)},R$ ${t.realizado_me.toFixed(2)},R$ ${(t.meta_me * (t.meta_me > 0 ? t.realizado_me / t.meta_me : 0)).toFixed(2)},${t.meta_me > 0 ? ((t.realizado_me / t.meta_me) * 100).toFixed(1) : 0}%`,
-      `Genéricos,R$ ${t.meta_gen.toFixed(2)},R$ ${t.realizado_gen.toFixed(2)},R$ ${(t.meta_gen * (t.meta_gen > 0 ? t.realizado_gen / t.meta_gen : 0)).toFixed(2)},${t.meta_gen > 0 ? ((t.realizado_gen / t.meta_gen) * 100).toFixed(1) : 0}%`,
-      `Super Desconto,R$ ${t.meta_sd.toFixed(2)},R$ ${t.realizado_sd.toFixed(2)},R$ ${(t.meta_sd * (t.meta_sd > 0 ? t.realizado_sd / t.meta_sd : 0)).toFixed(2)},${t.meta_sd > 0 ? ((t.realizado_sd / t.meta_sd) * 100).toFixed(1) : 0}%`,
-      "",
-      "Vendedores Ativos,Total Vendas Lançadas,Total Clientes,Ticket Médio Geral",
-      `${t.total_vendedores},R$ ${t.total_vendas.toFixed(2)},${t.total_clientes},R$ ${t.total_clientes > 0 ? (t.total_vendas / t.total_clientes).toFixed(2) : 0}`,
-      "",
-      "RANKING DE VENDEDORES",
-      "Posição,Nome,Faturamento Meta,Faturamento Realizado,% Atingimento,Projeção",
-    ];
-
-    const ranking = [...dados.vendedores].sort((a, b) => {
-      const pctA = a.faturamento.meta > 0 ? a.faturamento.realizado / a.faturamento.meta : 0;
-      const pctB = b.faturamento.meta > 0 ? b.faturamento.realizado / b.faturamento.meta : 0;
-      return pctB - pctA;
-    });
-
-    ranking.forEach((v, i) => {
-      const pct = v.faturamento.meta > 0 ? ((v.faturamento.realizado / v.faturamento.meta) * 100).toFixed(1) : "0";
-      linhas.push(`${i + 1},${v.nome},R$ ${v.faturamento.meta.toFixed(2)},R$ ${v.faturamento.realizado.toFixed(2)},${pct}%,R$ ${v.faturamento.projecao.toFixed(2)}`);
-    });
-
-    return linhas.join("\n");
-  }
-
-  // Gerar CSV de um vendedor individual
-  function gerarCSVVendedor(v: any): string {
-    const linhas = [
-      `DADOS INDIVIDUAIS - ${v.nome}`,
-      `Email: ${v.email}`,
-      `Cargo: ${v.cargo}`,
-      "",
-      "CATEGORIA,META MENSAL,REALIZADO,PROJEÇÃO,% ATINGIMENTO",
-      `Faturamento,R$ ${v.faturamento.meta.toFixed(2)},R$ ${v.faturamento.realizado.toFixed(2)},R$ ${v.faturamento.projecao.toFixed(2)},${v.faturamento.meta > 0 ? ((v.faturamento.realizado / v.faturamento.meta) * 100).toFixed(1) : 0}%`,
-      `Marcas Exclusivas,R$ ${v.marcas_exclusivas.meta.toFixed(2)},R$ ${v.marcas_exclusivas.realizado.toFixed(2)},R$ ${v.marcas_exclusivas.projecao.toFixed(2)},${v.marcas_exclusivas.meta > 0 ? ((v.marcas_exclusivas.realizado / v.marcas_exclusivas.meta) * 100).toFixed(1) : 0}%`,
-      `Genéricos,R$ ${v.genericos.meta.toFixed(2)},R$ ${v.genericos.realizado.toFixed(2)},R$ ${v.genericos.projecao.toFixed(2)},${v.genericos.meta > 0 ? ((v.genericos.realizado / v.genericos.meta) * 100).toFixed(1) : 0}%`,
-      `Super Desconto,R$ ${v.super_desconto.meta.toFixed(2)},R$ ${v.super_desconto.realizado.toFixed(2)},R$ ${v.super_desconto.projecao.toFixed(2)},${v.super_desconto.meta > 0 ? ((v.super_desconto.realizado / v.super_desconto.meta) * 100).toFixed(1) : 0}%`,
-      "",
-      "VENDAS DIÁRIAS LANÇADAS",
-      "Data,Categoria,Valor (R$),Clientes,Ticket Médio,Observação",
-    ];
-
-    v.vendas_detalhadas.forEach((vd: any) => {
-      const tkm = vd.clientes > 0 ? vd.valor / vd.clientes : 0;
-      linhas.push(`${vd.data},${vd.categoria},R$ ${vd.valor.toFixed(2)},${vd.clientes},R$ ${tkm.toFixed(2)},${vd.observacao}`);
-    });
-
-    linhas.push("", `TOTAL DE VENDAS: R$ ${v.total_vendas_lancadas.toFixed(2)}`, `TOTAL DE CLIENTES: ${v.total_clientes}`, `TICKET MÉDIO: R$ ${v.ticket_medio.toFixed(2)}`);
-    return linhas.join("\n");
-  }
-
-  // Criar planilha: baixar CSV multi-aba + abrir Google Sheets
+  // Criar planilha executiva .xlsx formatada com multi-aba
   async function criarPlanilha() {
     setLoading(true);
     try {
-      const dados = await buscarTodosDados();
-      setDadosPlanilha(dados);
+      const r = await fnGerarPlanilha({ data: {} });
 
-      // Gerar CSV do panorama
-      const csvPanorama = gerarCSVPanorama(dados);
-
-      // Gerar CSV de cada vendedor
-      const csvsVendedores = dados.vendedores.map((v: any) => ({
-        nome: v.nome.split(" ")[0].toLowerCase(),
-        csv: gerarCSVVendedor(v),
-      }));
-
-      // Combinar tudo em um único CSV com separadores de aba (formato TSV para Excel/Sheets)
-      const todasAbas = [
-        { nome: "Panorama Geral", csv: csvPanorama },
-        ...csvsVendedores,
-        { nome: "Faturamento Loja", csv: gerarCSVCategoria(dados, "faturamento") },
-        { nome: "Marcas Exclusivas", csv: gerarCSVCategoria(dados, "marcas_exclusivas") },
-        { nome: "Genéricos", csv: gerarCSVCategoria(dados, "genericos") },
-        { nome: "Super Desconto", csv: gerarCSVCategoria(dados, "super_desconto") },
-      ];
-
-      // Criar CSV combinado (cada aba separada por linha em branco + título)
-      const csvCombinado = todasAbas.map((aba) => `=== ABA: ${aba.nome} ===\n${aba.csv}`).join("\n\n");
-
-      // Download do CSV
-      const blob = new Blob(["\ufeff" + csvCombinado], { type: "text/csv;charset=utf-8;" });
+      // Converter array de bytes para Blob e fazer download
+      const uint8 = new Uint8Array(r.file);
+      const blob = new Blob([uint8], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `Orion_Planilha_Unificada_${new Date().toISOString().slice(0, 10)}.csv`;
+      a.download = r.filename;
       a.click();
       URL.revokeObjectURL(url);
 
-      // Abrir Google Sheets para importar
-      const sheetsUrl = "https://docs.google.com/spreadsheets/create";
-      window.open(sheetsUrl, "_blank");
-
-      // Salvar no localStorage
-      const dadosSalvos = { url: sheetsUrl, dados, csv: csvCombinado, criado_em: new Date().toISOString() };
+      // Salvar estado
+      const dadosSalvos = { url: "https://sheets.google.com", criado_em: new Date().toISOString(), filename: r.filename };
       localStorage.setItem("orion-sheets-unificada", JSON.stringify(dadosSalvos));
-      setPlanilhaUrl(sheetsUrl);
+      setPlanilhaUrl("https://sheets.google.com");
+      setDadosPlanilha(dadosSalvos);
 
-      toast.success("📋 Planilha unificada gerada! O CSV foi baixado e o Google Sheets foi aberto. Importe o CSV no Google Sheets (Arquivo → Importar → Upload).");
+      toast.success("📊 Planilha executiva gerada! Arquivo .xlsx baixado com dashboard formatado. Importe no Google Sheets (Arquivo → Importar → Upload).");
     } catch (e: any) {
-      toast.error("Erro ao criar planilha: " + e.message);
+      toast.error("Erro ao gerar planilha: " + e.message);
     } finally {
       setLoading(false);
     }
   }
 
-  // Gerar CSV de uma categoria específica (todos os vendedores)
-  function gerarCSVCategoria(dados: any, categoria: string): string {
-    const linhas = [
-      `INDICADOR: ${categoria.toUpperCase().replace(/_/g, " ")} - TODOS OS VENDEDORES`,
-      "",
-      "Nome,Meta Mensal,Realizado,Projeção,% Atingimento,Status",
-    ];
-
-    dados.vendedores.forEach((v: any) => {
-      const cat = v[categoria];
-      const pct = cat.meta > 0 ? ((cat.realizado / cat.meta) * 100).toFixed(1) : "0";
-      const status = cat.realizado >= cat.meta ? "META ATINGIDA" : cat.realizado >= cat.meta * 0.5 ? "DENTRO DA META" : "FORA DA META";
-      linhas.push(`${v.nome},R$ ${cat.meta.toFixed(2)},R$ ${cat.realizado.toFixed(2)},R$ ${cat.projecao.toFixed(2)},${pct}%,${status}`);
-    });
-
-    const totalMeta = dados.vendedores.reduce((s: number, v: any) => s + v[categoria].meta, 0);
-    const totalRealizado = dados.vendedores.reduce((s: number, v: any) => s + v[categoria].realizado, 0);
-    linhas.push(`,R$ ${totalMeta.toFixed(2)},R$ ${totalRealizado.toFixed(2)},,${totalMeta > 0 ? ((totalRealizado / totalMeta) * 100).toFixed(1) : 0}%,TOTAL`);
-
-    return linhas.join("\n");
-  }
-
-  // Sincronizar: ler planilha editada e atualizar banco
+  // Sincronizar: re-gerar planilha com dados atualizados
   async function sincronizar() {
     setSyncing(true);
     try {
-      // Na sincronização, buscamos os dados atuais do banco e re-geramos o CSV
-      // (o usuário deve editar os dados no app e sincronizar para a planilha)
-      const dados = await buscarTodosDados();
-      const csvPanorama = gerarCSVPanorama(dados);
-      const csvsVendedores = dados.vendedores.map((v: any) => ({ nome: v.nome.split(" ")[0].toLowerCase(), csv: gerarCSVVendedor(v) }));
-      const todasAbas = [{ nome: "Panorama Geral", csv: csvPanorama }, ...csvsVendedores];
-      const csvCombinado = todasAbas.map((aba) => `=== ABA: ${aba.nome} ===\n${aba.csv}`).join("\n\n");
-
-      const blob = new Blob(["\ufeff" + csvCombinado], { type: "text/csv;charset=utf-8;" });
+      const r = await fnGerarPlanilha({ data: {} });
+      const uint8 = new Uint8Array(r.file);
+      const blob = new Blob([uint8], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `Orion_Sincronizado_${new Date().toISOString().slice(0, 10)}.csv`;
+      a.download = r.filename.replace(".xlsx", "_sincronizado.xlsx");
       a.click();
       URL.revokeObjectURL(url);
 
-      const dadosSalvos = { url: planilhaUrl, dados, csv: csvCombinado, sincronizado_em: new Date().toISOString() };
+      const dadosSalvos = { url: planilhaUrl, sincronizado_em: new Date().toISOString(), filename: r.filename };
       localStorage.setItem("orion-sheets-unificada", JSON.stringify(dadosSalvos));
 
-      toast.success("✅ Dados sincronizados! CSV atualizado baixado com os dados mais recentes do banco.");
+      toast.success("✅ Dados sincronizados! Planilha .xlsx atualizada baixada com os dados mais recentes.");
     } catch (e: any) {
       toast.error("Erro ao sincronizar: " + e.message);
     } finally {
