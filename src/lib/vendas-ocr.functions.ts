@@ -2,6 +2,7 @@
 // ORION · OCR de relatório de vendas via Lovable AI Gateway
 // =============================================================
 import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
 
 export interface LinhaExtraida {
   data: string; // YYYY-MM-DD
@@ -41,14 +42,24 @@ Regras:
 - Se um campo não existir na linha, use 0.
 - Preserve a ordem visual das linhas.`;
 
+// Esquema Zod de validação do input.
+// - imageDataUrl deve ser um data URL (prefixo "data:") — impede SSRF via URLs externas.
+// - Limite de 8MB (suficiente para foto de relatório, evita DoS com imagens gigantes).
+//   8MB em base64 ≈ 11M caracteres.
+const ocrInputSchema = z.object({
+  imageDataUrl: z
+    .string()
+    .min(1, "imageDataUrl é obrigatório")
+    .max(11_000_000, "Imagem excede o tamanho máximo de 8MB")
+    .startsWith("data:", "imageDataUrl deve ser um data URL (data:image/...)")
+    .refine(
+      (v) => /^data:image\/(png|jpeg|jpg|webp|gif);base64,/i.test(v),
+      "imageDataUrl deve ser uma imagem base64 (data:image/png|jpeg|webp|gif;base64,...)",
+    ),
+});
+
 export const extractVendasFromImage = createServerFn({ method: "POST" })
-  .validator((input: unknown) => {
-    const d = input as { imageDataUrl?: string };
-    if (!d?.imageDataUrl || typeof d.imageDataUrl !== "string") {
-      throw new Error("imageDataUrl é obrigatório");
-    }
-    return { imageDataUrl: d.imageDataUrl };
-  })
+  .validator((v: unknown) => ocrInputSchema.parse(v))
   .handler(async ({ data }): Promise<OCRResult> => {
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("LOVABLE_API_KEY não configurada.");
@@ -76,7 +87,8 @@ export const extractVendasFromImage = createServerFn({ method: "POST" })
 
     if (!resp.ok) {
       const body = await resp.text();
-      if (resp.status === 429) throw new Error("Limite de uso da IA atingido. Tente novamente em instantes.");
+      if (resp.status === 429)
+        throw new Error("Limite de uso da IA atingido. Tente novamente em instantes.");
       if (resp.status === 402) throw new Error("Créditos de IA esgotados no workspace.");
       throw new Error(`Falha na IA [${resp.status}]: ${body.slice(0, 200)}`);
     }

@@ -246,9 +246,11 @@ export default function OrionApp() {
           </div>
         )}
 
-        <Topbar pagina={paginaEfetiva} onAbrirMenu={() => {}} />
-        <TrialBanner />
-        <NotificacoesGerente />
+        <div className="orion-no-print">
+          <Topbar pagina={paginaEfetiva} onAbrirMenu={() => {}} />
+        </div>
+        <div className="orion-no-print"><TrialBanner /></div>
+        <div className="orion-no-print"><NotificacoesGerente /></div>
         {paginaEfetiva === "dashboard" && (
           <div className="mb-4">
             <QuickAccessLauncher />
@@ -266,8 +268,8 @@ export default function OrionApp() {
           </motion.div>
         </AnimatePresence>
       </main>
-      <IAAssistantFAB />
-      <TourFAB onAbrirTour={() => setTourAberto(true)} />
+      <div className="orion-no-print"><IAAssistantFAB /></div>
+      <div className="orion-no-print"><TourFAB onAbrirTour={() => setTourAberto(true)} /></div>
       <AdminTour
         aberto={tourAberto}
         onClose={() => {

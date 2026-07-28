@@ -65,10 +65,19 @@ export const chatIA = createServerFn({ method: "POST" })
       return { text: resposta };
     }
 
-    // 3) Determinar chave: banco > env
-    const apiKey = cfg?.api_key_ciphertext || process.env.LOVABLE_API_KEY;
-    if (!apiKey)
-      throw new Error("Nenhuma API key configurada. Acesse Configuração da IA no painel admin.");
+    // 3) Determinar chave: exclusivamente do banco (sem fallback para LOVABLE_API_KEY).
+    // 🔒 Segurança: antes havia fallback para `process.env.LOVABLE_API_KEY`, o que
+    // permitia que a IA funcionasse "magicamente" sem config no banco — mascarando
+    // configurações faltantes e dependendo de segredo em ambiente (propenso a
+    // vazamento e a erros 429/400 silenciosos). Agora, se não há chave no banco e
+    // não é modo demo, lançamos um erro claro que direciona o admin para a tela
+    // de Configuração da IA.
+    const apiKey = cfg?.api_key_ciphertext;
+    if (!apiKey) {
+      throw new Error(
+        "Nenhuma API key configurada. Acesse Configuração da IA no painel admin e informe uma chave válida.",
+      );
+    }
 
     // 3) Determinar endpoint, modelo e prompts
     const baseUrl = cfg?.base_url || "https://ai.gateway.lovable.dev/v1/chat/completions";

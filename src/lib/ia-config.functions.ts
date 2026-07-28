@@ -108,7 +108,11 @@ export const PROVIDERS = {
   google: {
     label: "Google Gemini",
     panel_url: "https://aistudio.google.com/app/apikey",
-    base_url: "https://generativelanguage.googleapis.com/v1beta/chat/completions",
+    // Endpoint OpenAI-compatível: aceita o mesmo formato de request da OpenAI
+    // (POST /chat/completions com Bearer auth) e funciona globalmente, inclusive
+    // de datacenters da Vercel — diferentemente do endpoint nativo Gemini que
+    // retorna 400 (user location not supported) em algumas regiões.
+    base_url: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
     models: [
       "gemini-1.5-pro",
       "gemini-1.5-flash",
@@ -372,9 +376,15 @@ export const testarConexaoIA = createServerFn({ method: "POST" })
       };
     }
 
-    const apiKey = cfg.api_key_ciphertext || process.env.LOVABLE_API_KEY;
+    // 🔒 Segurança: chave exclusivamente do banco — sem fallback para LOVABLE_API_KEY.
+    // Antes, o fallback mascarava configurações faltantes e dependia de segredo em
+    // ambiente (propenso a vazamento). Agora, erro claro direciona o admin.
+    const apiKey = cfg.api_key_ciphertext;
     if (!apiKey) {
-      return { ok: false, erro: "Nenhuma API key configurada nem LOVABLE_API_KEY no ambiente." };
+      return {
+        ok: false,
+        erro: "Nenhuma API key configurada. Acesse Configuração da IA no painel admin e informe uma chave válida.",
+      };
     }
 
     const t0 = Date.now();
@@ -568,9 +578,13 @@ export const testarChatIA = createServerFn({ method: "POST" })
       };
     }
 
-    const apiKey = cfg.api_key_ciphertext || process.env.LOVABLE_API_KEY;
+    // 🔒 Segurança: chave exclusivamente do banco — sem fallback para LOVABLE_API_KEY.
+    const apiKey = cfg.api_key_ciphertext;
     if (!apiKey) {
-      return { ok: false, erro: "Nenhuma API key configurada." };
+      return {
+        ok: false,
+        erro: "Nenhuma API key configurada. Acesse Configuração da IA no painel admin e informe uma chave válida.",
+      };
     }
 
     const t0 = Date.now();
