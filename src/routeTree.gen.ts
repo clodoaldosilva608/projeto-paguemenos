@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WelcomeRouteImport } from './routes/welcome'
+import { Route as SetupRouteImport } from './routes/setup'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ApiCriarTabelasRouteImport } from './routes/api-criar-tabelas'
@@ -19,6 +20,11 @@ import { Route as ApiPublicPowerbiVendasRouteImport } from './routes/api/public/
 const WelcomeRoute = WelcomeRouteImport.update({
   id: '/welcome',
   path: '/welcome',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SetupRoute = SetupRouteImport.update({
+  id: '/setup',
+  path: '/setup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/api-criar-tabelas': typeof ApiCriarTabelasRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/setup': typeof SetupRoute
   '/welcome': typeof WelcomeRoute
   '/api/public/powerbi/vendas': typeof ApiPublicPowerbiVendasRoute
 }
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   '/api-criar-tabelas': typeof ApiCriarTabelasRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/setup': typeof SetupRoute
   '/welcome': typeof WelcomeRoute
   '/api/public/powerbi/vendas': typeof ApiPublicPowerbiVendasRoute
 }
@@ -69,6 +77,7 @@ export interface FileRoutesById {
   '/api-criar-tabelas': typeof ApiCriarTabelasRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/setup': typeof SetupRoute
   '/welcome': typeof WelcomeRoute
   '/api/public/powerbi/vendas': typeof ApiPublicPowerbiVendasRoute
 }
@@ -79,6 +88,7 @@ export interface FileRouteTypes {
     | '/api-criar-tabelas'
     | '/auth'
     | '/reset-password'
+    | '/setup'
     | '/welcome'
     | '/api/public/powerbi/vendas'
   fileRoutesByTo: FileRoutesByTo
@@ -87,6 +97,7 @@ export interface FileRouteTypes {
     | '/api-criar-tabelas'
     | '/auth'
     | '/reset-password'
+    | '/setup'
     | '/welcome'
     | '/api/public/powerbi/vendas'
   id:
@@ -95,6 +106,7 @@ export interface FileRouteTypes {
     | '/api-criar-tabelas'
     | '/auth'
     | '/reset-password'
+    | '/setup'
     | '/welcome'
     | '/api/public/powerbi/vendas'
   fileRoutesById: FileRoutesById
@@ -104,6 +116,7 @@ export interface RootRouteChildren {
   ApiCriarTabelasRoute: typeof ApiCriarTabelasRoute
   AuthRoute: typeof AuthRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  SetupRoute: typeof SetupRoute
   WelcomeRoute: typeof WelcomeRoute
   ApiPublicPowerbiVendasRoute: typeof ApiPublicPowerbiVendasRoute
 }
@@ -115,6 +128,13 @@ declare module '@tanstack/react-router' {
       path: '/welcome'
       fullPath: '/welcome'
       preLoaderRoute: typeof WelcomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/setup': {
+      id: '/setup'
+      path: '/setup'
+      fullPath: '/setup'
+      preLoaderRoute: typeof SetupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password': {
@@ -160,6 +180,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiCriarTabelasRoute: ApiCriarTabelasRoute,
   AuthRoute: AuthRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  SetupRoute: SetupRoute,
   WelcomeRoute: WelcomeRoute,
   ApiPublicPowerbiVendasRoute: ApiPublicPowerbiVendasRoute,
 }

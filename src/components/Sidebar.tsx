@@ -1,6 +1,7 @@
 import { cn } from "../utils/cn";
 import { useAuth } from "../contexts/AuthContext";
-import { useTema } from "../contexts/ThemeContext";
+import { useTema, useBranding } from "../contexts/ThemeContext";
+import { DynamicLogo } from "./DynamicBranding";
 import type { Perfil } from "../types/core";
 
 export type Pagina =
@@ -203,6 +204,7 @@ interface SidebarProps {
 export default function Sidebar({ paginaAtual, onNavegar, aberto, onFechar }: SidebarProps) {
   const { usuario, logout } = useAuth();
   const { tema, alternar } = useTema();
+  const branding = useBranding();
   if (!usuario) return null;
 
   const nivelUsuario = H[usuario.perfil];
@@ -226,24 +228,12 @@ export default function Sidebar({ paginaAtual, onNavegar, aberto, onFechar }: Si
         )}
       >
         <div className="flex items-center gap-3 border-b border-white/[0.06] px-5 py-5">
-          <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-600/30">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="white"
-              strokeWidth={1.5}
-              className="h-5 w-5"
-            >
-              <circle cx="12" cy="12" r="3" />
-              <path
-                d="M12 2v4M12 18v4M4.9 4.9l2.9 2.9M16.2 16.2l2.9 2.9M2 12h4M18 12h4M4.9 19.1l2.9-2.9M16.2 7.8l2.9-2.9"
-                strokeLinecap="round"
-              />
-            </svg>
+          <div className="relative">
+            <DynamicLogo size="md" />
             <span className="absolute -right-0.5 -top-0.5 h-2 w-2 animate-pulse rounded-full bg-emerald-400 ring-2 ring-slate-950" />
           </div>
           <div>
-            <h1 className="font-display text-lg leading-none text-white">ORION</h1>
+            <h1 className="font-display text-lg leading-none text-white">{branding.appName}</h1>
             <p className="mt-0.5 text-[10px] uppercase tracking-[0.3em] text-blue-400">
               {perfilLabel[usuario.perfil]}
             </p>
