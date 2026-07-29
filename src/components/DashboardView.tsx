@@ -65,7 +65,7 @@ export default function DashboardView() {
       <FilialHeader />
       <div className="rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 p-4 text-white shadow-lg">
         <div className="flex items-center justify-between">
-          <div><p className="text-sm font-semibold uppercase text-white/70">Minhas Metas</p><h2 className="text-2xl font-bold">{usuario?.nome}</h2></div>
+          <div><p className="text-sm font-semibold uppercase text-white/70">Minhas Metas</p><h2 className="text-2xl font-bold text-white">{usuario?.nome}</h2></div>
           <div className="text-right"><p className="text-xs uppercase text-white/60">% da Meta</p><p className={`text-3xl font-extrabold ${percentual >= 100 ? "text-emerald-300" : percentual >= 50 ? "text-amber-300" : "text-red-300"}`}>{pct(percentual)}</p></div>
         </div>
       </div>

@@ -136,7 +136,7 @@ export default function DashboardAdminPage({ onImpersonate }: { onImpersonate?: 
           <div className="flex items-center gap-3">
             <Crown className="h-6 w-6 text-amber-300" />
             <div>
-              <h1 className="text-lg font-bold uppercase tracking-wide">Metas Mensais e Individuais</h1>
+              <h1 className="text-lg font-bold uppercase tracking-wide text-white">Metas Mensais e Individuais</h1>
               <p className="text-xs font-semibold uppercase tracking-wider text-red-300">
                 Filial {FILIAL_ID} • Julho/2026
               </p>
