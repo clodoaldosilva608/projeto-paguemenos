@@ -77,23 +77,32 @@ export default function CampanhasPage() {
 
   async function salvar() {
     if (!form.nome.trim()) { toast.error("Informe o nome da campanha."); return; }
+    // Fix: converter strings vazias para null (data_fim pode ser opcional)
+    const payload = {
+      ...form,
+      data_fim: form.data_fim || null,
+      data_inicio: form.data_inicio || null,
+      descricao: form.descricao || null,
+      premio: form.premio || null,
+      regras: form.regras || null,
+    };
     try {
       if (usandoLocal) {
         if (editando) {
-          const atualizadas = campanhas.map((c) => (c.id === editando.id ? { ...c, ...form } : c));
+          const atualizadas = campanhas.map((c) => (c.id === editando.id ? { ...c, ...payload } : c));
           setCampanhas(atualizadas); salvarLocal(atualizadas);
         } else {
-          const nova: Campanha = { id: crypto.randomUUID(), ...form };
+          const nova: Campanha = { id: crypto.randomUUID(), ...payload } as Campanha;
           setCampanhas([nova, ...campanhas]); salvarLocal([nova, ...campanhas]);
         }
         toast.success(editando ? "Campanha atualizada!" : "Campanha criada!");
       } else {
         if (editando) {
-          const { error } = await supabase.from("campanhas").update({ ...form, atualizado_em: new Date().toISOString() }).eq("id", editando.id);
+          const { error } = await supabase.from("campanhas").update({ ...payload, atualizado_em: new Date().toISOString() }).eq("id", editando.id);
           if (error) throw new Error(error.message);
           toast.success("Campanha atualizada!");
         } else {
-          const { error } = await supabase.from("campanhas").insert({ ...form, criado_por: usuario?.id });
+          const { error } = await supabase.from("campanhas").insert({ ...payload, criado_por: usuario?.id });
           if (error) throw new Error(error.message);
           toast.success("Campanha criada!");
         }
