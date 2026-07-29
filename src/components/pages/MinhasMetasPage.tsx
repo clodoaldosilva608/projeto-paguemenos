@@ -73,7 +73,7 @@ export default function MinhasMetasPage() {
               <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
                 <div className={`h-full rounded-full ${pctVal >= 100 ? "bg-emerald-500" : pctVal >= 50 ? "bg-amber-500" : "bg-red-500"}`} style={{ width: `${Math.min(100, pctVal)}%` }} />
               </div>
-              {m.observacoes && <p className="mt-2 text-xs italic text-slate-400">{m.observacoes}</p>}
+              {m.observacoes && <p className="mt-2 text-xs italic text-slate-400 dark:text-slate-500">{m.observacoes}</p>}
             </motion.div>
           );
         })}

@@ -79,7 +79,7 @@ export function DocumentosPage() {
       </div>
 
       <div className="relative max-w-xs">
-        <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+        <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400 dark:text-slate-500" />
         <input value={busca} onChange={e => setBusca(e.target.value)} placeholder="Buscar..." className="w-full rounded-lg border border-slate-200 py-2 pl-9 pr-3 text-sm" />
       </div>
 
@@ -96,14 +96,14 @@ export function DocumentosPage() {
               <div className="flex items-start justify-between">
                 <FileText className="h-5 w-5 text-blue-500" />
                 <div className="flex gap-1">
-                  <button onClick={() => { setEditando(doc); setShowForm(true); }} className="rounded p-1 text-slate-400 hover:bg-blue-50 hover:text-blue-600"><Edit className="h-3.5 w-3.5" /></button>
-                  <button onClick={() => exportar(doc)} className="rounded p-1 text-slate-400 hover:bg-emerald-50 hover:text-emerald-600"><Download className="h-3.5 w-3.5" /></button>
-                  <button onClick={() => remover(doc.id)} className="rounded p-1 text-slate-400 hover:bg-red-50 hover:text-red-600"><Trash2 className="h-3.5 w-3.5" /></button>
+                  <button onClick={() => { setEditando(doc); setShowForm(true); }} className="rounded p-1 text-slate-400 dark:text-slate-500 hover:bg-blue-50 hover:text-blue-600"><Edit className="h-3.5 w-3.5" /></button>
+                  <button onClick={() => exportar(doc)} className="rounded p-1 text-slate-400 dark:text-slate-500 hover:bg-emerald-50 hover:text-emerald-600"><Download className="h-3.5 w-3.5" /></button>
+                  <button onClick={() => remover(doc.id)} className="rounded p-1 text-slate-400 dark:text-slate-500 hover:bg-red-50 hover:text-red-600"><Trash2 className="h-3.5 w-3.5" /></button>
                 </div>
               </div>
               <h4 className="mt-2 truncate font-semibold text-slate-800">{doc.titulo}</h4>
               <p className="mt-1 line-clamp-2 text-xs text-slate-500">{doc.conteudo.replace(/<[^>]+>/g, " ").substring(0, 80)}</p>
-              <p className="mt-2 text-[10px] text-slate-400">{new Date(doc.criado_em).toLocaleDateString("pt-BR")}</p>
+              <p className="mt-2 text-[10px] text-slate-400 dark:text-slate-500">{new Date(doc.criado_em).toLocaleDateString("pt-BR")}</p>
             </div>
           ))}
         </div>
@@ -120,7 +120,7 @@ function DocForm({ doc, onClose, onSalvar }: { doc: Documento | null; onClose: (
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl">
-        <div className="mb-4 flex items-center justify-between"><h3 className="text-lg font-semibold">{doc ? "Editar" : "Novo"} documento</h3><button onClick={onClose}><X className="h-5 w-5 text-slate-400" /></button></div>
+        <div className="mb-4 flex items-center justify-between"><h3 className="text-lg font-semibold">{doc ? "Editar" : "Novo"} documento</h3><button onClick={onClose}><X className="h-5 w-5 text-slate-400 dark:text-slate-500" /></button></div>
         <div className="space-y-3">
           <input value={titulo} onChange={e => setTitulo(e.target.value)} placeholder="Título" className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" />
           <div className="flex gap-1 border-b border-slate-200 pb-2">

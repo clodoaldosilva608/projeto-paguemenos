@@ -65,7 +65,7 @@ function SetupPage() {
       >
         <div className="mb-6 text-center">
           <h1 className="font-display text-2xl text-white">Configuração Inicial</h1>
-          <p className="mt-1 text-sm text-slate-400">Personalize sua plataforma em 3 passos</p>
+          <p className="mt-1 text-sm text-slate-400 dark:text-slate-500">Personalize sua plataforma em 3 passos</p>
         </div>
 
         {/* Progress bar */}
@@ -90,7 +90,7 @@ function SetupPage() {
               </div>
               <div className="space-y-4">
                 <div>
-                  <label className="mb-1 block text-xs font-semibold uppercase text-slate-400">Nome da Aplicação *</label>
+                  <label className="mb-1 block text-xs font-semibold uppercase text-slate-400 dark:text-slate-500">Nome da Aplicação *</label>
                   <input
                     type="text"
                     value={form.appName}
@@ -100,7 +100,7 @@ function SetupPage() {
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-semibold uppercase text-slate-400">Nome da Empresa</label>
+                  <label className="mb-1 block text-xs font-semibold uppercase text-slate-400 dark:text-slate-500">Nome da Empresa</label>
                   <input
                     type="text"
                     value={form.companyName}
@@ -128,7 +128,7 @@ function SetupPage() {
               </div>
               <div className="space-y-4">
                 <div>
-                  <label className="mb-1 block text-xs font-semibold uppercase text-slate-400">Cor Primária</label>
+                  <label className="mb-1 block text-xs font-semibold uppercase text-slate-400 dark:text-slate-500">Cor Primária</label>
                   <div className="flex items-center gap-3">
                     <input
                       type="color"
@@ -145,7 +145,7 @@ function SetupPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-semibold uppercase text-slate-400">Cor Secundária</label>
+                  <label className="mb-1 block text-xs font-semibold uppercase text-slate-400 dark:text-slate-500">Cor Secundária</label>
                   <div className="flex items-center gap-3">
                     <input
                       type="color"
@@ -176,7 +176,7 @@ function SetupPage() {
                     </div>
                     <div>
                       <p className="font-bold text-white">{form.appName || "ORION"}</p>
-                      {form.companyName && <p className="text-xs text-slate-400">{form.companyName}</p>}
+                      {form.companyName && <p className="text-xs text-slate-400 dark:text-slate-500">{form.companyName}</p>}
                     </div>
                   </div>
                 </div>
@@ -204,7 +204,7 @@ function SetupPage() {
               </div>
               <div className="space-y-4">
                 <div>
-                  <label className="mb-1 block text-xs font-semibold uppercase text-slate-400">Upload do Logo (opcional)</label>
+                  <label className="mb-1 block text-xs font-semibold uppercase text-slate-400 dark:text-slate-500">Upload do Logo (opcional)</label>
                   {form.logoUrl ? (
                     <div className="relative flex h-32 items-center justify-center rounded-lg border-2 border-emerald-300 bg-emerald-50/10">
                       <img src={form.logoUrl} alt="Logo" className="max-h-28 max-w-full object-contain" />
@@ -217,8 +217,8 @@ function SetupPage() {
                     </div>
                   ) : (
                     <label className="flex h-32 cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-white/20 hover:border-blue-400 hover:bg-blue-500/5">
-                      <Upload className="h-6 w-6 text-slate-400" />
-                      <span className="text-xs text-slate-400">Clique para enviar (PNG, JPG, SVG · máx 500KB)</span>
+                      <Upload className="h-6 w-6 text-slate-400 dark:text-slate-500" />
+                      <span className="text-xs text-slate-400 dark:text-slate-500">Clique para enviar (PNG, JPG, SVG · máx 500KB)</span>
                       <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
                     </label>
                   )}

@@ -319,7 +319,7 @@ function KpiCardTV({
           {icon}
         </div>
         <div className="min-w-0">
-          <p className="text-[9px] font-semibold uppercase tracking-[0.15em] text-slate-400 sm:text-[11px] sm:tracking-[0.2em]">{label}</p>
+          <p className="text-[9px] font-semibold uppercase tracking-[0.15em] text-slate-400 dark:text-slate-500 sm:text-[11px] sm:tracking-[0.2em]">{label}</p>
           {sub && <p className="truncate text-[9px] text-slate-500 sm:text-[11px]">{sub}</p>}
         </div>
       </div>
@@ -398,7 +398,7 @@ function LinhaVendedorTV({ v, rank }: { v: VendedorTV; rank: number }) {
           </span>
         </div>
       </td>
-      <td className="hidden px-3 py-2 font-num text-xs text-slate-400 sm:table-cell sm:px-4 sm:py-2.5 sm:text-sm lg:text-base">
+      <td className="hidden px-3 py-2 font-num text-xs text-slate-400 dark:text-slate-500 sm:table-cell sm:px-4 sm:py-2.5 sm:text-sm lg:text-base">
         {brlMoeda(falta, 0)}
       </td>
       <td className="px-3 py-2 sm:px-4 sm:py-2.5">
@@ -478,7 +478,7 @@ function TVLoginGate({ onSucesso, onVoltar }: { onSucesso: () => void; onVoltar:
               <Lock className="h-7 w-7 text-white" />
             </div>
             <h2 className="font-display mt-4 text-2xl font-bold text-white">Acesso Restrito</h2>
-            <p className="mt-1 text-sm text-slate-400">
+            <p className="mt-1 text-sm text-slate-400 dark:text-slate-500">
               Painel TV Mode disponível apenas para <span className="font-semibold text-blue-300">Admin Master</span>, <span className="font-semibold text-blue-300">Gerente</span> ou <span className="font-semibold text-blue-300">Supervisor</span>.
             </p>
           </div>
@@ -495,7 +495,7 @@ function TVLoginGate({ onSucesso, onVoltar }: { onSucesso: () => void; onVoltar:
 
           <form onSubmit={submit} className="space-y-4">
             <div>
-              <label className="mb-1.5 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
+              <label className="mb-1.5 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                 <UserIcon className="h-3 w-3" /> E-mail ou Primeiro Nome
               </label>
               <input
@@ -508,7 +508,7 @@ function TVLoginGate({ onSucesso, onVoltar }: { onSucesso: () => void; onVoltar:
               />
             </div>
             <div>
-              <label className="mb-1.5 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
+              <label className="mb-1.5 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                 <Lock className="h-3 w-3" /> Senha ou Matrícula
               </label>
               <input
@@ -728,7 +728,7 @@ export default function TVModePanel({ onClose, standalone = false }: TVModePanel
               className="h-12 w-12 animate-spin rounded-full border-4 border-white/10"
               style={{ borderTopColor: COLORS.blueLight }}
             />
-            <p className="text-sm text-slate-400">Verificando sessão...</p>
+            <p className="text-sm text-slate-400 dark:text-slate-500">Verificando sessão...</p>
           </div>
         </motion.div>
       </>
@@ -782,7 +782,7 @@ export default function TVModePanel({ onClose, standalone = false }: TVModePanel
               Seu perfil <span className="font-bold uppercase text-red-300">{usuario.perfil}</span> não tem
               permissão para visualizar o Painel TV Mode.
             </p>
-            <p className="mt-2 text-xs text-slate-400">
+            <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
               Acesso liberado apenas para <strong>Admin Master</strong>, <strong>Gerente</strong> ou{" "}
               <strong>Supervisor</strong>. Solicite à gestão a alteração do seu perfil caso precise acompanhar
               o monitoramento em tempo real.
@@ -835,7 +835,7 @@ export default function TVModePanel({ onClose, standalone = false }: TVModePanel
               <h2 className="font-display text-base font-bold tracking-wide text-white sm:text-lg lg:text-xl">
                 ORION · Monitoramento em Tempo Real
               </h2>
-              <p className="text-[10px] text-slate-400 sm:text-xs">
+              <p className="text-[10px] text-slate-400 dark:text-slate-500 sm:text-xs">
                 atualização a cada 30s · logado como{" "}
                 <span className="font-semibold text-blue-300">{usuario.nome.split(" ")[0]}</span> (
                 <span className="uppercase">{usuario.perfil}</span>)
@@ -881,7 +881,7 @@ export default function TVModePanel({ onClose, standalone = false }: TVModePanel
         <div className="relative z-10 border-b border-white/5 bg-black/30 px-3 py-1.5 backdrop-blur sm:px-6 sm:py-2">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-              <span className="hidden items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400 sm:flex sm:text-xs">
+              <span className="hidden items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 sm:flex sm:text-xs">
                 <Calendar className="h-3 w-3" /> Período:
               </span>
 
@@ -985,7 +985,7 @@ export default function TVModePanel({ onClose, standalone = false }: TVModePanel
               </motion.div>
             )}
 
-            <div className="hidden items-center gap-1.5 text-[10px] text-slate-400 xl:flex sm:text-xs">
+            <div className="hidden items-center gap-1.5 text-[10px] text-slate-400 dark:text-slate-500 xl:flex sm:text-xs">
               <span className="rounded border border-white/10 bg-white/5 px-1.5 py-0.5">
                 {resumo?.origem === "metas" ? "Fonte: metas" : "Fonte: vendas"}
               </span>
@@ -1004,13 +1004,13 @@ export default function TVModePanel({ onClose, standalone = false }: TVModePanel
                 className="h-10 w-10 animate-spin rounded-full border-4 border-white/10"
                 style={{ borderTopColor: COLORS.blueLight }}
               />
-              <p className="text-xs text-slate-400 sm:text-sm">Carregando dados da loja...</p>
+              <p className="text-xs text-slate-400 dark:text-slate-500 sm:text-sm">Carregando dados da loja...</p>
             </div>
           ) : erro ? (
             <div className="mx-auto flex max-w-md flex-1 flex-col items-center justify-center rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-center sm:p-6">
               <AlertTriangle className="mb-2 h-8 w-8 text-red-400 sm:h-10 sm:w-10" />
               <h3 className="text-base font-bold text-white sm:text-lg">Não foi possível carregar</h3>
-              <p className="mt-1 text-xs text-slate-400 sm:text-sm">{erro}</p>
+              <p className="mt-1 text-xs text-slate-400 dark:text-slate-500 sm:text-sm">{erro}</p>
               <button
                 onClick={() => void buscar()}
                 className="mt-3 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-500 sm:px-4 sm:py-2 sm:text-sm"
@@ -1022,7 +1022,7 @@ export default function TVModePanel({ onClose, standalone = false }: TVModePanel
             <div className="mx-auto flex max-w-md flex-1 flex-col items-center justify-center rounded-xl border border-white/10 bg-white/5 p-6 text-center sm:p-8">
               <Target className="mb-2 h-10 w-10 text-slate-500 sm:h-12 sm:w-12" />
               <h3 className="text-base font-bold text-white sm:text-lg">Nenhuma meta encontrada</h3>
-              <p className="mt-1 text-xs text-slate-400 sm:text-sm">
+              <p className="mt-1 text-xs text-slate-400 dark:text-slate-500 sm:text-sm">
                 Não há metas ou vendas registradas para o período selecionado ({periodoRotulo}).
               </p>
             </div>
@@ -1067,7 +1067,7 @@ export default function TVModePanel({ onClose, standalone = false }: TVModePanel
                     <h3 className="font-display text-sm font-bold text-white sm:text-base lg:text-lg">
                       Progresso Geral da Loja
                     </h3>
-                    <p className="text-[10px] text-slate-400 sm:text-xs">
+                    <p className="text-[10px] text-slate-400 dark:text-slate-500 sm:text-xs">
                       {fmtPct(pctLoja, 1)} da meta ·{" "}
                       {faltaTotal > 0 ? `faltam ${brlMoeda(faltaTotal, 0)}` : "meta conquistada"}
                     </p>
@@ -1094,7 +1094,7 @@ export default function TVModePanel({ onClose, standalone = false }: TVModePanel
                   <h3 className="font-display text-sm font-bold text-white sm:text-base lg:text-lg">
                     Desempenho por Vendedor
                   </h3>
-                  <span className="text-[10px] text-slate-400 sm:text-xs">
+                  <span className="text-[10px] text-slate-400 dark:text-slate-500 sm:text-xs">
                     {resumo.vendedores.length} vendedores · {periodoRotulo}
                   </span>
                 </div>
@@ -1110,7 +1110,7 @@ export default function TVModePanel({ onClose, standalone = false }: TVModePanel
                       <col className="w-[8%]" />
                     </colgroup>
                     <thead className="sticky top-0 z-10 bg-[#0a192f]">
-                      <tr className="border-b border-white/10 text-left text-[10px] uppercase tracking-wider text-slate-400 sm:text-xs">
+                      <tr className="border-b border-white/10 text-left text-[10px] uppercase tracking-wider text-slate-400 dark:text-slate-500 sm:text-xs">
                         <th className="px-3 py-2 font-semibold sm:px-4 sm:py-2.5">Vendedor</th>
                         <th className="px-3 py-2 font-semibold sm:px-4 sm:py-2.5">Meta</th>
                         <th className="px-3 py-2 font-semibold sm:px-4 sm:py-2.5">Realizado</th>

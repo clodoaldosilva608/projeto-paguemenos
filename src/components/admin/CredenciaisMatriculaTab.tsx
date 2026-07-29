@@ -222,7 +222,7 @@ export default function CredenciaisMatriculaTab() {
 
       {/* Busca */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
         <input
           value={busca}
           onChange={(e) => setBusca(e.target.value)}
@@ -284,11 +284,11 @@ export default function CredenciaisMatriculaTab() {
                           {u.matricula}
                         </code>
                       ) : ehAdmin ? (
-                        <span className="inline-flex items-center gap-1 text-[10px] text-slate-400" title="Admin faz login por email + senha">
+                        <span className="inline-flex items-center gap-1 text-[10px] text-slate-400 dark:text-slate-500" title="Admin faz login por email + senha">
                           <Lock className="h-3 w-3" /> —
                         </span>
                       ) : (
-                        <span className="text-[10px] italic text-slate-400">sem credencial</span>
+                        <span className="text-[10px] italic text-slate-400 dark:text-slate-500">sem credencial</span>
                       )}
                     </td>
                     <td className="px-3 py-2.5 text-xs text-slate-500">{u.email || "—"}</td>
@@ -302,11 +302,11 @@ export default function CredenciaisMatriculaTab() {
                           {u.ativo ? "Ativo" : "Inativo"}
                         </span>
                       ) : ehAdmin ? (
-                        <span className="inline-flex items-center gap-1 text-[10px] text-slate-400" title="Login por email">
+                        <span className="inline-flex items-center gap-1 text-[10px] text-slate-400 dark:text-slate-500" title="Login por email">
                           <Lock className="h-3 w-3" /> email
                         </span>
                       ) : (
-                        <span className="text-[10px] italic text-slate-400">—</span>
+                        <span className="text-[10px] italic text-slate-400 dark:text-slate-500">—</span>
                       )}
                     </td>
                     <td className="px-3 py-2.5">
@@ -340,7 +340,7 @@ export default function CredenciaisMatriculaTab() {
                             <Lock className="h-3 w-3" /> Protegido
                           </span>
                         ) : !podeEditar ? (
-                          <span className="text-[10px] italic text-slate-400" title="Somente leitura">
+                          <span className="text-[10px] italic text-slate-400 dark:text-slate-500" title="Somente leitura">
                             leitura
                           </span>
                         ) : null}

@@ -54,7 +54,7 @@ export default function DashboardView() {
 
   const KpiCard = ({ label, value, icon: Icon }: { label: string; value: React.ReactNode; icon?: any }) => (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      {Icon && <Icon className="mb-1 h-4 w-4 text-slate-400" />}
+      {Icon && <Icon className="mb-1 h-4 w-4 text-slate-400 dark:text-slate-500" />}
       <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{label}</p>
       <p className="mt-1 text-xl font-extrabold text-slate-800">{value}</p>
     </motion.div>
@@ -81,7 +81,7 @@ export default function DashboardView() {
           </div>
           <div className="text-left">
             <p className="font-bold text-slate-800 dark:text-slate-100">Lançar Vendas Diárias</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Registre seu faturamento, clientes e observações do dia</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500">Registre seu faturamento, clientes e observações do dia</p>
           </div>
         </div>
         <div className="rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm group-hover:bg-emerald-500">

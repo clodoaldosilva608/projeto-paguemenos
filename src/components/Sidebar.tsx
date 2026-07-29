@@ -37,7 +37,7 @@ interface ItemNav {
 }
 
 // Quanto menor o nível, mais permissões (admin = 0)
-const H: Record<Perfil, number> = { admin: 0, gerente: 1, supervisor: 2, vendedor: 3 };
+const H: Record<Perfil, number> = { admin: 0, gerente: 1, supervisor: 2, farmaceutica: 3, vendedor: 4 };
 
 const ITENS: ItemNav[] = [
   {
@@ -215,6 +215,7 @@ export default function Sidebar({ paginaAtual, onNavegar, aberto, onFechar }: Si
     admin: "Administrador",
     gerente: "Gerente",
     supervisor: "Supervisor",
+    farmaceutica: "Farmacêutica",
     vendedor: "Vendedor",
   };
 
@@ -257,7 +258,7 @@ export default function Sidebar({ paginaAtual, onNavegar, aberto, onFechar }: Si
                       "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[13px] font-medium transition-all",
                       ativo
                         ? "bg-blue-500/15 text-blue-400 shadow-sm shadow-blue-500/5"
-                        : "text-slate-400 hover:bg-white/[0.04] hover:text-white",
+                        : "text-slate-400 dark:text-slate-500 hover:bg-white/[0.04] hover:text-white",
                     )}
                   >
                     <span className={cn(ativo ? "text-blue-400" : "text-slate-500")}>

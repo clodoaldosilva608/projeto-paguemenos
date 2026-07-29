@@ -55,7 +55,7 @@ export default function RankingView() {
                   <div className="flex justify-between border-t border-slate-100 pt-1">
                     <span className="flex items-center gap-1 text-slate-500"><TrendingUp className="h-3 w-3" /> Projeção:</span>
                     <span className={`font-semibold ${projPct >= 100 ? "text-emerald-600" : "text-blue-600"}`}>
-                      {brlMoeda(projecao)} <span className="text-[10px] font-normal text-slate-400">({projPct.toFixed(1)}%)</span>
+                      {brlMoeda(projecao)} <span className="text-[10px] font-normal text-slate-400 dark:text-slate-500">({projPct.toFixed(1)}%)</span>
                     </span>
                   </div>
                 )}

@@ -175,7 +175,7 @@ function AuditoriaTab() {
       </div>
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-slate-900">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-left text-xs uppercase tracking-wider text-slate-500 dark:bg-white/5 dark:text-slate-400">
+          <thead className="bg-slate-50 text-left text-xs uppercase tracking-wider text-slate-500 dark:bg-white/5 dark:text-slate-400 dark:text-slate-500">
             <tr><th className="px-4 py-2">Quando</th><th className="px-4 py-2">Quem</th><th className="px-4 py-2">Ação</th><th className="px-4 py-2">Alvo</th></tr>
           </thead>
           <tbody>
@@ -207,7 +207,7 @@ function UsuariosTab({ profiles, roles, usuarioLogadoId, onChangeRole, onToggle,
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-slate-900">
       <table className="w-full text-sm">
-        <thead className="bg-slate-50 text-left text-xs uppercase tracking-wider text-slate-500 dark:bg-white/5 dark:text-slate-400">
+        <thead className="bg-slate-50 text-left text-xs uppercase tracking-wider text-slate-500 dark:bg-white/5 dark:text-slate-400 dark:text-slate-500">
           <tr><th className="px-4 py-3">Nome</th><th className="px-4 py-3">E-mail</th><th className="px-4 py-3">Perfil</th><th className="px-4 py-3">Status</th><th className="px-4 py-3 text-right">Ações</th></tr>
         </thead>
         <tbody>
@@ -277,7 +277,7 @@ function ConvitesTab({ invites, onCriar, onRevogar }: {
 
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-slate-900">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-left text-xs uppercase tracking-wider text-slate-500 dark:bg-white/5 dark:text-slate-400">
+          <thead className="bg-slate-50 text-left text-xs uppercase tracking-wider text-slate-500 dark:bg-white/5 dark:text-slate-400 dark:text-slate-500">
             <tr><th className="px-4 py-3">Nome</th><th className="px-4 py-3">E-mail</th><th className="px-4 py-3">Perfil</th><th className="px-4 py-3">Status</th><th className="px-4 py-3 text-right">Ações</th></tr>
           </thead>
           <tbody>

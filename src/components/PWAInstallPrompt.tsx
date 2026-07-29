@@ -82,7 +82,7 @@ export default function PWAInstallPrompt({ variant = "auto" }: { variant?: "auto
                 <button onClick={dismiss} className="rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-white/5">Depois</button>
               </div>
             </div>
-            <button onClick={dismiss} className="text-slate-400 hover:text-white"><X className="h-4 w-4" /></button>
+            <button onClick={dismiss} className="text-slate-400 dark:text-slate-500 hover:text-white"><X className="h-4 w-4" /></button>
           </div>
         </motion.div>
       )}
@@ -96,7 +96,7 @@ export default function PWAInstallPrompt({ variant = "auto" }: { variant?: "auto
               <p className="font-semibold">Instalar no iPhone</p>
               <p className="mt-1 text-xs text-slate-300">Toque em <Share2 className="inline h-3.5 w-3.5" /> Compartilhar no Safari e depois em <Plus className="inline h-3.5 w-3.5" /> <span className="font-semibold">Adicionar à Tela de Início</span>.</p>
             </div>
-            <button onClick={dismiss} className="text-slate-400 hover:text-white"><X className="h-4 w-4" /></button>
+            <button onClick={dismiss} className="text-slate-400 dark:text-slate-500 hover:text-white"><X className="h-4 w-4" /></button>
           </div>
         </motion.div>
       )}

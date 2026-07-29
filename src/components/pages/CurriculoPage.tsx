@@ -130,7 +130,7 @@ export function CurriculoPage() {
                   <div>
                     <h3 className="font-semibold text-slate-800">{curso.titulo}</h3>
                     {curso.descricao && <p className="mt-0.5 text-sm text-slate-500">{curso.descricao}</p>}
-                    <div className="mt-2 flex items-center gap-4 text-xs text-slate-400">
+                    <div className="mt-2 flex items-center gap-4 text-xs text-slate-400 dark:text-slate-500">
                       <span className="flex items-center gap-1"><Calendar className="h-3 w-3" /> Concluído em {new Date(curso.concluido_em).toLocaleDateString("pt-BR")}</span>
                       {curso.duracao && <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {curso.duracao}</span>}
                     </div>

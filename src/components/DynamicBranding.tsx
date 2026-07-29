@@ -74,7 +74,7 @@ export function DynamicHeader({ subtitle }: { subtitle?: string }) {
         <h1 className="font-display text-lg leading-none text-white">{branding.appName}</h1>
         {subtitle && <p className="mt-0.5 text-[10px] uppercase tracking-[0.3em] text-blue-400">{subtitle}</p>}
         {branding.companyName && (
-          <p className="mt-0.5 text-[10px] text-slate-400">{branding.companyName}</p>
+          <p className="mt-0.5 text-[10px] text-slate-400 dark:text-slate-500">{branding.companyName}</p>
         )}
       </div>
     </div>

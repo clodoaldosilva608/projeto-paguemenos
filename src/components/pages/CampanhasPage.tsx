@@ -198,7 +198,7 @@ export default function CampanhasPage() {
           <h3 className="text-lg font-bold text-slate-700 dark:text-slate-200">
             {filtro !== "todas" ? `Nenhuma campanha ${filtro}` : "Nenhuma campanha cadastrada"}
           </h3>
-          <p className="mx-auto mt-2 max-w-md text-sm text-slate-500 dark:text-slate-400">
+          <p className="mx-auto mt-2 max-w-md text-sm text-slate-500 dark:text-slate-400 dark:text-slate-500">
             {podeEditar
               ? "Crie campanhas comerciais para incentivar sua equipe — prêmios, metas por período, regras personalizadas."
               : "Aguarde o gestor criar campanhas comerciais. Elas aparecerão aqui automaticamente."}
@@ -217,20 +217,20 @@ export default function CampanhasPage() {
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1">
                   <h3 className="text-base font-bold text-slate-800 dark:text-white">{c.nome}</h3>
-                  {c.descricao && <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">{c.descricao}</p>}
+                  {c.descricao && <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400 dark:text-slate-500">{c.descricao}</p>}
                 </div>
                 <span className={cn("whitespace-nowrap rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ring-1", statusBadge[c.status])}>{c.status}</span>
               </div>
               <div className="mt-4 grid grid-cols-2 gap-3 text-center">
                 <div className="rounded-lg bg-slate-50 p-2.5 dark:bg-slate-800">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Período</p>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 dark:text-slate-500">Período</p>
                   <p className="mt-0.5 text-xs font-bold text-slate-800 dark:text-slate-200">
                     {c.data_inicio ? new Date(c.data_inicio + "T00:00").toLocaleDateString("pt-BR") : "—"}
                     {c.data_fim ? ` — ${new Date(c.data_fim + "T00:00").toLocaleDateString("pt-BR")}` : ""}
                   </p>
                 </div>
                 <div className="rounded-lg bg-slate-50 p-2.5 dark:bg-slate-800">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Prêmio</p>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 dark:text-slate-500">Prêmio</p>
                   <p className="mt-0.5 text-xs font-bold text-blue-600 dark:text-blue-400">{c.premio || "—"}</p>
                 </div>
               </div>

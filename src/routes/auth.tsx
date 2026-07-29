@@ -85,7 +85,7 @@ function AuthPage() {
             <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={1.5} className="h-8 w-8"><circle cx="12" cy="12" r="3" /><path d="M12 2v4M12 18v4M4.9 4.9l2.9 2.9M16.2 16.2l2.9 2.9M2 12h4M18 12h4M4.9 19.1l2.9-2.9M16.2 7.8l2.9-2.9" strokeLinecap="round" /></svg>
           </div>
           <h1 className="mt-4 font-display text-3xl text-white">ORION — Gestão Multi-Empresa e Performance</h1>
-          <p className="mt-1 text-sm text-slate-400">
+          <p className="mt-1 text-sm text-slate-400 dark:text-slate-500">
             {modo === "signin" && "Faça login para acessar sua conta"}
             {modo === "signup" && "Crie sua conta com o e-mail cadastrado pelo gestor"}
             {modo === "recover" && "Recupere o acesso à sua conta"}
@@ -110,12 +110,12 @@ function AuthPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {modo === "signup" && (
               <div>
-                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-400">Nome</label>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Nome</label>
                 <input value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Seu nome" className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" />
               </div>
             )}
             <div>
-              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-400">
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                 {modo === "signin" ? "E-mail ou Primeiro Nome" : "E-mail"}
               </label>
               <input type={modo === "signin" ? "text" : "email"} required value={email} onChange={(e) => setEmail(e.target.value)}
@@ -129,12 +129,12 @@ function AuthPage() {
             </div>
             {modo !== "recover" && (
               <div>
-                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-400">Senha</label>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Senha</label>
                 <input type="password" required minLength={modo === "signup" ? 8 : 1} value={senha} onChange={(e) => setSenha(e.target.value)} placeholder={modo === "signin" ? "sua matrícula ou senha" : "••••••••"} className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" />
                 {modo === "signup" && (
                   <div className="mt-2 space-y-1">
                     <p className="text-[10px] font-semibold uppercase text-slate-500">A senha deve ter:</p>
-                    <ul className="space-y-0.5 text-[10px] text-slate-400">
+                    <ul className="space-y-0.5 text-[10px] text-slate-400 dark:text-slate-500">
                       <li className={senha.length >= 8 ? "text-emerald-400" : ""}>✓ Mínimo 8 caracteres</li>
                       <li className={/[A-Z]/.test(senha) ? "text-emerald-400" : ""}>✓ 1 letra maiúscula</li>
                       <li className={/[0-9]/.test(senha) ? "text-emerald-400" : ""}>✓ 1 número</li>
@@ -157,7 +157,7 @@ function AuthPage() {
             </button>
           </form>
 
-          <div className="mt-6 flex flex-col items-center gap-2 text-xs text-slate-400">
+          <div className="mt-6 flex flex-col items-center gap-2 text-xs text-slate-400 dark:text-slate-500">
             {modo === "signin" && (<>
               <button onClick={() => setModo("recover")} className="hover:text-white">Esqueci minha senha</button>
               <span>Ainda não tem conta? <button onClick={() => setModo("signup")} className="font-semibold text-blue-400 hover:text-blue-300">Cadastre-se</button></span>

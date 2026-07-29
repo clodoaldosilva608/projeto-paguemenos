@@ -88,7 +88,7 @@ export default function Topbar({ pagina }: TopbarProps) {
         <h1 className="text-2xl font-semibold text-gray-800 sm:text-3xl dark:text-white">
           {titulo}
         </h1>
-        <p className="text-sm text-gray-500 dark:text-slate-400">{subtitulo}</p>
+        <p className="text-sm text-gray-500 dark:text-slate-400 dark:text-slate-500">{subtitulo}</p>
       </div>
       <div className="hidden items-center gap-3 sm:flex">
         {perfisDisponiveis?.length > 1 && (
@@ -112,7 +112,7 @@ export default function Topbar({ pagina }: TopbarProps) {
             <p className="text-xs font-semibold text-gray-700 dark:text-gray-200">
               {usuario?.nome}
             </p>
-            <p className="text-[10px] text-gray-400">
+            <p className="text-[10px] text-gray-500 dark:text-slate-400 dark:text-slate-500">
               {perfilLabel[usuario?.perfil || "vendedor"]}
             </p>
           </div>

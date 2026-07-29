@@ -14,7 +14,7 @@ interface Item {
   Icon: React.ComponentType<{ className?: string }>;
   perfilMinimo: Perfil;
 }
-const H: Record<Perfil, number> = { admin: 0, gerente: 1, supervisor: 2, vendedor: 3 };
+const H: Record<Perfil, number> = { admin: 0, gerente: 1, supervisor: 2, farmaceutica: 3, vendedor: 4 };
 
 const ITEMS: Item[] = [
   { id: "dashboard", label: "Início", Icon: LayoutDashboard, perfilMinimo: "vendedor" },
@@ -86,13 +86,13 @@ export function NavbarSidebarFloat({ paginaAtual, onNavegar, onAbrirMenu }: Prop
             return (
               <button key={it.id} onClick={() => onNavegar(it.id)} aria-label={it.label}
                 title={it.label}
-                className={`group relative flex h-11 w-11 items-center justify-center rounded-full transition ${ativo ? "bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/40" : "text-slate-400 hover:bg-white/10 hover:text-white"}`}>
+                className={`group relative flex h-11 w-11 items-center justify-center rounded-full transition ${ativo ? "bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/40" : "text-slate-400 dark:text-slate-500 hover:bg-white/10 hover:text-white"}`}>
                 <it.Icon className="h-5 w-5" />
                 <span className="pointer-events-none absolute left-full ml-3 whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-[11px] font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100">{it.label}</span>
               </button>
             );
           })}
-          <button onClick={onAbrirMenu} className="flex h-11 w-11 items-center justify-center rounded-full text-slate-400 hover:bg-white/10 hover:text-white">
+          <button onClick={onAbrirMenu} className="flex h-11 w-11 items-center justify-center rounded-full text-slate-400 dark:text-slate-500 hover:bg-white/10 hover:text-white">
             <Menu className="h-5 w-5" />
           </button>
         </motion.nav>
@@ -104,12 +104,12 @@ export function NavbarSidebarFloat({ paginaAtual, onNavegar, onAbrirMenu }: Prop
             const ativo = paginaAtual === it.id;
             return (
               <button key={it.id} onClick={() => onNavegar(it.id)} aria-label={it.label}
-                className={`flex h-10 w-10 items-center justify-center rounded-full ${ativo ? "bg-blue-500/20 text-blue-300" : "text-slate-400"}`}>
+                className={`flex h-10 w-10 items-center justify-center rounded-full ${ativo ? "bg-blue-500/20 text-blue-300" : "text-slate-400 dark:text-slate-500"}`}>
                 <it.Icon className="h-5 w-5" />
               </button>
             );
           })}
-          <button onClick={onAbrirMenu} aria-label="Mais" className="flex h-10 w-10 items-center justify-center rounded-full text-slate-400"><Menu className="h-5 w-5" /></button>
+          <button onClick={onAbrirMenu} aria-label="Mais" className="flex h-10 w-10 items-center justify-center rounded-full text-slate-400 dark:text-slate-500"><Menu className="h-5 w-5" /></button>
         </div>
       </div>
     </>

@@ -46,12 +46,12 @@ export function AdminTour({ aberto, onClose }: { aberto: boolean; onClose: () =>
               <div className="flex h-12 w-12 items-center justify-center rounded-xl shadow-lg" style={{ backgroundColor: `${step.cor}20`, color: step.cor }}><Icon className="h-6 w-6" /></div>
               <div><p className="text-xs font-semibold uppercase tracking-wider" style={{ color: step.cor }}>Passo {stepAtual + 1} de {passos.length}</p><h2 className="text-lg font-bold text-slate-900">{step.titulo}</h2></div>
             </div>
-            <button onClick={onClose} className="rounded-full p-2 text-slate-400 hover:bg-slate-100"><X className="h-5 w-5" /></button>
+            <button onClick={onClose} className="rounded-full p-2 text-slate-400 dark:text-slate-500 hover:bg-slate-100"><X className="h-5 w-5" /></button>
           </div>
         </div>
         <div className="px-6 py-6"><p className="text-base leading-relaxed text-slate-700">{step.descricao}</p></div>
         <div className="flex items-center justify-between border-t border-slate-200 bg-slate-50 px-6 py-4">
-          <button onClick={onClose} className="text-xs font-medium text-slate-400 hover:text-slate-600">Pular tour</button>
+          <button onClick={onClose} className="text-xs font-medium text-slate-400 dark:text-slate-500 hover:text-slate-600">Pular tour</button>
           <div className="flex items-center gap-3">
             <div className="hidden items-center gap-1 sm:flex">{passos.map((_, i) => (<button key={i} onClick={() => setStepAtual(i)} className={`h-1.5 rounded-full transition-all ${i === stepAtual ? "w-6" : "w-1.5 opacity-30"}`} style={{ backgroundColor: i === stepAtual ? step.cor : "#94A3B8" }} />))}</div>
             {stepAtual > 0 && <button onClick={() => setStepAtual(stepAtual - 1)} className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100"><ChevronLeft className="h-4 w-4" /> Anterior</button>}

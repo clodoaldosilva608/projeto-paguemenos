@@ -119,7 +119,7 @@ export default function CaptureVendaModal({ aberto, onClose }: Props) {
       >
         <div className="flex items-center justify-between border-b border-slate-200 p-4 dark:border-slate-700">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Captura de Relatório</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 dark:text-slate-500">Captura de Relatório</p>
             <h3 className="font-display text-xl text-[var(--pm-navy)] dark:text-blue-300">📸 Lançar por Imagem</h3>
           </div>
           <button onClick={onClose} className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">✕</button>
@@ -161,7 +161,7 @@ export default function CaptureVendaModal({ aberto, onClose }: Props) {
                   <button onClick={reset} className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800">
                     Trocar imagem
                   </button>
-                  {avisoDetec && <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">{avisoDetec}</p>}
+                  {avisoDetec && <p className="mt-2 text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500">{avisoDetec}</p>}
                 </div>
               </div>
 
@@ -229,7 +229,7 @@ export default function CaptureVendaModal({ aberto, onClose }: Props) {
         </div>
 
         <div className="flex items-center justify-between gap-2 border-t border-slate-200 p-4 dark:border-slate-700">
-          <span className="text-xs text-slate-500 dark:text-slate-400">
+          <span className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500">
             {linhas.length > 0 && `${linhas.filter((l) => l.marcada).length} de ${linhas.length} selecionadas`}
           </span>
           <div className="flex gap-2">

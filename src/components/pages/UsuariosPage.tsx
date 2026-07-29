@@ -82,14 +82,14 @@ export default function UsuariosPage() {
         {[
           { label: "Total", value: stats.total, color: "text-slate-800 dark:text-white" },
           { label: "Ativos", value: stats.ativos, color: "text-emerald-600 dark:text-emerald-400" },
-          { label: "Inativos", value: stats.inativos, color: "text-slate-500 dark:text-slate-400" },
+          { label: "Inativos", value: stats.inativos, color: "text-slate-500 dark:text-slate-400 dark:text-slate-500" },
           { label: "Admins", value: stats.admins, color: "text-purple-600 dark:text-purple-400" },
           { label: "Gerentes", value: stats.gerentes, color: "text-blue-600 dark:text-blue-400" },
           { label: "Superv.", value: stats.supervisores, color: "text-amber-600 dark:text-amber-400" },
           { label: "Vend.", value: stats.vendedores, color: "text-slate-600 dark:text-slate-300" },
         ].map((s) => (
           <div key={s.label} className="rounded-lg border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-900">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">{s.label}</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 dark:text-slate-500">{s.label}</p>
             <p className={`mt-0.5 text-xl font-bold ${s.color}`}>{s.value}</p>
           </div>
         ))}
@@ -97,7 +97,7 @@ export default function UsuariosPage() {
 
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex min-w-[200px] flex-1 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4 text-slate-400">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4 text-slate-400 dark:text-slate-500">
             <path d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
           <input
@@ -151,7 +151,7 @@ export default function UsuariosPage() {
 
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
         {usuarios.length === 0 ? (
-          <div className="p-10 text-center text-slate-400">
+          <div className="p-10 text-center text-slate-400 dark:text-slate-500">
             <span className="text-4xl">👤</span>
             <p className="mt-2 text-sm">Nenhum usuário encontrado.</p>
           </div>
@@ -160,12 +160,12 @@ export default function UsuariosPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-100 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/50">
-                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Usuário</th>
-                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Perfil</th>
-                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Login</th>
-                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Status</th>
-                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Último Acesso</th>
-                  <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Ações</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 dark:text-slate-500">Usuário</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 dark:text-slate-500">Perfil</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 dark:text-slate-500">Login</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 dark:text-slate-500">Status</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 dark:text-slate-500">Último Acesso</th>
+                  <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 dark:text-slate-500">Ações</th>
                 </tr>
               </thead>
               <tbody>
@@ -185,7 +185,7 @@ export default function UsuariosPage() {
                               </span>
                             )}
                           </p>
-                          <p className="text-xs text-slate-400">{u.email}</p>
+                          <p className="text-xs text-slate-400 dark:text-slate-500">{u.email}</p>
                         </div>
                       </div>
                     </td>
@@ -194,7 +194,7 @@ export default function UsuariosPage() {
                         {u.perfil}
                       </span>
                     </td>
-                    <td className="px-5 py-3 text-xs text-slate-500 dark:text-slate-400">
+                    <td className="px-5 py-3 text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500">
                       {u.metodoLogin === "google" ? "Google" : "Senha"}
                     </td>
                     <td className="px-5 py-3">
@@ -205,7 +205,7 @@ export default function UsuariosPage() {
                           "flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase transition",
                           u.ativo
                             ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400"
-                            : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400",
+                            : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 dark:text-slate-500",
                           !podeInativar(u) && "cursor-not-allowed opacity-60"
                         )}
                         title={!podeInativar(u) ? "Não é possível alterar este usuário" : ""}
@@ -214,7 +214,7 @@ export default function UsuariosPage() {
                         {u.ativo ? "Ativo" : "Inativo"}
                       </button>
                     </td>
-                    <td className="px-5 py-3 text-xs text-slate-500 dark:text-slate-400">
+                    <td className="px-5 py-3 text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500">
                       {u.ultimoAcesso ? new Date(u.ultimoAcesso).toLocaleString("pt-BR") : "—"}
                     </td>
                     <td className="px-5 py-3">
@@ -268,7 +268,7 @@ export default function UsuariosPage() {
         )}
       </div>
 
-      <p className="text-center text-xs text-slate-400">
+      <p className="text-center text-xs text-slate-400 dark:text-slate-500">
         {usuarios.length} usuário{usuarios.length !== 1 ? "s" : ""} exibido{usuarios.length !== 1 ? "s" : ""}
       </p>
 

@@ -126,17 +126,17 @@ function WelcomePage() {
             <CheckCircle2 className="h-7 w-7 text-white" />
           </div>
           <h1 className="mt-4 font-display text-3xl text-white">Bem-vindo(a), {usuario.nome.split(" ")[0]}!</h1>
-          <p className="mt-1 text-sm text-slate-400">Ative sua conta preenchendo seus dados. A senha e o celular são opcionais mas recomendados.</p>
+          <p className="mt-1 text-sm text-slate-400 dark:text-slate-500">Ative sua conta preenchendo seus dados. A senha e o celular são opcionais mas recomendados.</p>
         </div>
 
         <form onSubmit={submit} className="space-y-4 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
           <div>
-            <label className="mb-1.5 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400"><User className="h-3 w-3" /> Nome *</label>
+            <label className="mb-1.5 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500"><User className="h-3 w-3" /> Nome *</label>
             <input required value={nome} onChange={(e) => setNome(e.target.value)} className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" />
           </div>
 
           <div>
-            <label className="mb-1.5 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400"><Phone className="h-3 w-3" /> Celular (opcional)</label>
+            <label className="mb-1.5 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500"><Phone className="h-3 w-3" /> Celular (opcional)</label>
             <input
               type="tel" inputMode="numeric" value={telefone}
               onChange={(e) => setTelefone(maskTelBR(e.target.value))}
@@ -147,7 +147,7 @@ function WelcomePage() {
           </div>
 
           <div>
-            <label className="mb-1.5 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400"><Lock className="h-3 w-3" /> Nova senha (opcional)</label>
+            <label className="mb-1.5 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500"><Lock className="h-3 w-3" /> Nova senha (opcional)</label>
             <div className="relative">
               <input
                 type={mostrarSenha ? "text" : "password"}
@@ -155,7 +155,7 @@ function WelcomePage() {
                 placeholder="Deixe em branco para manter"
                 className={`w-full rounded-lg border bg-white/5 px-4 py-3 pr-10 text-sm text-white placeholder-slate-500 outline-none focus:ring-2 ${erroSenha ? "border-red-500/60 focus:ring-red-500/20" : "border-white/10 focus:border-blue-500 focus:ring-blue-500/20"}`}
               />
-              <button type="button" onClick={() => setMostrarSenha((v) => !v)} className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1.5 text-slate-400 hover:bg-white/10 hover:text-white">
+              <button type="button" onClick={() => setMostrarSenha((v) => !v)} className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1.5 text-slate-400 dark:text-slate-500 hover:bg-white/10 hover:text-white">
                 {mostrarSenha ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
@@ -166,7 +166,7 @@ function WelcomePage() {
                     <div key={i} className={`h-1 flex-1 rounded-full ${i < forca.score ? forca.cor : "bg-white/10"}`} />
                   ))}
                 </div>
-                <p className="mt-1 text-[11px] text-slate-400">Força: <span className="font-semibold text-slate-300">{forca.label}</span></p>
+                <p className="mt-1 text-[11px] text-slate-400 dark:text-slate-500">Força: <span className="font-semibold text-slate-300">{forca.label}</span></p>
                 {erroSenha && <p className="mt-1 text-[11px] text-red-400">{erroSenha}</p>}
               </>
             )}

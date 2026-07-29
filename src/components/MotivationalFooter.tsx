@@ -8,12 +8,12 @@ export default function MotivationalFooter() {
           <span key={i} className="flex items-center gap-3">
             <span className="shimmer-text font-semibold not-italic">{p}</span>
             {i < pilares.length - 1 && (
-              <span className="text-slate-400">•</span>
+              <span className="text-slate-400 dark:text-slate-500">•</span>
             )}
           </span>
         ))}
       </div>
-      <p className="mt-3 text-center text-[11px] uppercase tracking-[0.3em] text-slate-400">
+      <p className="mt-3 text-center text-[11px] uppercase tracking-[0.3em] text-slate-400 dark:text-slate-500">
         ORION · Gestão de Performance no Varejo
       </p>
     </div>

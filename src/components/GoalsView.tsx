@@ -65,7 +65,7 @@ export default function GoalsView() {
       className="space-y-6"
     >
       <div className="flex flex-col gap-2 border-b-2 border-[var(--pm-navy)] pb-4 dark:border-blue-400">
-        <p className="font-cond text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
+        <p className="font-cond text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400 dark:text-slate-500">
           {filial.nome} · {filial.periodo}
         </p>
         <h1 className="font-display text-3xl uppercase tracking-tight text-[var(--pm-navy)] dark:text-blue-300 sm:text-[40px]">
@@ -80,14 +80,14 @@ export default function GoalsView() {
           { label: "Dentro da Meta", value: stats.dentro, color: "text-[var(--pm-green)] dark:text-emerald-400" },
           { label: "Atenção", value: stats.atencao, color: "text-yellow-600 dark:text-yellow-400" },
           { label: "Fora da Meta", value: stats.fora, color: "text-[var(--pm-red)] dark:text-red-400" },
-          { label: "Férias", value: stats.ferias, color: "text-slate-500 dark:text-slate-400" },
+          { label: "Férias", value: stats.ferias, color: "text-slate-500 dark:text-slate-400 dark:text-slate-500" },
           { label: "Realizado Filial", value: brlMoeda(stats.totalRealizado), color: "text-[var(--pm-navy)] dark:text-blue-300", raw: true },
         ].map((s) => (
           <div
             key={s.label}
             className="rounded-md border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-700 dark:bg-slate-900"
           >
-            <p className="font-cond text-[10px] uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
+            <p className="font-cond text-[10px] uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400 dark:text-slate-500">
               {s.label}
             </p>
             <p className={cn("font-num mt-1 text-xl font-bold", s.color)}>{s.value}</p>
@@ -143,7 +143,7 @@ export default function GoalsView() {
                       <p className="font-cond text-base uppercase tracking-wide text-[var(--pm-navy)] dark:text-blue-300">
                         {c.nome}
                       </p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500">
                         {c.ferias ? "Período de férias" : `Ranking #${f!.ranking} · Filial ${filial.id}`}
                       </p>
                     </div>
@@ -156,7 +156,7 @@ export default function GoalsView() {
                 {c.ferias ? (
                   <div className="mt-4 rounded-md bg-slate-50 p-4 text-center dark:bg-slate-800">
                     <p className="text-2xl">⛱</p>
-                    <p className="mt-1 font-cond text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
+                    <p className="mt-1 font-cond text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400 dark:text-slate-500">
                       Retorno em 01/08
                     </p>
                   </div>
@@ -164,7 +164,7 @@ export default function GoalsView() {
                   <>
                     <div className="mt-4 grid grid-cols-3 gap-2 text-center">
                       <div className="rounded-md bg-slate-50 p-2 dark:bg-slate-800">
-                        <p className="font-cond text-[9px] uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                        <p className="font-cond text-[9px] uppercase tracking-wider text-slate-500 dark:text-slate-400 dark:text-slate-500">
                           Realizado
                         </p>
                         <p className="font-num mt-0.5 text-sm font-bold text-slate-800 dark:text-slate-100">
@@ -172,7 +172,7 @@ export default function GoalsView() {
                         </p>
                       </div>
                       <div className="rounded-md bg-slate-50 p-2 dark:bg-slate-800">
-                        <p className="font-cond text-[9px] uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                        <p className="font-cond text-[9px] uppercase tracking-wider text-slate-500 dark:text-slate-400 dark:text-slate-500">
                           Clientes
                         </p>
                         <p className="font-num mt-0.5 text-sm font-bold text-slate-800 dark:text-slate-100">
@@ -180,7 +180,7 @@ export default function GoalsView() {
                         </p>
                       </div>
                       <div className="rounded-md bg-slate-50 p-2 dark:bg-slate-800">
-                        <p className="font-cond text-[9px] uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                        <p className="font-cond text-[9px] uppercase tracking-wider text-slate-500 dark:text-slate-400 dark:text-slate-500">
                           TKM
                         </p>
                         <p className="font-num mt-0.5 text-sm font-bold text-slate-800 dark:text-slate-100">
@@ -225,7 +225,7 @@ export default function GoalsView() {
                     </div>
 
                     <div className="mt-4 flex items-center justify-between border-t border-dashed border-slate-200 pt-3 text-xs dark:border-slate-700">
-                      <span className="text-slate-500 dark:text-slate-400">
+                      <span className="text-slate-500 dark:text-slate-400 dark:text-slate-500">
                         Projeção: <span className="font-num font-bold text-slate-800 dark:text-slate-100">{brlMoeda(f!.projecao)}</span>
                       </span>
                       <button className="font-cond text-xs uppercase tracking-wider text-[var(--pm-navy)] hover:underline dark:text-blue-300">

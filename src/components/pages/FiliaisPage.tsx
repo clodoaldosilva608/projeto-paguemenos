@@ -13,7 +13,7 @@ export default function FiliaisPage() {
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-slate-500 dark:text-slate-400">{filiais.length} filiais cadastradas</p>
+        <p className="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-500">{filiais.length} filiais cadastradas</p>
         <button className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-500">
           <span>+</span> Nova Filial
         </button>
@@ -35,7 +35,7 @@ export default function FiliaisPage() {
                 </div>
                 <div>
                   <p className="font-bold text-slate-800 dark:text-white">Filial {f.id}</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">{f.cidade}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500">{f.cidade}</p>
                 </div>
               </div>
               <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase ${
@@ -49,15 +49,15 @@ export default function FiliaisPage() {
 
             <div className="mt-4 grid grid-cols-3 gap-3 text-center">
               <div>
-                <p className="text-[10px] font-semibold uppercase text-slate-500 dark:text-slate-400">Realizado</p>
+                <p className="text-[10px] font-semibold uppercase text-slate-500 dark:text-slate-400 dark:text-slate-500">Realizado</p>
                 <p className="font-num text-sm font-bold text-slate-800 dark:text-white">{brlMoeda(f.realizado)}</p>
               </div>
               <div>
-                <p className="text-[10px] font-semibold uppercase text-slate-500 dark:text-slate-400">Meta</p>
+                <p className="text-[10px] font-semibold uppercase text-slate-500 dark:text-slate-400 dark:text-slate-500">Meta</p>
                 <p className="font-num text-sm font-bold text-slate-800 dark:text-white">{brlMoeda(f.meta)}</p>
               </div>
               <div>
-                <p className="text-[10px] font-semibold uppercase text-slate-500 dark:text-slate-400">Atingimento</p>
+                <p className="text-[10px] font-semibold uppercase text-slate-500 dark:text-slate-400 dark:text-slate-500">Atingimento</p>
                 <p className={`font-num text-sm font-bold ${f.status === "green" ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}>
                   {pct(f.atingimento)}
                 </p>

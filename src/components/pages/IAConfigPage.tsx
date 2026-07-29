@@ -787,7 +787,7 @@ export default function IAConfigPage() {
 
             <div className="mb-4 flex flex-wrap gap-2">
               <div className="relative flex-1 min-w-[200px]">
-                <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
                 <input
                   value={logsBusca}
                   onChange={(e) => setLogsBusca(e.target.value)}
@@ -828,7 +828,7 @@ export default function IAConfigPage() {
                 <tbody>
                   {logs.length === 0 && (
                     <tr>
-                      <td colSpan={7} className="px-3 py-8 text-center text-slate-400">
+                      <td colSpan={7} className="px-3 py-8 text-center text-slate-400 dark:text-slate-500">
                         Nenhum log encontrado.
                       </td>
                     </tr>
@@ -1002,7 +1002,7 @@ export default function IAConfigPage() {
                   }`}
                 >
                   <span>{v.label}</span>
-                  <ExternalLink className="h-3.5 w-3.5 text-slate-400" />
+                  <ExternalLink className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500" />
                 </a>
               ))}
             </div>

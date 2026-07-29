@@ -20,7 +20,7 @@ export default function Schedule() {
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h3 className="text-base font-semibold text-gray-800 dark:text-gray-100">Agenda de Hoje</h3>
-          <p className="text-xs capitalize text-gray-400">{dataAtual}</p>
+          <p className="text-xs capitalize text-gray-400 dark:text-slate-500">{dataAtual}</p>
         </div>
         <button className="rounded-lg border border-gray-200 px-3 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50 dark:border-white/10 dark:text-gray-300 dark:hover:bg-white/5">
           Ver tudo
@@ -53,7 +53,7 @@ export default function Schedule() {
                         {p[0]}
                       </span>
                     ))}
-                    <span className="ml-1 text-[10px] text-gray-400">
+                    <span className="ml-1 text-[10px] text-gray-400 dark:text-slate-500">
                       {c.participantes.length} {c.participantes.length === 1 ? "pessoa" : "pessoas"}
                     </span>
                   </div>

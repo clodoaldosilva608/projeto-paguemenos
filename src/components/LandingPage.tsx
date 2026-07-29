@@ -183,7 +183,7 @@ function ScrollIndicator({ onClick }: { onClick: () => void }) {
     <button
       onClick={onClick}
       aria-label="Rolar para ver recursos"
-      className="orion-scroll-indicator mx-auto flex flex-col items-center gap-1 text-slate-400 hover:text-white"
+      className="orion-scroll-indicator mx-auto flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500 hover:text-white"
     >
       <span className="text-[11px] uppercase tracking-[0.25em]">Explorar</span>
       <ChevronDown className="h-5 w-5" />
@@ -250,7 +250,7 @@ function FeaturesSection() {
         <h2 className="font-display mt-4 text-3xl font-black tracking-tight text-white sm:text-5xl">
           Tudo o que sua operação precisa
         </h2>
-        <p className="mt-4 text-base text-slate-400 sm:text-lg">
+        <p className="mt-4 text-base text-slate-400 dark:text-slate-500 sm:text-lg">
           Da ponta do vendedor ao board executivo — uma plataforma só para metas, vendas, equipes e
           performance.
         </p>
@@ -278,7 +278,7 @@ function FeaturesSection() {
               <f.icon className="h-6 w-6" />
             </div>
             <h3 className="font-display relative mt-5 text-lg font-bold text-white">{f.title}</h3>
-            <p className="relative mt-2 text-sm text-slate-400">{f.desc}</p>
+            <p className="relative mt-2 text-sm text-slate-400 dark:text-slate-500">{f.desc}</p>
           </motion.div>
         ))}
       </div>
@@ -293,7 +293,7 @@ function FeaturesSection() {
 function Footer() {
   return (
     <footer className="relative z-10 mt-auto border-t border-white/10 bg-black/40 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 py-8 text-xs text-slate-400 sm:flex-row">
+      <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 py-8 text-xs text-slate-400 dark:text-slate-500 sm:flex-row">
         <div className="flex items-center gap-2">
           <div
             className="flex h-7 w-7 items-center justify-center rounded-lg"
@@ -454,7 +454,7 @@ export default function LandingPage() {
             </button>
           </div>
 
-          <p className="mt-3 text-xs text-slate-400">
+          <p className="mt-3 text-xs text-slate-400 dark:text-slate-500">
             Acesso para admin · gerente · supervisor · vendedor
           </p>
           <p className="mt-1 text-xs text-slate-500">

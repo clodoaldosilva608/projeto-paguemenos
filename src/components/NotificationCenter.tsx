@@ -36,7 +36,7 @@ export default function NotificationCenter({ aberto, onFechar }: NotificationCen
         <div className="flex items-center justify-between border-b border-gray-100 p-4 dark:border-white/10">
           <div>
             <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100">Notificações</h3>
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-gray-400 dark:text-slate-500">
               {naoLidas > 0 ? `${naoLidas} não lida${naoLidas > 1 ? "s" : ""}` : "Tudo em dia"}
             </p>
           </div>
@@ -54,7 +54,7 @@ export default function NotificationCenter({ aberto, onFechar }: NotificationCen
           {notificacoes.length === 0 ? (
             <div className="p-8 text-center">
               <p className="text-3xl">🔔</p>
-              <p className="mt-2 text-sm text-gray-400">Nenhuma notificação</p>
+              <p className="mt-2 text-sm text-gray-400 dark:text-slate-500">Nenhuma notificação</p>
             </div>
           ) : (
             notificacoes.map((n) => {
@@ -75,8 +75,8 @@ export default function NotificationCenter({ aberto, onFechar }: NotificationCen
                       <p className="text-sm font-medium text-gray-800 dark:text-gray-100">{n.titulo}</p>
                       {!n.lida && <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />}
                     </div>
-                    <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{n.mensagem}</p>
-                    <p className="mt-1 text-[10px] text-gray-400">{n.tempo}</p>
+                    <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400 dark:text-slate-500">{n.mensagem}</p>
+                    <p className="mt-1 text-[10px] text-gray-400 dark:text-slate-500">{n.tempo}</p>
                   </div>
                   <button
                     onClick={() => remover(n.id)}

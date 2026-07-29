@@ -168,9 +168,9 @@ export default function IAAssistantFAB() {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-display text-lg text-white">Assistente Orion</h3>
-                  <p className="text-[11px] text-slate-400">IA · Foto · Voz · Vendas</p>
+                  <p className="text-[11px] text-slate-400 dark:text-slate-500">IA · Foto · Voz · Vendas</p>
                 </div>
-                <button onClick={fecharIA} aria-label="Fechar assistente IA" title="Fechar" className="rounded-lg p-2 text-slate-400 hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></button>
+                <button onClick={fecharIA} aria-label="Fechar assistente IA" title="Fechar" className="rounded-lg p-2 text-slate-400 dark:text-slate-500 hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></button>
               </header>
 
               <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto p-4">
@@ -222,7 +222,7 @@ export default function IAAssistantFAB() {
 
                 {/* Indicador de carregamento */}
                 {carregando && (
-                  <div className="flex items-center gap-2 text-xs text-slate-400">
+                  <div className="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500">
                     <Loader2 className="h-3 w-3 animate-spin" />
                     Orion está pensando...
                   </div>
@@ -268,7 +268,7 @@ export default function IAAssistantFAB() {
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={carregando}
-                  className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-white/10 text-slate-400 hover:bg-white/5 hover:text-white disabled:opacity-50"
+                  className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-white/10 text-slate-400 dark:text-slate-500 hover:bg-white/5 hover:text-white disabled:opacity-50"
                   aria-label="Enviar imagem"
                   title="Enviar foto"
                 >
@@ -283,7 +283,7 @@ export default function IAAssistantFAB() {
                   className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border disabled:opacity-50 ${
                     gravando
                       ? "border-red-500 bg-red-500/20 text-red-400 animate-pulse"
-                      : "border-white/10 text-slate-400 hover:bg-white/5 hover:text-white"
+                      : "border-white/10 text-slate-400 dark:text-slate-500 hover:bg-white/5 hover:text-white"
                   }`}
                   aria-label={gravando ? "Parar gravação" : "Iniciar gravação"}
                   title={gravando ? "Parar gravação" : "Falar"}

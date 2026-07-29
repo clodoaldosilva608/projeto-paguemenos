@@ -39,7 +39,7 @@ interface Item {
   destaque?: boolean;
 }
 
-const H: Record<Perfil, number> = { admin: 0, gerente: 1, supervisor: 2, vendedor: 3 };
+const H: Record<Perfil, number> = { admin: 0, gerente: 1, supervisor: 2, farmaceutica: 3, vendedor: 4 };
 
 const ITEMS: Item[] = [
   {
@@ -135,7 +135,7 @@ export default function OrionNavBar({ paginaAtual, onNavegar }: Props) {
           {/* Menu completo */}
           <button
             onClick={() => setDrawer(true)}
-            className="ml-1 flex h-11 w-11 items-center justify-center rounded-full text-slate-400 transition hover:bg-white/10 hover:text-white"
+            className="ml-1 flex h-11 w-11 items-center justify-center rounded-full text-slate-400 dark:text-slate-500 transition hover:bg-white/10 hover:text-white"
             aria-label="Mais"
           >
             <Menu className="h-5 w-5" />
@@ -173,7 +173,7 @@ export default function OrionNavBar({ paginaAtual, onNavegar }: Props) {
                 <button
                   aria-label="Fechar"
                   onClick={() => setDrawer(false)}
-                  className="rounded-lg p-1.5 text-slate-400 hover:bg-white/10 hover:text-white"
+                  className="rounded-lg p-1.5 text-slate-400 dark:text-slate-500 hover:bg-white/10 hover:text-white"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -237,7 +237,7 @@ function BotaoNav({ item, ativo, onClick }: { item: Item; ativo: boolean; onClic
     <button
       onClick={onClick}
       className={`group flex h-11 min-w-[52px] flex-col items-center justify-center rounded-full px-2 transition sm:min-w-[64px] sm:px-3 ${
-        ativo ? "bg-blue-500/15 text-blue-300" : "text-slate-400 hover:bg-white/5 hover:text-white"
+        ativo ? "bg-blue-500/15 text-blue-300" : "text-slate-400 dark:text-slate-500 hover:bg-white/5 hover:text-white"
       }`}
       aria-label={label}
     >

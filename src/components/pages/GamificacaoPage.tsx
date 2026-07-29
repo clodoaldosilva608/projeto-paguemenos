@@ -38,7 +38,7 @@ export default function GamificacaoPage() {
             className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900"
           >
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">{k.label}</span>
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 dark:text-slate-500">{k.label}</span>
               <span className="text-lg">{k.icone}</span>
             </div>
             <p className="mt-1 text-2xl font-bold text-slate-800 dark:text-white">{k.value}</p>
@@ -63,12 +63,12 @@ export default function GamificacaoPage() {
                 <span className="text-3xl">{c.icone}</span>
                 <div>
                   <p className="font-bold text-slate-800 dark:text-white">{c.titulo}</p>
-                  <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{c.descricao}</p>
+                  <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500">{c.descricao}</p>
                   <div className="mt-2 flex items-center gap-2">
                     <span className={cn("rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white bg-gradient-to-r", raridadeCores[c.raridade])}>
                       {c.raridade}
                     </span>
-                    {c.data && <span className="text-[10px] text-slate-400">{c.data}</span>}
+                    {c.data && <span className="text-[10px] text-slate-400 dark:text-slate-500">{c.data}</span>}
                   </div>
                 </div>
               </div>
@@ -93,10 +93,10 @@ export default function GamificacaoPage() {
                 <span className="text-3xl opacity-40">{c.icone}</span>
                 <div className="flex-1">
                   <p className="font-bold text-slate-800 dark:text-white">{c.titulo}</p>
-                  <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{c.descricao}</p>
+                  <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500">{c.descricao}</p>
                   <div className="mt-3">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-slate-500 dark:text-slate-400">Progresso</span>
+                      <span className="text-slate-500 dark:text-slate-400 dark:text-slate-500">Progresso</span>
                       <span className="font-num font-bold text-slate-800 dark:text-white">{c.progresso}%</span>
                     </div>
                     <div className="mt-1 h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">

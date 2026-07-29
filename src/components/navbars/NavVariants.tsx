@@ -19,7 +19,7 @@ interface Item {
   destaque?: boolean;
 }
 
-const H: Record<Perfil, number> = { admin: 0, gerente: 1, supervisor: 2, vendedor: 3 };
+const H: Record<Perfil, number> = { admin: 0, gerente: 1, supervisor: 2, farmaceutica: 3, vendedor: 4 };
 
 // Mesma lista do OrionNavBar clássico — garante paridade total
 const TODOS_ITENS: Item[] = [
@@ -103,7 +103,7 @@ function DrawerCompleto({
               <button
                 aria-label="Fechar"
                 onClick={onClose}
-                className="rounded-lg p-1.5 text-slate-400 hover:bg-white/10 hover:text-white"
+                className="rounded-lg p-1.5 text-slate-400 dark:text-slate-500 hover:bg-white/10 hover:text-white"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -203,7 +203,7 @@ function NavBtn({ it, ativo, onClick }: { it: Item; ativo: boolean; onClick: () 
     <button
       onClick={onClick}
       className={`flex flex-col items-center gap-0.5 rounded-full px-3 py-2 transition ${
-        ativo ? "bg-blue-600 text-white shadow-md" : "text-slate-400 hover:text-white"
+        ativo ? "bg-blue-600 text-white shadow-md" : "text-slate-400 dark:text-slate-500 hover:text-white"
       }`}
       title={it.label}
       aria-label={it.label}
@@ -270,6 +270,7 @@ export function NavPerfilDinamico({ paginaAtual, onNavegar }: Props) {
   // Cada perfil vê itens diferentes na barra principal, mas TODOS no drawer
   const itensPorPerfil: Record<Perfil, Pagina[]> = {
     vendedor: ["dashboard", "minhas-metas", "relatorio-vendas", "curriculo"],
+    farmaceutica: ["dashboard", "minhas-metas", "relatorio-vendas", "curriculo"],
     supervisor: ["dashboard", "funcionarios", "ranking", "gamificacao"],
     gerente: ["dashboard", "ranking", "equipes", "ia"],
     admin: ["dashboard", "ranking", "ia", "usuarios"],
@@ -557,7 +558,7 @@ export function NavInteligente({ paginaAtual, onNavegar }: Props) {
                     key={it.id}
                     onClick={() => onNavegar(it.id)}
                     className={`flex flex-col items-center gap-0.5 rounded-xl px-3 py-1.5 transition ${
-                      ativo ? "bg-blue-600 text-white shadow-md" : "text-slate-400 hover:text-white"
+                      ativo ? "bg-blue-600 text-white shadow-md" : "text-slate-400 dark:text-slate-500 hover:text-white"
                     }`}
                     title={it.label}
                     aria-label={it.label}

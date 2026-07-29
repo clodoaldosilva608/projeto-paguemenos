@@ -29,7 +29,7 @@ function CriarTabelasPage() {
     <div className="min-h-screen bg-slate-950 p-4 text-white">
       <div className="mx-auto max-w-3xl">
         <h1 className="mb-2 text-xl font-bold">📋 SQL para criar tabelas Equipes e Filiais</h1>
-        <p className="mb-4 text-sm text-slate-400">
+        <p className="mb-4 text-sm text-slate-400 dark:text-slate-500">
           Copie cada comando abaixo (um por vez) e cole no{" "}
           <a href="https://supabase.com/dashboard/project/wfvihysxlzkwwrwobmpv/sql/new" target="_blank" rel="noreferrer" className="text-blue-400 underline">
             Supabase Studio → SQL Editor
@@ -40,7 +40,7 @@ function CriarTabelasPage() {
           {SQL_STATEMENTS.map((sql, i) => (
             <div key={i} className="overflow-hidden rounded-lg border border-white/10 bg-slate-900">
               <div className="flex items-center justify-between border-b border-white/10 px-3 py-2">
-                <span className="text-xs font-bold uppercase text-slate-400">Passo {i + 1}</span>
+                <span className="text-xs font-bold uppercase text-slate-400 dark:text-slate-500">Passo {i + 1}</span>
                 <button
                   onClick={() => copiar(i)}
                   className="rounded-lg bg-blue-600 px-3 py-1 text-xs font-bold text-white hover:bg-blue-500"

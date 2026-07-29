@@ -104,7 +104,7 @@ function GoogleSheetsCard() {
         <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500/10"><Table2 className="h-5 w-5 text-emerald-600" /></div>
         <div className="flex-1">
           <h3 className="font-bold text-slate-800 dark:text-white">📊 Google Sheets — Planilha Unificada</h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Planilha multi-aba com panorama geral, indicadores por categoria e seções individuais de cada vendedor.</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500">Planilha multi-aba com panorama geral, indicadores por categoria e seções individuais de cada vendedor.</p>
         </div>
         {planilhaUrl && <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300">✓ Ativa</span>}
       </div>
@@ -150,7 +150,7 @@ function GoogleSheetsCard() {
         {planilhaUrl && (
           <a href="https://sheets.google.com" target="_blank" rel="noreferrer" className="flex items-center justify-between rounded-xl border border-slate-200 p-3 text-sm transition hover:bg-slate-50 dark:border-white/10">
             <div className="flex items-center gap-2"><Table2 className="h-4 w-4 text-emerald-600" /><span className="font-medium text-blue-600 underline">Abrir Google Sheets</span></div>
-            <ExternalLink className="h-4 w-4 text-slate-400" />
+            <ExternalLink className="h-4 w-4 text-slate-400 dark:text-slate-500" />
           </a>
         )}
 
@@ -242,7 +242,7 @@ function PowerBICard() {
         <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/10"><BarChart3 className="h-5 w-5 text-amber-600" /></div>
         <div className="flex-1">
           <h3 className="font-bold text-slate-800 dark:text-white">📊 Power BI — Dashboard Automático</h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Conecta dados reais do Orion e gera gráficos automaticamente. Dados prontos para importar no Power BI.</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500">Conecta dados reais do Orion e gera gráficos automaticamente. Dados prontos para importar no Power BI.</p>
         </div>
         {conectado && <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300">✓ Conectado</span>}
       </div>
@@ -330,7 +330,7 @@ function PowerBICard() {
                   return (
                     <div key={i} className="flex flex-1 flex-col items-center gap-0.5">
                       <div className="w-full rounded-t bg-blue-500" style={{ height: `${Math.max(pct, 3)}%` }} title={`R$ ${item.valor.toFixed(2)}`} />
-                      <span className="text-[7px] text-slate-400">{item.data.slice(5)}</span>
+                      <span className="text-[7px] text-slate-400 dark:text-slate-500">{item.data.slice(5)}</span>
                     </div>
                   );
                 })}
@@ -429,7 +429,7 @@ function QuickLinksCard() {
         <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-500/10"><Link2 className="h-5 w-5 text-blue-600" /></div>
         <div className="flex-1">
           <h3 className="font-bold text-slate-800 dark:text-white">Links Rápidos</h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Adicione atalhos para sistemas externos (PDV, WhatsApp, Fornecedor, etc.)</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500">Adicione atalhos para sistemas externos (PDV, WhatsApp, Fornecedor, etc.)</p>
         </div>
       </div>
 

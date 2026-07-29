@@ -121,7 +121,7 @@ export default function IAPage() {
                   <span className="text-xl">{icone}</span>
                   <div>
                     <p className="font-bold text-slate-800 dark:text-white">{ins.titulo}</p>
-                    <p className="mt-1 text-xs leading-relaxed text-slate-600 dark:text-slate-400">{ins.msg}</p>
+                    <p className="mt-1 text-xs leading-relaxed text-slate-600 dark:text-slate-400 dark:text-slate-500">{ins.msg}</p>
                   </div>
                 </div>
               </motion.div>
@@ -136,7 +136,7 @@ export default function IAPage() {
             <h3 className="flex items-center gap-2 font-bold text-slate-800 dark:text-white">
               <Sparkles className="h-4 w-4 text-blue-500" /> Pergunte à IA Orion
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500">
               Contexto: {usuario?.nome ?? "visitante"} · dados reais das suas metas.
             </p>
           </div>
@@ -153,7 +153,7 @@ export default function IAPage() {
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
                 <Bot className="h-7 w-7" />
               </div>
-              <p className="text-sm text-slate-500 dark:text-slate-400">
+              <p className="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-500">
                 Experimente uma das sugestões abaixo ou faça sua pergunta.
               </p>
               <div className="flex flex-wrap justify-center gap-2">

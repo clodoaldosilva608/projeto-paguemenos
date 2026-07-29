@@ -37,13 +37,13 @@ export default function EquipesPage() {
 
   const filtradas = busca ? equipes.filter(e => e.nome.toLowerCase().includes(busca.toLowerCase())) : equipes;
 
-  if (loading) return <div className="flex items-center justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-slate-400" /></div>;
+  if (loading) return <div className="flex items-center justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-slate-400 dark:text-slate-500" /></div>;
 
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
       <div className="flex items-center justify-between gap-3">
         <div className="relative flex-1 max-w-xs">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400 dark:text-slate-500" />
           <input value={busca} onChange={e => setBusca(e.target.value)} placeholder="Buscar..." className="w-full rounded-lg border border-slate-200 py-2 pl-9 pr-3 text-sm" />
         </div>
         <button onClick={() => { setEditando(null); setShowForm(true); }} className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white"><Plus className="h-4 w-4" /> Criar Equipe</button>
@@ -65,8 +65,8 @@ export default function EquipesPage() {
                   <p className="text-xs text-slate-500">Supervisor: {eq.supervisor || "—"} · {eq.membros.length} membros</p>
                 </div>
                 <div className="flex gap-1">
-                  <button onClick={() => { setEditando(eq); setShowForm(true); }} className="rounded p-2 text-slate-400 hover:bg-blue-50 hover:text-blue-600"><Edit className="h-4 w-4" /></button>
-                  <button onClick={() => handleExcluir(eq.id)} className="rounded p-2 text-slate-400 hover:bg-red-50 hover:text-red-600"><Trash2 className="h-4 w-4" /></button>
+                  <button onClick={() => { setEditando(eq); setShowForm(true); }} className="rounded p-2 text-slate-400 dark:text-slate-500 hover:bg-blue-50 hover:text-blue-600"><Edit className="h-4 w-4" /></button>
+                  <button onClick={() => handleExcluir(eq.id)} className="rounded p-2 text-slate-400 dark:text-slate-500 hover:bg-red-50 hover:text-red-600"><Trash2 className="h-4 w-4" /></button>
                 </div>
               </div>
               {eq.membros.length > 0 && (
@@ -94,7 +94,7 @@ function EquipeForm({ equipe, onClose, onSalvar }: { equipe: Equipe | null; onCl
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
-        <div className="mb-4 flex items-center justify-between"><h3 className="text-lg font-semibold">{equipe ? "Editar" : "Nova"} equipe</h3><button onClick={onClose}><X className="h-5 w-5 text-slate-400" /></button></div>
+        <div className="mb-4 flex items-center justify-between"><h3 className="text-lg font-semibold">{equipe ? "Editar" : "Nova"} equipe</h3><button onClick={onClose}><X className="h-5 w-5 text-slate-400 dark:text-slate-500" /></button></div>
         <form onSubmit={e => { e.preventDefault(); onSalvar({ id: equipe?.id || `eq-${Date.now()}`, nome, filialNome, supervisor, membros, ativo: true, criadoEm: equipe?.criadoEm || new Date().toISOString() }); }} className="space-y-3">
           <input value={nome} onChange={e => setNome(e.target.value)} placeholder="Nome *" required className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" />
           <input value={filialNome} onChange={e => setFilialNome(e.target.value)} placeholder="Filial" className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" />

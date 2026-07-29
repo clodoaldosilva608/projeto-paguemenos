@@ -17,6 +17,12 @@ export default function TrialBanner() {
 
   if (!info || info.plano === "ativo") return null;
 
+  // Botão "Contratar" só deve aparecer para admin, gerente ou supervisor
+  // Vendedores e farmacêuticas não veem esse banner (não faz sentido para eles)
+  const perfil = usuario?.perfil;
+  const podeVerContratar = perfil === "admin" || perfil === "gerente" || perfil === "supervisor";
+  if (!podeVerContratar) return null;
+
   const dias = info.expira ? Math.max(0, Math.ceil((new Date(info.expira).getTime() - Date.now()) / 86400000)) : 0;
   const expirado = info.plano === "trial" && dias <= 0;
 

@@ -243,7 +243,7 @@ export default function ReportsView() {
                   </div>
                 </div>
                 {c.projecao > 0 && (
-                  <p className="mt-0.5 text-[10px] text-slate-400">
+                  <p className="mt-0.5 text-[10px] text-slate-400 dark:text-slate-500">
                     Projeção: {brlMoeda(c.projecao)} ({((c.projecao / c.meta) * 100).toFixed(0)}% da
                     meta)
                   </p>
@@ -322,7 +322,7 @@ export default function ReportsView() {
         </div>
 
         {/* Rodapé visível apenas na impressão */}
-        <div className="orion-print-only hidden border-t border-slate-200 pt-3 text-center text-[10px] text-slate-400">
+        <div className="orion-print-only hidden border-t border-slate-200 pt-3 text-center text-[10px] text-slate-400 dark:text-slate-500">
           Relatório gerado pelo Orion · {dataGerado}
         </div>
       </motion.div>
@@ -419,7 +419,7 @@ function DonutChart({ pct, pctProj }: { pct: number; pctProj: number }) {
           Realizado
         </text>
       </svg>
-      <div className="mt-2 text-center text-[10px] text-slate-400">
+      <div className="mt-2 text-center text-[10px] text-slate-400 dark:text-slate-500">
         Projeção: <span className="font-bold text-indigo-500">{pctProj.toFixed(0)}%</span>
       </div>
     </div>

@@ -115,7 +115,7 @@ export default function ConfiguracoesPage() {
                 { label: "Período Padrão de Meta", value: "Mensal", tipo: "select" },
               ].map((c) => (
                 <div key={c.label}>
-                  <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                  <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 dark:text-slate-500">
                     {c.label}
                   </label>
                   <input
@@ -137,7 +137,7 @@ export default function ConfiguracoesPage() {
                 <div key={t.label} className="flex items-center justify-between rounded-lg bg-slate-50 p-3 dark:bg-slate-800">
                   <div>
                     <p className="text-sm font-semibold text-slate-800 dark:text-white">{t.label}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">{t.desc}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500">{t.desc}</p>
                   </div>
                   <div className={`h-6 w-11 rounded-full ${t.value ? "bg-blue-600" : "bg-slate-300"} relative cursor-pointer transition`}>
                     <div className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${t.value ? "left-[22px]" : "left-0.5"}`} />
@@ -151,7 +151,7 @@ export default function ConfiguracoesPage() {
         {aba === "indicadores" && (
           <div className="space-y-4">
             <h3 className="text-base font-bold text-slate-800 dark:text-white">Indicadores Configuráveis</h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+            <p className="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-500">
               Defina quais KPIs são exibidos no dashboard e como são calculados.
             </p>
             {[
@@ -169,7 +169,7 @@ export default function ConfiguracoesPage() {
                   <div className={`h-2 w-2 rounded-full ${ind.ativo ? "bg-emerald-500" : "bg-slate-300"}`} />
                   <div>
                     <p className="text-sm font-semibold text-slate-800 dark:text-white">{ind.nome}</p>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400">{ind.tipo} · {ind.formula}</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 dark:text-slate-500">{ind.tipo} · {ind.formula}</p>
                   </div>
                 </div>
                 <button className="rounded-lg px-3 py-1 text-xs font-semibold text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/20">
@@ -187,9 +187,9 @@ export default function ConfiguracoesPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-slate-200 dark:border-slate-700">
-                    <th className="px-3 py-2 text-left text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Módulo</th>
+                    <th className="px-3 py-2 text-left text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 dark:text-slate-500">Módulo</th>
                     {["Admin", "Gerente", "Supervisor", "Vendedor"].map((p) => (
-                      <th key={p} className="px-3 py-2 text-center text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">{p}</th>
+                      <th key={p} className="px-3 py-2 text-center text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 dark:text-slate-500">{p}</th>
                     ))}
                   </tr>
                 </thead>
@@ -225,7 +225,7 @@ export default function ConfiguracoesPage() {
               <div key={n.trigger} className="flex items-center justify-between rounded-lg bg-slate-50 p-3 dark:bg-slate-800">
                 <div>
                   <p className="text-sm font-semibold text-slate-800 dark:text-white">{n.trigger}</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">{n.canal}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500">{n.canal}</p>
                 </div>
                 <div className={`h-6 w-11 rounded-full ${n.ativo ? "bg-blue-600" : "bg-slate-300"} relative cursor-pointer`}>
                   <div className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${n.ativo ? "left-[22px]" : "left-0.5"}`} />
@@ -240,14 +240,14 @@ export default function ConfiguracoesPage() {
             <h3 className="text-base font-bold text-slate-800 dark:text-white">Personalização Visual</h3>
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Cor Primária</label>
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 dark:text-slate-500">Cor Primária</label>
                 <div className="flex items-center gap-2">
                   <div className="h-10 w-10 rounded-lg bg-blue-600 shadow" />
                   <input type="text" defaultValue="#2563eb" readOnly className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 font-num text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200" />
                 </div>
               </div>
               <div>
-                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Cor Secundária</label>
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 dark:text-slate-500">Cor Secundária</label>
                 <div className="flex items-center gap-2">
                   <div className="h-10 w-10 rounded-lg bg-indigo-600 shadow" />
                   <input type="text" defaultValue="#4f46e5" readOnly className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 font-num text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200" />
@@ -255,7 +255,7 @@ export default function ConfiguracoesPage() {
               </div>
             </div>
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Logo da Empresa</label>
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 dark:text-slate-500">Logo da Empresa</label>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -287,8 +287,8 @@ export default function ConfiguracoesPage() {
                       : "border-slate-200 bg-slate-50 hover:border-blue-400 hover:bg-blue-50/50 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-blue-600"
                   }`}
                 >
-                  <Upload className="h-5 w-5 text-slate-400" />
-                  <p className="text-xs text-slate-400">Arraste o logo aqui ou clique para enviar</p>
+                  <Upload className="h-5 w-5 text-slate-400 dark:text-slate-500" />
+                  <p className="text-xs text-slate-400 dark:text-slate-500">Arraste o logo aqui ou clique para enviar</p>
                   <p className="text-[10px] text-slate-300">PNG, JPG ou SVG · máx 500KB</p>
                 </div>
               )}
@@ -296,7 +296,7 @@ export default function ConfiguracoesPage() {
 
             <div className="border-t border-slate-100 pt-5 dark:border-slate-800">
               <h4 className="mb-1 text-sm font-bold text-slate-800 dark:text-white">📱 Configuração de Tela</h4>
-              <p className="mb-3 text-xs text-slate-500 dark:text-slate-400">
+              <p className="mb-3 text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500">
                 Personalize sua dashboard — escolha o estilo de navegação que melhor se adapta ao seu fluxo de trabalho.
               </p>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -330,7 +330,7 @@ export default function ConfiguracoesPage() {
                       <div className="mt-3 flex h-16 items-end justify-center rounded-lg bg-slate-100 p-2 dark:bg-slate-950">{opt.preview}</div>
                       <div>
                         <p className="text-xs font-bold text-slate-800 dark:text-white">{opt.nome}</p>
-                        <p className="text-[10px] text-slate-500 dark:text-slate-400">{opt.desc}</p>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 dark:text-slate-500">{opt.desc}</p>
                       </div>
                       {ativo && <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">✓ Ativo</span>}
                     </button>
@@ -461,7 +461,7 @@ function NavPreviewSmart() {
           <div key={i} className={`h-3 w-3 rounded ${i===0?"bg-blue-500":"bg-slate-500"}`} />
         ))}
       </div>
-      <div className="text-[7px] font-bold uppercase text-slate-400">oculta ao rolar</div>
+      <div className="text-[7px] font-bold uppercase text-slate-400 dark:text-slate-500">oculta ao rolar</div>
     </div>
   );
 }

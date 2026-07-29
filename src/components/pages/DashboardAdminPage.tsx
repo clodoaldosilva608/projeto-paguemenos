@@ -252,7 +252,7 @@ export default function DashboardAdminPage({ onImpersonate }: { onImpersonate?: 
                       </div>
                     </td>
                     {isFerias ? (
-                      <td colSpan={8} className="px-3 py-2.5 text-center font-bold uppercase tracking-wider text-slate-400">
+                      <td colSpan={8} className="px-3 py-2.5 text-center font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                         🏖️ FÉRIAS
                       </td>
                     ) : (
@@ -341,7 +341,7 @@ export default function DashboardAdminPage({ onImpersonate }: { onImpersonate?: 
       </div>
 
       {/* ====== RODAPÉ ====== */}
-      <p className="text-center text-xs italic text-slate-500 dark:text-slate-400">
+      <p className="text-center text-xs italic text-slate-500 dark:text-slate-400 dark:text-slate-500">
         Disciplina na rotina gera resultado. • Acompanhamento diário • Feedback semanal • Execução com foco
       </p>
 

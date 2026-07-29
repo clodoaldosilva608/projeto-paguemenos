@@ -353,11 +353,11 @@ export default function ModalLancarVendas({ aberto, onClose, onSalvou }: Props) 
                                   <div className="flex items-center gap-2">
                                     {cat && <cat.Icon className="h-3.5 w-3.5 text-slate-500" />}
                                     <span className="font-medium text-slate-700 dark:text-slate-200">{cat?.label || v.categoria}</span>
-                                    {v.observacao && <span className="text-slate-400">· {v.observacao}</span>}
+                                    {v.observacao && <span className="text-slate-400 dark:text-slate-500">· {v.observacao}</span>}
                                   </div>
                                   <div className="flex items-center gap-2">
                                     <span className="font-mono font-bold text-slate-800 dark:text-slate-100">{formatBRL(v.valor_venda)}</span>
-                                    <span className="text-slate-400">· {v.qtd_clientes} cli</span>
+                                    <span className="text-slate-400 dark:text-slate-500">· {v.qtd_clientes} cli</span>
                                     <button
                                       onClick={() => editar(v)}
                                       className="rounded p-1 text-slate-400 hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-white/10"

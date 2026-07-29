@@ -40,7 +40,7 @@ export default function GoalDetailModal({ meta, onFechar }: GoalDetailModalProps
           <div>
             <span className="text-xs font-semibold uppercase tracking-wider text-blue-500">{meta.categoria}</span>
             <h2 className="mt-1 text-2xl font-bold text-gray-800 dark:text-gray-100">{meta.titulo}</h2>
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Prazo: {meta.prazo} · {diasRestantes} dias restantes</p>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 dark:text-slate-500">Prazo: {meta.prazo} · {diasRestantes} dias restantes</p>
           </div>
           <button
             onClick={onFechar}
@@ -57,7 +57,7 @@ export default function GoalDetailModal({ meta, onFechar }: GoalDetailModalProps
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div className="rounded-xl bg-gray-50 p-4 dark:bg-white/5 sm:col-span-2">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Progresso Geral</p>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-slate-500">Progresso Geral</p>
                 <span className={cn("rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1", statusEstilo[meta.status])}>
                   {meta.status}
                 </span>
@@ -83,25 +83,25 @@ export default function GoalDetailModal({ meta, onFechar }: GoalDetailModalProps
           {/* Métricas */}
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             <div className="rounded-xl border border-gray-100 p-4 dark:border-white/10">
-              <p className="text-[10px] font-medium uppercase text-gray-500 dark:text-gray-400">Atual</p>
+              <p className="text-[10px] font-medium uppercase text-gray-500 dark:text-gray-400 dark:text-slate-500">Atual</p>
               <p className="mt-1 text-xl font-bold text-gray-800 dark:text-gray-100">
                 {meta.unidade === "R$" ? `R$ ${meta.atual}` : meta.atual}
               </p>
             </div>
             <div className="rounded-xl border border-gray-100 p-4 dark:border-white/10">
-              <p className="text-[10px] font-medium uppercase text-gray-500 dark:text-gray-400">Meta</p>
+              <p className="text-[10px] font-medium uppercase text-gray-500 dark:text-gray-400 dark:text-slate-500">Meta</p>
               <p className="mt-1 text-xl font-bold text-gray-800 dark:text-gray-100">
                 {meta.unidade === "R$" ? `R$ ${meta.meta}` : meta.meta}
               </p>
             </div>
             <div className="rounded-xl border border-gray-100 p-4 dark:border-white/10">
-              <p className="text-[10px] font-medium uppercase text-gray-500 dark:text-gray-400">Faltam</p>
+              <p className="text-[10px] font-medium uppercase text-gray-500 dark:text-gray-400 dark:text-slate-500">Faltam</p>
               <p className="mt-1 text-xl font-bold text-rose-600 dark:text-rose-400">
                 {Math.max(0, meta.meta - meta.atual)} {meta.unidade}
               </p>
             </div>
             <div className="rounded-xl border border-gray-100 p-4 dark:border-white/10">
-              <p className="text-[10px] font-medium uppercase text-gray-500 dark:text-gray-400">Categoria</p>
+              <p className="text-[10px] font-medium uppercase text-gray-500 dark:text-gray-400 dark:text-slate-500">Categoria</p>
               <p className="mt-1 text-xl font-bold text-blue-600 dark:text-blue-400">{meta.categoria}</p>
             </div>
           </div>

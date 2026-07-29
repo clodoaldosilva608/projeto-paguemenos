@@ -52,7 +52,7 @@ export default function SearchBar({ aberto, onFechar }: SearchBarProps) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center gap-3 border-b border-gray-100 p-4 dark:border-white/10">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-5 w-5 text-gray-400">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-5 w-5 text-gray-400 dark:text-slate-500">
             <path d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
           <input
@@ -62,19 +62,19 @@ export default function SearchBar({ aberto, onFechar }: SearchBarProps) {
             placeholder="Buscar metas, pessoas, páginas..."
             className="flex-1 bg-transparent text-sm text-gray-800 placeholder-gray-400 outline-none dark:text-gray-100 dark:placeholder-gray-500"
           />
-          <kbd className="hidden rounded border border-gray-200 bg-gray-50 px-1.5 py-0.5 text-[10px] font-semibold text-gray-500 sm:inline dark:border-white/10 dark:bg-white/5 dark:text-gray-400">
+          <kbd className="hidden rounded border border-gray-200 bg-gray-50 px-1.5 py-0.5 text-[10px] font-semibold text-gray-500 sm:inline dark:border-white/10 dark:bg-white/5 dark:text-gray-400 dark:text-slate-500">
             ESC
           </kbd>
         </div>
 
         <div className="max-h-80 overflow-y-auto p-2">
           {!query.trim() && (
-            <p className="p-4 text-center text-xs text-gray-400">
+            <p className="p-4 text-center text-xs text-gray-400 dark:text-slate-500">
               Digite para começar a buscar no Orion.
             </p>
           )}
           {query.trim() && resultados.length === 0 && (
-            <p className="p-6 text-center text-sm text-gray-400">Nenhum resultado encontrado.</p>
+            <p className="p-6 text-center text-sm text-gray-400 dark:text-slate-500">Nenhum resultado encontrado.</p>
           )}
           {resultados.map((r, i) => (
             <button
@@ -85,7 +85,7 @@ export default function SearchBar({ aberto, onFechar }: SearchBarProps) {
               <span className="text-lg">{r.icon}</span>
               <div className="flex-1">
                 <p className="font-medium text-gray-800 dark:text-gray-100">{r.titulo}</p>
-                <p className="text-xs text-gray-400">{r.subtitulo}</p>
+                <p className="text-xs text-gray-400 dark:text-slate-500">{r.subtitulo}</p>
               </div>
               <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-500 dark:bg-white/10 dark:text-gray-300">
                 {r.tipo}

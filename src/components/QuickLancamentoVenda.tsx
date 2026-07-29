@@ -66,7 +66,7 @@ export default function QuickLancamentoVenda({ aberto, onClose, vendedorPreSelec
       >
         <div className="mb-4 flex items-center justify-between">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Lançamento Rápido</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 dark:text-slate-500">Lançamento Rápido</p>
             <h3 className="font-display text-xl text-[var(--pm-navy)] dark:text-blue-300">⚡ Nova Venda</h3>
           </div>
           <button onClick={onClose} className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">✕</button>

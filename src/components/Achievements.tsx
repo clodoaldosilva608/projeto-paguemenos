@@ -18,7 +18,7 @@ export default function Achievements() {
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">Conquistas</h3>
-          <p className="text-xs text-gray-500 dark:text-gray-400">
+          <p className="text-xs text-gray-500 dark:text-gray-400 dark:text-slate-500">
             {desbloqueadas.length} de {conquistas.length} desbloqueadas
           </p>
         </div>
@@ -40,7 +40,7 @@ export default function Achievements() {
 
       {/* Desbloqueadas */}
       <div>
-        <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+        <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 dark:text-slate-500">
           🏆 Conquistadas
         </p>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -59,8 +59,8 @@ export default function Achievements() {
                   <span className="text-4xl">{c.icone}</span>
                   <div className="flex-1">
                     <p className="font-semibold text-gray-800 dark:text-gray-100">{c.titulo}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{c.descricao}</p>
-                    <p className="mt-1 text-[10px] font-medium text-gray-400">Desbloqueada em {c.data}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 dark:text-slate-500">{c.descricao}</p>
+                    <p className="mt-1 text-[10px] font-medium text-gray-400 dark:text-slate-500">Desbloqueada em {c.data}</p>
                   </div>
                 </div>
               </div>
@@ -71,7 +71,7 @@ export default function Achievements() {
 
       {/* Em progresso */}
       <div>
-        <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+        <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 dark:text-slate-500">
           ⏳ Em Progresso
         </p>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -89,7 +89,7 @@ export default function Achievements() {
                   <span className="text-4xl grayscale">{c.icone}</span>
                   <div className="flex-1">
                     <p className="font-semibold text-gray-800 dark:text-gray-100">{c.titulo}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{c.descricao}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 dark:text-slate-500">{c.descricao}</p>
                     {c.progresso !== undefined && (
                       <div className="mt-2">
                         <div className="h-1.5 w-full rounded-full bg-gray-200 dark:bg-white/10">
@@ -98,7 +98,7 @@ export default function Achievements() {
                             style={{ width: `${c.progresso}%` }}
                           />
                         </div>
-                        <p className="mt-1 text-[10px] font-semibold text-gray-500 dark:text-gray-400">
+                        <p className="mt-1 text-[10px] font-semibold text-gray-500 dark:text-gray-400 dark:text-slate-500">
                           {c.progresso}% concluído
                         </p>
                       </div>

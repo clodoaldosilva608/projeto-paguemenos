@@ -164,7 +164,7 @@ export default function FuncionarioModal({ aberto, onFechar, usuario, onSaved, p
           )}
 
           <div>
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 dark:text-slate-500">
               Nome completo *
             </label>
             <input
@@ -177,7 +177,7 @@ export default function FuncionarioModal({ aberto, onFechar, usuario, onSaved, p
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Email *</label>
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 dark:text-slate-500">Email *</label>
             <input
               type="email"
               value={email}
@@ -189,7 +189,7 @@ export default function FuncionarioModal({ aberto, onFechar, usuario, onSaved, p
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Telefone</label>
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 dark:text-slate-500">Telefone</label>
               <input
                 type="text"
                 value={telefone}
@@ -199,7 +199,7 @@ export default function FuncionarioModal({ aberto, onFechar, usuario, onSaved, p
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Cargo</label>
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 dark:text-slate-500">Cargo</label>
               <input
                 type="text"
                 value={cargo}
@@ -211,7 +211,7 @@ export default function FuncionarioModal({ aberto, onFechar, usuario, onSaved, p
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 dark:text-slate-500">
               Perfil de acesso *
             </label>
             <div className="grid grid-cols-3 gap-2">
@@ -224,7 +224,7 @@ export default function FuncionarioModal({ aberto, onFechar, usuario, onSaved, p
                     "flex flex-col items-center gap-1 rounded-lg border p-3 text-xs font-semibold transition",
                     perfil === p.value
                       ? "border-blue-500 bg-blue-50 text-blue-700 dark:border-blue-600 dark:bg-blue-900/30 dark:text-blue-300"
-                      : "border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400"
+                      : "border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:text-slate-500"
                   )}
                 >
                   <span className="text-2xl">{p.icon}</span>
@@ -236,7 +236,7 @@ export default function FuncionarioModal({ aberto, onFechar, usuario, onSaved, p
 
           {filiais.length > 0 && (
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Filial</label>
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 dark:text-slate-500">Filial</label>
               <select
                 value={filialId}
                 onChange={(e) => setFilialId(e.target.value)}
@@ -252,7 +252,7 @@ export default function FuncionarioModal({ aberto, onFechar, usuario, onSaved, p
           )}
 
           <div>
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 dark:text-slate-500">
               Método de login
             </label>
             <div className="flex gap-3">
@@ -263,7 +263,7 @@ export default function FuncionarioModal({ aberto, onFechar, usuario, onSaved, p
                   "flex flex-1 items-center justify-center gap-2 rounded-lg border p-3 text-sm font-semibold transition",
                   metodoLogin === "email"
                     ? "border-blue-500 bg-blue-50 text-blue-700 dark:border-blue-600 dark:bg-blue-900/30 dark:text-blue-300"
-                    : "border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400"
+                    : "border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:text-slate-500"
                 )}
               >
                 🔐 Senha
@@ -275,7 +275,7 @@ export default function FuncionarioModal({ aberto, onFechar, usuario, onSaved, p
                   "flex flex-1 items-center justify-center gap-2 rounded-lg border p-3 text-sm font-semibold transition",
                   metodoLogin === "google"
                     ? "border-blue-500 bg-blue-50 text-blue-700 dark:border-blue-600 dark:bg-blue-900/30 dark:text-blue-300"
-                    : "border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400"
+                    : "border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:text-slate-500"
                 )}
               >
                 <span className="font-bold">G</span> Google
@@ -285,7 +285,7 @@ export default function FuncionarioModal({ aberto, onFechar, usuario, onSaved, p
 
           {metodoLogin === "email" && (
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 dark:text-slate-500">
                 Senha {usuario ? "(deixe em branco para manter)" : "*"}
               </label>
               <input
@@ -295,7 +295,7 @@ export default function FuncionarioModal({ aberto, onFechar, usuario, onSaved, p
                 className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                 placeholder={usuario ? "••••••••" : "Mínimo 6 caracteres"}
               />
-              <p className="mt-1 text-[11px] text-slate-400">
+              <p className="mt-1 text-[11px] text-slate-400 dark:text-slate-500">
                 O colaborador usará email + senha para acessar a plataforma.
               </p>
             </div>

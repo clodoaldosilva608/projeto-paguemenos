@@ -62,7 +62,7 @@ export default function QuickAccessLauncher() {
             >
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-white">Escolha um destino</h3>
-                <button onClick={() => setAberto(false)} className="rounded-lg p-1 text-slate-400 hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></button>
+                <button onClick={() => setAberto(false)} className="rounded-lg p-1 text-slate-400 dark:text-slate-500 hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></button>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 {links.map((l) => {

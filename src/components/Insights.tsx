@@ -37,7 +37,7 @@ export default function Insights() {
           </span>
           <div>
             <h3 className="text-base font-semibold text-gray-800 dark:text-gray-100">Insights Inteligentes</h3>
-            <p className="text-[10px] text-gray-400 dark:text-gray-500">
+            <p className="text-[10px] text-gray-400 dark:text-gray-500 dark:text-slate-400">
               Análises personalizadas baseadas no seu desempenho
             </p>
           </div>

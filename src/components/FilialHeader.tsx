@@ -10,7 +10,7 @@ export default function FilialHeader() {
           <span className="text-[var(--pm-navy)] dark:text-blue-300">e Individuais</span>
         </h1>
         <p className="mt-2 font-cond text-sm uppercase tracking-[0.25em] text-[var(--pm-red)] dark:text-red-400 sm:text-base">
-          {filial.nome} <span className="mx-2 text-slate-400">•</span> {filial.periodo}
+          {filial.nome} <span className="mx-2 text-slate-400 dark:text-slate-500">•</span> {filial.periodo}
         </p>
       </div>
 
