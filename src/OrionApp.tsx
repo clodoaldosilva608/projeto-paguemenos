@@ -22,6 +22,7 @@ import { DocumentosPage } from "./components/pages/DocumentosPage";
 import { TourFAB } from "./components/tour/AdminTour";
 import TrialBanner from "./components/TrialBanner";
 import NotificacoesGerente from "./components/NotificacoesGerente";
+import AtualizarCredencialBanner from "./components/AtualizarCredencialBanner";
 import { useAutoSync } from "./hooks/useAutoSync";
 
 import type { Pagina } from "./components/Sidebar";
@@ -224,6 +225,9 @@ export default function OrionApp() {
     >
       <main className={`paper-grid mx-auto max-w-7xl px-4 ${bottomPadding} pt-6 sm:px-8 sm:pt-8`}>
         {variant === "top-minimal" && renderNavbar()}
+
+        {/* BANNER: atualizar credencial padrão (senha == matrícula) */}
+        <AtualizarCredencialBanner />
 
         {/* BANNER IMPERSONATE — admin/gerente acessando como vendedor */}
         {estaImpersonando && (

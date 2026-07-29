@@ -248,3 +248,117 @@ export const excluirCredencial = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+// ------------------------------------------------------------------
+// Auto-atualização de credencial pelo próprio usuário
+// Permite que o usuário troque a própria senha quando está usando credencial padrão
+// ------------------------------------------------------------------
+
+// Verifica se o usuário está usando credencial padrão (senha == matrícula)
+// Retorna true se a senha atual é igual à matrícula cadastrada
+export const verificarCredencialPadrao = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const userId = context.userId;
+
+    // Buscar credencial do usuário na tabela login_matricula
+    const { data: cred, error } = await supabaseAdmin
+      .from("login_matricula")
+      .select("matricula, primeiro_nome")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (error) throw new Error(error.message);
+
+    // Se não tem credencial por matrícula (ex: admin master), não é credencial padrão
+    if (!cred) {
+      return {
+        temCredencial: false,
+        ehPadrao: false,
+        primeiroNome: null,
+        matricula: null,
+      };
+    }
+
+    // Verificar se a senha atual do auth é igual à matrícula
+    // Buscar dados do usuário no auth
+    const { data: authUser, error: authErr } = await supabaseAdmin.auth.admin.getUserById(userId);
+    if (authErr || !authUser?.user?.email) {
+      throw new Error("Erro ao verificar credencial do usuário.");
+    }
+
+    // Tentar autenticar com a matrícula como senha — se funcionar, é credencial padrão
+    const { data: signInData, error: signInErr } = await supabaseAdmin.auth.signInWithPassword({
+      email: authUser.user.email,
+      password: cred.matricula,
+    });
+
+    // Se o login com a matrícula funcionou, é credencial padrão
+    const ehPadrao = !signInErr && !!signInData.session;
+
+    // Se logamos com a matrícula para testar, fazemos signOut para não poluir a sessão
+    if (ehPadrao && signInData.session) {
+      await supabaseAdmin.auth.signOut();
+    }
+
+    return {
+      temCredencial: true,
+      ehPadrao,
+      primeiroNome: cred.primeiro_nome,
+      matricula: cred.matricula,
+    };
+  });
+
+// Permite ao usuário atualizar a própria credencial (senha + opcionalmente primeiro nome)
+// Valida força da senha e atualiza no auth.users
+export const atualizarPropriaCredencial = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((v: unknown) =>
+    z.object({
+      novaSenha: z.string().min(8, "Senha deve ter pelo menos 8 caracteres"),
+      primeiroNome: z.string().min(2).max(50).optional(),
+    }).parse(v),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const userId = context.userId;
+
+    // Validações de força de senha
+    const senha = data.novaSenha;
+    if (!/[A-Z]/.test(senha)) throw new Error("Senha deve conter ao menos 1 letra maiúscula.");
+    if (!/[a-z]/.test(senha)) throw new Error("Senha deve conter ao menos 1 letra minúscula.");
+    if (!/\d/.test(senha)) throw new Error("Senha deve conter ao menos 1 número.");
+    if (!/[^A-Za-z0-9]/.test(senha)) throw new Error("Senha deve conter ao menos 1 caractere especial.");
+
+    // Não permitir que a nova senha seja igual à matrícula atual (se tiver credencial)
+    const { data: cred } = await supabaseAdmin
+      .from("login_matricula")
+      .select("matricula")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (cred && senha === cred.matricula) {
+      throw new Error("A nova senha não pode ser igual à matrícula atual. Escolha uma senha diferente.");
+    }
+
+    // Atualizar senha no auth.users
+    const { error: updateErr } = await supabaseAdmin.auth.admin.updateUserById(userId, {
+      password: senha,
+    });
+    if (updateErr) throw new Error("Erro ao atualizar senha: " + updateErr.message);
+
+    // Se informou novo primeiro_nome, atualizar na tabela login_matricula
+    if (data.primeiroNome && cred) {
+      const { error: credErr } = await supabaseAdmin
+        .from("login_matricula")
+        .update({
+          primeiro_nome: data.primeiroNome.trim().toLowerCase(),
+          atualizado_em: new Date().toISOString(),
+        })
+        .eq("user_id", userId);
+      if (credErr) throw new Error("Senha atualizada, mas erro ao atualizar primeiro nome: " + credErr.message);
+    }
+
+    return { ok: true };
+  });
