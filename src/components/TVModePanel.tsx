@@ -301,29 +301,29 @@ function KpiCardTV({
 }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur"
-      style={{ boxShadow: `inset 0 0 0 1px ${accent}22, 0 12px 32px -16px ${accent}88` }}
+      transition={{ duration: 0.3 }}
+      className="relative overflow-hidden rounded-xl border border-white/10 bg-white/[0.04] p-3 backdrop-blur sm:p-4"
+      style={{ boxShadow: `inset 0 0 0 1px ${accent}22, 0 8px 24px -16px ${accent}88` }}
     >
       <div
-        className="absolute -right-8 -top-8 h-32 w-32 rounded-full blur-3xl"
+        className="absolute -right-6 -top-6 h-20 w-20 rounded-full blur-2xl sm:h-28 sm:w-28"
         style={{ background: `${accent}55` }}
       />
-      <div className="relative flex items-center gap-3">
+      <div className="relative flex items-center gap-2 sm:gap-3">
         <div
-          className="flex h-12 w-12 items-center justify-center rounded-xl"
+          className="flex h-8 w-8 items-center justify-center rounded-lg sm:h-10 sm:w-10"
           style={{ background: `${accent}22`, color: accent }}
         >
           {icon}
         </div>
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{label}</p>
-          {sub && <p className="text-[11px] text-slate-500">{sub}</p>}
+        <div className="min-w-0">
+          <p className="text-[9px] font-semibold uppercase tracking-[0.15em] text-slate-400 sm:text-[11px] sm:tracking-[0.2em]">{label}</p>
+          {sub && <p className="truncate text-[9px] text-slate-500 sm:text-[11px]">{sub}</p>}
         </div>
       </div>
-      <p className="font-num mt-4 text-3xl font-bold sm:text-4xl" style={{ color: COLORS.white }}>
+      <p className="font-num mt-2 text-xl font-bold sm:mt-3 sm:text-2xl lg:text-3xl" style={{ color: COLORS.white }}>
         {value}
       </p>
     </motion.div>
@@ -362,51 +362,51 @@ function LinhaVendedorTV({ v, rank }: { v: VendedorTV; rank: number }) {
 
   return (
     <motion.tr
-      initial={{ opacity: 0, x: -12 }}
+      initial={{ opacity: 0, x: -8 }}
       animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.3, delay: rank * 0.04 }}
+      transition={{ duration: 0.2, delay: rank * 0.03 }}
       className="border-b border-white/5 hover:bg-white/[0.03]"
     >
-      <td className="px-4 py-4">
-        <div className="flex items-center gap-3">
-          <span className="w-6 text-center text-base">{medalha ?? `#${rank + 1}`}</span>
+      <td className="px-3 py-2 sm:px-4 sm:py-2.5">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <span className="w-5 text-center text-xs sm:text-sm">{medalha ?? `#${rank + 1}`}</span>
           <div
-            className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold"
+            className="flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-bold sm:h-9 sm:w-9 sm:text-xs"
             style={{ background: `${st.color}22`, color: st.color }}
           >
             {iniciais}
           </div>
-          <span className="font-display text-base text-white sm:text-lg">{v.nome}</span>
+          <span className="font-display truncate text-xs text-white sm:text-sm lg:text-base">{v.nome}</span>
         </div>
       </td>
-      <td className="px-4 py-4 font-num text-base text-slate-300 sm:text-lg">
+      <td className="px-3 py-2 font-num text-xs text-slate-300 sm:px-4 sm:py-2.5 sm:text-sm lg:text-base">
         {brlMoeda(v.meta, 0)}
       </td>
-      <td className="px-4 py-4 font-num text-base font-semibold text-white sm:text-lg">
+      <td className="px-3 py-2 font-num text-xs font-semibold text-white sm:px-4 sm:py-2.5 sm:text-sm lg:text-base">
         {brlMoeda(v.realizado, 0)}
       </td>
-      <td className="px-4 py-4">
-        <div className="flex items-center gap-3">
-          <div className="w-40 sm:w-56">
-            <BarraProgressoTV pctValor={pctVal} cor={st.color} />
+      <td className="px-3 py-2 sm:px-4 sm:py-2.5">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="min-w-0 flex-1">
+            <BarraProgressoTV pctValor={pctVal} cor={st.color} altura="h-2 sm:h-2.5" />
           </div>
           <span
-            className="font-num w-16 text-right text-base font-bold sm:text-lg"
+            className="font-num w-12 text-right text-xs font-bold sm:w-14 sm:text-sm lg:text-base"
             style={{ color: st.color }}
           >
             {fmtPct(pctVal, 1)}
           </span>
         </div>
       </td>
-      <td className="hidden px-4 py-4 font-num text-base text-slate-400 sm:table-cell sm:text-lg">
+      <td className="hidden px-3 py-2 font-num text-xs text-slate-400 sm:table-cell sm:px-4 sm:py-2.5 sm:text-sm lg:text-base">
         {brlMoeda(falta, 0)}
       </td>
-      <td className="px-4 py-4">
+      <td className="px-3 py-2 sm:px-4 sm:py-2.5">
         <span
-          className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider"
+          className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider sm:px-2.5 sm:py-1 sm:text-[10px]"
           style={{ background: st.bg, color: st.color }}
         >
-          {pctVal >= 100 ? <CheckCircle2 className="h-3 w-3" /> : <Activity className="h-3 w-3" />}
+          {pctVal >= 100 ? <CheckCircle2 className="h-2.5 w-2.5" /> : <Activity className="h-2.5 w-2.5" />}
           {st.label}
         </span>
       </td>
@@ -704,9 +704,11 @@ export default function TVModePanel({ onClose, standalone = false }: TVModePanel
   };
 
   // Classes wrapper: overlay (fixed) ou página standalone
+  // Usa h-screen + overflow-hidden para garantir que NUNCA precise scroll na página
+  // Apenas a tabela interna pode scrollar se necessário (mas idealmente cabe sem scroll)
   const wrapperClass = standalone
-    ? "relative flex min-h-screen flex-col overflow-y-auto orion-tv-scroll"
-    : "fixed inset-0 z-[90] flex flex-col overflow-y-auto orion-tv-scroll";
+    ? "relative flex h-screen flex-col overflow-hidden"
+    : "fixed inset-0 z-[90] flex h-screen flex-col overflow-hidden";
 
   // ============ ESTADOS DE ACESSO ============
 
@@ -820,73 +822,73 @@ export default function TVModePanel({ onClose, standalone = false }: TVModePanel
         <div className="pointer-events-none absolute inset-0 orion-aurora-bg opacity-30" />
         <div className="pointer-events-none absolute inset-0 orion-grid-mesh opacity-40" />
 
-        {/* HEADER */}
-        <header className="relative z-10 flex flex-wrap items-center justify-between gap-4 border-b border-white/10 bg-black/30 px-6 py-4 backdrop-blur">
-          <div className="flex items-center gap-3">
+        {/* HEADER — compacto, altura fixa */}
+        <header className="relative z-10 flex flex-wrap items-center justify-between gap-2 border-b border-white/10 bg-black/40 px-4 py-2 backdrop-blur sm:px-6 sm:py-2.5">
+          <div className="flex items-center gap-2 sm:gap-3">
             <div
-              className="flex h-11 w-11 items-center justify-center rounded-xl"
+              className="flex h-9 w-9 items-center justify-center rounded-lg sm:h-10 sm:w-10"
               style={{ background: COLORS.blueOrion }}
             >
-              <Tv className="h-6 w-6 text-white" />
+              <Tv className="h-5 w-5 text-white" />
             </div>
-            <div>
-              <h2 className="font-display text-xl font-bold tracking-wide text-white sm:text-2xl">
+            <div className="min-w-0">
+              <h2 className="font-display text-base font-bold tracking-wide text-white sm:text-lg lg:text-xl">
                 ORION · Monitoramento em Tempo Real
               </h2>
-              <p className="text-xs text-slate-400">
-                Painel TV · atualização automática a cada 30s · logado como{" "}
+              <p className="text-[10px] text-slate-400 sm:text-xs">
+                atualização a cada 30s · logado como{" "}
                 <span className="font-semibold text-blue-300">{usuario.nome.split(" ")[0]}</span> (
                 <span className="uppercase">{usuario.perfil}</span>)
               </p>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5">
-              <span className="orion-live-dot h-2 w-2 rounded-full bg-emerald-400" />
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-300">AO VIVO</span>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-1.5 rounded-md border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 sm:px-2.5">
+              <span className="orion-live-dot h-1.5 w-1.5 rounded-full bg-emerald-400 sm:h-2 sm:w-2" />
+              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-300 sm:text-xs">AO VIVO</span>
             </div>
-            <div className="hidden items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-300 sm:flex">
-              <Clock className="h-3.5 w-3.5" />
-              <span>Próx. atualização em {segundosRestantes}s</span>
+            <div className="hidden items-center gap-1.5 rounded-md border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-slate-300 lg:flex sm:text-xs">
+              <Clock className="h-3 w-3" />
+              <span>Próx: {segundosRestantes}s</span>
             </div>
-            <div className="hidden items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-300 md:flex">
-              <Wifi className="h-3.5 w-3.5" />
-              <span>Última: {hora}</span>
+            <div className="hidden items-center gap-1.5 rounded-md border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-slate-300 xl:flex sm:text-xs">
+              <Wifi className="h-3 w-3" />
+              <span>{hora}</span>
             </div>
             <button
               onClick={() => void buscar(true)}
               disabled={atualizando}
-              className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-200 hover:bg-white/10 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-md border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold text-slate-200 hover:bg-white/10 disabled:opacity-50 sm:px-2.5 sm:py-1.5 sm:text-xs"
               aria-label="Atualizar agora"
               title="Atualizar agora"
             >
-              <RefreshCw className={`h-3.5 w-3.5 ${atualizando ? "animate-spin" : ""}`} />
-              <span className="hidden sm:inline">Atualizar</span>
+              <RefreshCw className={`h-3 w-3 sm:h-3.5 sm:w-3.5 ${atualizando ? "animate-spin" : ""}`} />
+              <span className="hidden md:inline">Atualizar</span>
             </button>
             <button
               onClick={fechar}
-              className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-200 hover:bg-red-500/20 hover:text-red-300"
+              className="inline-flex items-center gap-1.5 rounded-md border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold text-slate-200 hover:bg-red-500/20 hover:text-red-300 sm:px-2.5 sm:py-1.5 sm:text-xs"
               aria-label="Fechar painel"
             >
-              <X className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Fechar painel</span>
+              <X className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+              <span className="hidden md:inline">Fechar</span>
             </button>
           </div>
         </header>
 
-        {/* SELETOR DE PERÍODO */}
-        <div className="relative z-10 border-b border-white/5 bg-black/20 px-6 py-3 backdrop-blur">
-          <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-400">
-                <Calendar className="h-3.5 w-3.5" /> Período:
+        {/* SELETOR DE PERÍODO — compacto */}
+        <div className="relative z-10 border-b border-white/5 bg-black/30 px-3 py-1.5 backdrop-blur sm:px-6 sm:py-2">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+              <span className="hidden items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400 sm:flex sm:text-xs">
+                <Calendar className="h-3 w-3" /> Período:
               </span>
 
-              <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 p-1">
+              <div className="flex items-center gap-0.5 rounded-md border border-white/10 bg-white/5 p-0.5">
                 <button
                   onClick={() => setFiltro({ modo: "atual" })}
-                  className={`rounded-md px-3 py-1.5 text-xs font-semibold transition ${
+                  className={`rounded px-2 py-1 text-[10px] font-semibold transition sm:text-xs ${
                     filtro.modo === "atual"
                       ? "bg-blue-600 text-white shadow"
                       : "text-slate-300 hover:bg-white/10"
@@ -896,7 +898,7 @@ export default function TVModePanel({ onClose, standalone = false }: TVModePanel
                 </button>
                 <button
                   onClick={() => setFiltro({ modo: "anterior" })}
-                  className={`rounded-md px-3 py-1.5 text-xs font-semibold transition ${
+                  className={`rounded px-2 py-1 text-[10px] font-semibold transition sm:text-xs ${
                     filtro.modo === "anterior"
                       ? "bg-blue-600 text-white shadow"
                       : "text-slate-300 hover:bg-white/10"
@@ -915,7 +917,7 @@ export default function TVModePanel({ onClose, standalone = false }: TVModePanel
                     }
                     setShowCalendario((s) => !s);
                   }}
-                  className={`rounded-md px-3 py-1.5 text-xs font-semibold transition ${
+                  className={`rounded px-2 py-1 text-[10px] font-semibold transition sm:text-xs ${
                     filtro.modo === "custom"
                       ? "bg-blue-600 text-white shadow"
                       : "text-slate-300 hover:bg-white/10"
@@ -925,26 +927,26 @@ export default function TVModePanel({ onClose, standalone = false }: TVModePanel
                 </button>
               </div>
 
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-0.5">
                 <button
                   onClick={() => trocarMes("prev")}
-                  className="rounded-md border border-white/10 bg-white/5 p-1.5 text-slate-300 hover:bg-white/10"
+                  className="rounded-md border border-white/10 bg-white/5 p-1 text-slate-300 hover:bg-white/10"
                   title="Mês anterior"
                   aria-label="Mês anterior"
                 >
-                  <ChevronLeft className="h-4 w-4" />
+                  <ChevronLeft className="h-3.5 w-3.5" />
                 </button>
-                <span className="min-w-[180px] text-center text-xs font-semibold text-slate-200">
+                <span className="min-w-[140px] text-center text-[10px] font-semibold text-slate-200 sm:min-w-[180px] sm:text-xs">
                   {periodoRotulo}
                 </span>
                 <button
                   onClick={() => trocarMes("next")}
                   disabled={!podeAvancar()}
-                  className="rounded-md border border-white/10 bg-white/5 p-1.5 text-slate-300 hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-white/5"
+                  className="rounded-md border border-white/10 bg-white/5 p-1 text-slate-300 hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-white/5"
                   title="Próximo mês"
                   aria-label="Próximo mês"
                 >
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-3.5 w-3.5" />
                 </button>
               </div>
             </div>
@@ -954,165 +956,167 @@ export default function TVModePanel({ onClose, standalone = false }: TVModePanel
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
-                className="flex flex-wrap items-center gap-2 rounded-lg border border-white/10 bg-white/5 p-3"
+                className="flex flex-wrap items-center gap-2 rounded-md border border-white/10 bg-white/5 p-2"
               >
-                <label className="flex items-center gap-2 text-xs text-slate-300">
+                <label className="flex items-center gap-1.5 text-[10px] text-slate-300 sm:text-xs">
                   De:
                   <input
                     type="date"
                     value={filtro.customInicio || ""}
                     onChange={(e) => setFiltro({ ...filtro, customInicio: e.target.value })}
-                    className="rounded-md border border-white/10 bg-white/5 px-2 py-1 text-xs text-white outline-none focus:border-blue-500"
+                    className="rounded border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-white outline-none focus:border-blue-500 sm:text-xs"
                   />
                 </label>
-                <label className="flex items-center gap-2 text-xs text-slate-300">
+                <label className="flex items-center gap-1.5 text-[10px] text-slate-300 sm:text-xs">
                   Até:
                   <input
                     type="date"
                     value={filtro.customFim || ""}
                     onChange={(e) => setFiltro({ ...filtro, customFim: e.target.value })}
-                    className="rounded-md border border-white/10 bg-white/5 px-2 py-1 text-xs text-white outline-none focus:border-blue-500"
+                    className="rounded border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-white outline-none focus:border-blue-500 sm:text-xs"
                   />
                 </label>
                 <button
                   onClick={() => void buscar()}
-                  className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-500"
+                  className="rounded bg-blue-600 px-2.5 py-1 text-[10px] font-semibold text-white hover:bg-blue-500 sm:text-xs"
                 >
                   Aplicar
                 </button>
               </motion.div>
             )}
 
-            <div className="hidden items-center gap-2 text-xs text-slate-400 md:flex">
-              <span className="rounded-md border border-white/10 bg-white/5 px-2 py-1">
-                {resumo?.origem === "metas" ? "Fonte: metas_individuais" : "Fonte: vendas_diarias"}
+            <div className="hidden items-center gap-1.5 text-[10px] text-slate-400 xl:flex sm:text-xs">
+              <span className="rounded border border-white/10 bg-white/5 px-1.5 py-0.5">
+                {resumo?.origem === "metas" ? "Fonte: metas" : "Fonte: vendas"}
               </span>
-              <span className="rounded-md border border-white/10 bg-white/5 px-2 py-1">
+              <span className="rounded border border-white/10 bg-white/5 px-1.5 py-0.5">
                 {resumo ? `${resumo.dataInicio} → ${resumo.dataFim}` : "—"}
               </span>
             </div>
           </div>
         </div>
 
-        {/* CONTEÚDO */}
-        <main className="relative z-10 mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 sm:py-8">
+        {/* CONTEÚDO — flex-1 para ocupar espaço restante, min-h-0 para permitir shrink */}
+        <main className="relative z-10 mx-auto flex min-h-0 w-full max-w-[1800px] flex-1 flex-col gap-2 px-3 py-2 sm:gap-3 sm:px-4 sm:py-3 lg:gap-4">
           {loading ? (
-            <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3">
+            <div className="flex flex-1 flex-col items-center justify-center gap-2">
               <div
-                className="h-12 w-12 animate-spin rounded-full border-4 border-white/10"
+                className="h-10 w-10 animate-spin rounded-full border-4 border-white/10"
                 style={{ borderTopColor: COLORS.blueLight }}
               />
-              <p className="text-sm text-slate-400">Carregando dados da loja...</p>
+              <p className="text-xs text-slate-400 sm:text-sm">Carregando dados da loja...</p>
             </div>
           ) : erro ? (
-            <div className="mx-auto mt-12 max-w-md rounded-2xl border border-red-500/30 bg-red-500/10 p-6 text-center">
-              <AlertTriangle className="mx-auto mb-3 h-10 w-10 text-red-400" />
-              <h3 className="text-lg font-bold text-white">Não foi possível carregar</h3>
-              <p className="mt-1 text-sm text-slate-400">{erro}</p>
+            <div className="mx-auto flex max-w-md flex-1 flex-col items-center justify-center rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-center sm:p-6">
+              <AlertTriangle className="mb-2 h-8 w-8 text-red-400 sm:h-10 sm:w-10" />
+              <h3 className="text-base font-bold text-white sm:text-lg">Não foi possível carregar</h3>
+              <p className="mt-1 text-xs text-slate-400 sm:text-sm">{erro}</p>
               <button
                 onClick={() => void buscar()}
-                className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500"
+                className="mt-3 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-500 sm:px-4 sm:py-2 sm:text-sm"
               >
                 Tentar novamente
               </button>
             </div>
           ) : resumo && resumo.vendedores.length === 0 ? (
-            <div className="mx-auto mt-12 max-w-md rounded-2xl border border-white/10 bg-white/5 p-8 text-center">
-              <Target className="mx-auto mb-3 h-12 w-12 text-slate-500" />
-              <h3 className="text-lg font-bold text-white">Nenhuma meta encontrada</h3>
-              <p className="mt-1 text-sm text-slate-400">
+            <div className="mx-auto flex max-w-md flex-1 flex-col items-center justify-center rounded-xl border border-white/10 bg-white/5 p-6 text-center sm:p-8">
+              <Target className="mb-2 h-10 w-10 text-slate-500 sm:h-12 sm:w-12" />
+              <h3 className="text-base font-bold text-white sm:text-lg">Nenhuma meta encontrada</h3>
+              <p className="mt-1 text-xs text-slate-400 sm:text-sm">
                 Não há metas ou vendas registradas para o período selecionado ({periodoRotulo}).
               </p>
             </div>
           ) : resumo ? (
             <>
-              <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+              {/* KPIs — compactos, grid responsivo */}
+              <section className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4 lg:gap-4">
                 <KpiCardTV
                   label="Meta da Loja"
                   value={brlMoeda(metaTotal, 0)}
-                  icon={<Target className="h-6 w-6" />}
+                  icon={<Target className="h-4 w-4 sm:h-5 sm:w-5" />}
                   accent={COLORS.blueLight}
-                  sub="Total mensal de todos os vendedores"
+                  sub={`${resumo.vendedores.length} vendedores`}
                 />
                 <KpiCardTV
                   label="Realizado"
                   value={brlMoeda(realizadoTotal, 0)}
-                  icon={<DollarSign className="h-6 w-6" />}
+                  icon={<DollarSign className="h-4 w-4 sm:h-5 sm:w-5" />}
                   accent={COLORS.green}
-                  sub={`${resumo.vendedores.length} vendedores`}
+                  sub="Total acumulado"
                 />
                 <KpiCardTV
                   label="Falta para Meta"
                   value={brlMoeda(faltaTotal, 0)}
-                  icon={<TrendingUp className="h-6 w-6" />}
+                  icon={<TrendingUp className="h-4 w-4 sm:h-5 sm:w-5" />}
                   accent={faltaTotal > 0 ? COLORS.orange : COLORS.green}
                   sub={faltaTotal > 0 ? "Ainda falta bater" : "Meta atingida!"}
                 />
                 <KpiCardTV
                   label="% Atingimento"
                   value={fmtPct(pctLoja, 1)}
-                  icon={<Trophy className="h-6 w-6" />}
+                  icon={<Trophy className="h-4 w-4 sm:h-5 sm:w-5" />}
                   accent={stLoja.color}
                   sub={`Projeção: ${brlMoeda(projecaoTotal, 0)}`}
                 />
               </section>
 
-              <section className="mt-6 rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur">
-                <div className="flex flex-wrap items-end justify-between gap-3">
-                  <div>
-                    <h3 className="font-display text-lg font-bold text-white sm:text-xl">
+              {/* Progresso Geral — compacto, em linha */}
+              <section className="rounded-xl border border-white/10 bg-white/[0.04] p-3 backdrop-blur sm:p-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-display text-sm font-bold text-white sm:text-base lg:text-lg">
                       Progresso Geral da Loja
                     </h3>
-                    <p className="text-xs text-slate-400">
-                      {fmtPct(pctLoja, 1)} da meta atingida ·{" "}
+                    <p className="text-[10px] text-slate-400 sm:text-xs">
+                      {fmtPct(pctLoja, 1)} da meta ·{" "}
                       {faltaTotal > 0 ? `faltam ${brlMoeda(faltaTotal, 0)}` : "meta conquistada"}
                     </p>
                   </div>
-                  <div className="text-right">
-                    <p
-                      className="font-num text-2xl font-bold sm:text-3xl"
-                      style={{ color: stLoja.color }}
-                    >
-                      {fmtPct(pctLoja, 1)}
-                    </p>
-                  </div>
+                  <p
+                    className="font-num text-lg font-bold sm:text-xl lg:text-2xl"
+                    style={{ color: stLoja.color }}
+                  >
+                    {fmtPct(pctLoja, 1)}
+                  </p>
                 </div>
-                <div className="mt-4">
-                  <BarraProgressoTV pctValor={pctLoja} cor={stLoja.color} altura="h-5" />
+                <div className="mt-2">
+                  <BarraProgressoTV pctValor={pctLoja} cor={stLoja.color} altura="h-2.5 sm:h-3" />
                 </div>
-                <div className="mt-2 flex justify-between text-[11px] text-slate-500">
+                <div className="mt-1 flex justify-between text-[9px] text-slate-500 sm:text-[11px]">
                   <span>R$ 0</span>
                   <span>Meta: {brlMoeda(metaTotal, 0)}</span>
                 </div>
               </section>
 
-              <section className="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur">
-                <div className="flex items-center justify-between border-b border-white/10 px-6 py-4">
-                  <h3 className="font-display text-lg font-bold text-white sm:text-xl">
+              {/* Tabela de vendedores — flex-1 min-h-0 para ocupar espaço restante sem overflow de página */}
+              <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-white/10 bg-white/[0.02] backdrop-blur">
+                <div className="flex items-center justify-between border-b border-white/10 px-3 py-2 sm:px-4 sm:py-2.5">
+                  <h3 className="font-display text-sm font-bold text-white sm:text-base lg:text-lg">
                     Desempenho por Vendedor
                   </h3>
-                  <span className="text-xs text-slate-400">
-                    {resumo.vendedores.length} vendedores ativos · {periodoRotulo}
+                  <span className="text-[10px] text-slate-400 sm:text-xs">
+                    {resumo.vendedores.length} vendedores · {periodoRotulo}
                   </span>
                 </div>
-                <div className="overflow-x-auto orion-tv-scroll">
-                  <table className="w-full min-w-[760px] table-fixed">
+                {/* Container da tabela: flex-1 min-h-0 + overflow auto permite scroll só na tabela se necessário */}
+                <div className="min-h-0 flex-1 overflow-auto orion-tv-scroll">
+                  <table className="w-full min-w-[640px] table-fixed">
                     <colgroup>
-                      <col className="w-[34%]" />
-                      <col className="w-[15%]" />
-                      <col className="w-[15%]" />
-                      <col className="w-[24%]" />
-                      <col className="w-[6%]" />
-                      <col className="w-[6%]" />
+                      <col className="w-[30%]" />
+                      <col className="w-[14%]" />
+                      <col className="w-[14%]" />
+                      <col className="w-[26%]" />
+                      <col className="w-[8%]" />
+                      <col className="w-[8%]" />
                     </colgroup>
-                    <thead>
-                      <tr className="border-b border-white/10 text-left text-xs uppercase tracking-wider text-slate-400">
-                        <th className="px-4 py-3 font-semibold">Vendedor</th>
-                        <th className="px-4 py-3 font-semibold">Meta</th>
-                        <th className="px-4 py-3 font-semibold">Realizado</th>
-                        <th className="px-4 py-3 font-semibold">Progresso</th>
-                        <th className="hidden px-4 py-3 font-semibold sm:table-cell">Falta</th>
-                        <th className="px-4 py-3 font-semibold">Status</th>
+                    <thead className="sticky top-0 z-10 bg-[#0a192f]">
+                      <tr className="border-b border-white/10 text-left text-[10px] uppercase tracking-wider text-slate-400 sm:text-xs">
+                        <th className="px-3 py-2 font-semibold sm:px-4 sm:py-2.5">Vendedor</th>
+                        <th className="px-3 py-2 font-semibold sm:px-4 sm:py-2.5">Meta</th>
+                        <th className="px-3 py-2 font-semibold sm:px-4 sm:py-2.5">Realizado</th>
+                        <th className="px-3 py-2 font-semibold sm:px-4 sm:py-2.5">Progresso</th>
+                        <th className="hidden px-3 py-2 font-semibold sm:table-cell sm:px-4 sm:py-2.5">Falta</th>
+                        <th className="px-3 py-2 font-semibold sm:px-4 sm:py-2.5">Status</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1126,10 +1130,9 @@ export default function TVModePanel({ onClose, standalone = false }: TVModePanel
                 </div>
               </section>
 
-              <p className="mt-6 text-center text-xs text-slate-500">
-                Orion TV Mode · Período:{" "}
-                <span className="font-semibold text-slate-400">{periodoRotulo}</span> · dados fornecidos
-                pelo Supabase em tempo real · atualização a cada 30s
+              {/* Footer minimal — 1 linha, sem margin extra */}
+              <p className="text-center text-[9px] text-slate-500 sm:text-[11px]">
+                Orion TV Mode · {periodoRotulo} · Supabase em tempo real · atualização a cada 30s
               </p>
             </>
           ) : null}
