@@ -20,6 +20,7 @@ import {
   ShieldAlert,
   DollarSign,
   TrendingUp,
+  LogOut,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -565,7 +566,7 @@ interface TVModePanelProps {
 
 export default function TVModePanel({ onClose, standalone = false }: TVModePanelProps) {
   const navigate = useNavigate();
-  const { usuario, carregando } = useAuth();
+  const { usuario, carregando, logout } = useAuth();
   const [resumo, setResumo] = useState<ResumoLoja | null>(null);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
@@ -585,6 +586,20 @@ export default function TVModePanel({ onClose, standalone = false }: TVModePanel
       navigate({ to: "/" });
     }
   }, [onClose, navigate]);
+
+  // Sair da conta atual e voltar para o login gate do TV
+  const trocarConta = useCallback(async () => {
+    try {
+      await logout();
+    } catch {
+      // mesmo se falhar, limpa localStorage e recarrega
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+      } catch {}
+      window.location.reload();
+    }
+  }, [logout]);
 
   const buscar = useCallback(
     async (silencioso = false) => {
@@ -770,12 +785,21 @@ export default function TVModePanel({ onClose, standalone = false }: TVModePanel
               <strong>Supervisor</strong>. Solicite à gestão a alteração do seu perfil caso precise acompanhar
               o monitoramento em tempo real.
             </p>
-            <button
-              onClick={fechar}
-              className="mt-6 w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-slate-200 hover:bg-white/10"
-            >
-              ← Voltar
-            </button>
+            <div className="mt-6 flex flex-col gap-2">
+              <button
+                onClick={trocarConta}
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-blue-600/25 hover:from-blue-500 hover:to-indigo-500"
+              >
+                <LogOut className="h-4 w-4" />
+                Sair e entrar com outra conta
+              </button>
+              <button
+                onClick={fechar}
+                className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-slate-200 hover:bg-white/10"
+              >
+                ← Voltar para a landing page
+              </button>
+            </div>
           </motion.div>
         </motion.div>
       </>
