@@ -73,7 +73,7 @@ export default function IAAssistantFAB() {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-display text-lg text-white">Assistente Orion</h3>
-                  <p className="text-[11px] text-slate-400">IA generativa · powered by Lovable</p>
+                  <p className="text-[11px] text-slate-400">IA · Assistente Inteligente</p>
                 </div>
                 <button onClick={fecharIA} aria-label="Fechar assistente IA" title="Fechar" className="rounded-lg p-2 text-slate-400 hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></button>
               </header>
@@ -82,11 +82,31 @@ export default function IAAssistantFAB() {
                 {msgs.length === 0 && (
                   <div className="space-y-3">
                     <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-slate-300">
-                      Olá {usuario?.nome.split(" ")[0] ?? ""}! Como posso te ajudar hoje? Posso analisar suas metas, dar dicas de vendas ou sugerir campanhas.
+                      Olá {usuario?.nome.split(" ")[0] ?? ""}! 👋 Sou o assistente IA do Orion.
+                      <br/><br/>
+                      Posso te ajudar com:
+                      <br/>
+                      📊 <strong>Análise de metas</strong> — pergunte como estão suas metas
+                      <br/>
+                      💰 <strong>Lançar vendas</strong> — digite "registrei 3 vendas de R$ 80"
+                      <br/>
+                      💡 <strong>Dicas de vendas</strong> — estratégias para aumentar faturamento
+                      <br/>
+                      📈 <strong>Ranking</strong> — veja como você se compara com a equipe
                     </div>
+
+                    {/* Aviso de lançamento por comando */}
+                    <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-xs text-emerald-300">
+                      💡 <strong>Dica:</strong> Você pode lançar vendas direto pelo chat!
+                      <br/>Ex: "registrei 2 vendas de R$ 150 com 10 clientes"
+                    </div>
+
+                    {/* Sugestões por perfil */}
                     <div className="flex flex-wrap gap-2">
                       {sugestoes.map((s: string) => (
-                        <button key={s} onClick={() => enviar(s)} className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-300 hover:bg-white/10">{s}</button>
+                        <button key={s} onClick={() => enviar(s)} className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-300 hover:bg-blue-500/20 hover:border-blue-500/30 hover:text-white transition">
+                          {s}
+                        </button>
                       ))}
                     </div>
                   </div>
@@ -99,7 +119,10 @@ export default function IAAssistantFAB() {
                   </div>
                 ))}
                 {carregando && (
-                  <div className="flex items-center gap-2 text-xs text-slate-400"><Loader2 className="h-3 w-3 animate-spin" /> Orion está pensando...</div>
+                  <div className="flex items-center gap-2 text-xs text-slate-400">
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    Orion está pensando...
+                  </div>
                 )}
               </div>
 
@@ -108,7 +131,7 @@ export default function IAAssistantFAB() {
                   autoFocus
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Pergunte algo..."
+                  placeholder="Pergunte algo ou lance uma venda (ex: vendi R$ 150 com 5 clientes)..."
                   disabled={carregando}
                   className="flex-1 rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                 />
