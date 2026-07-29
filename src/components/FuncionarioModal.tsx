@@ -6,6 +6,7 @@ import { cn } from "../utils/cn";
 
 const PERFIS_BASE: { value: Perfil; label: string; icon: string }[] = [
   { value: "vendedor", label: "Vendedor", icon: "📊" },
+  { value: "farmaceutica", label: "Farmacêutica", icon: "💊" },
   { value: "supervisor", label: "Supervisor", icon: "👥" },
   { value: "gerente", label: "Gerente", icon: "🏢" },
 ];

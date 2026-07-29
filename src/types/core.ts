@@ -3,7 +3,8 @@
 // =============================================================
 
 // ---- Perfis de Acesso (RBAC) ----
-export type Perfil = "admin" | "gerente" | "supervisor" | "vendedor";
+// 'farmaceutica' pode lançar vendas mas não tem metas explícitas nem poder gerencial/supervisor
+export type Perfil = "admin" | "gerente" | "supervisor" | "vendedor" | "farmaceutica";
 
 export interface Permissao {
   modulo: string;

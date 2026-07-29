@@ -5,6 +5,8 @@ export function gerarPermissoes(perfil: Perfil): Permissao[] {
   const isAdmin = perfil === "admin";
   const isGerente = perfil === "admin" || perfil === "gerente";
   const isSupervisor = isGerente || perfil === "supervisor";
+  // 'farmaceutica' tem as mesmas permissões de vendedor: pode lançar vendas, sem poder gerencial
+  const isVendedorOuFarmaceutica = perfil === "vendedor" || perfil === "farmaceutica";
   return modulos.map((modulo) => ({
     modulo, ler: true,
     criar: isAdmin || (isGerente && !["usuarios","auditoria"].includes(modulo)),
