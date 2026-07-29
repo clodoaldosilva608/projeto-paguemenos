@@ -1,18 +1,11 @@
 /**
  * SSO Cross-App — PagueMenos
  *
- * Recebe um JWT gerado pelo Orion (/api/sso/paguemenos-token) e faz
- * login automático no PagueMenos via Supabase Auth.
- *
- * Fluxo:
- * 1. Valida JWT (HS256 + ORION_SSO_SECRET)
- * 2. Verifica se usuário existe no auth.users do PagueMenos
- * 3. Se não existe, cria via admin.createUser com company_id nos metadados
- * 4. Gera magic link e redireciona para action_url (login automático)
+ * Recebe JWT do Orion e faz login automático via magic link do Supabase.
+ * Usa REST API direto (sem SDK) para evitar problemas de formato de resposta.
  */
 
 import { createFileRoute } from "@tanstack/react-router";
-import { createClient } from "@supabase/supabase-js";
 
 const ORION_SSO_SECRET = process.env.ORION_SSO_SECRET || "orion-sso-secret-dev-2026";
 
@@ -20,23 +13,14 @@ async function verifyJWT(token: string, secret: string): Promise<any | null> {
   try {
     const [headerB64, payloadB64, signatureB64] = token.split(".");
     if (!headerB64 || !payloadB64 || !signatureB64) return null;
-
     const crypto = await import("crypto");
-    const expectedSig = crypto
-      .createHmac("sha256", secret)
-      .update(`${headerB64}.${payloadB64}`)
-      .digest("base64url");
-
+    const expectedSig = crypto.createHmac("sha256", secret)
+      .update(`${headerB64}.${payloadB64}`).digest("base64url");
     if (signatureB64 !== expectedSig) return null;
-
     const payload = JSON.parse(Buffer.from(payloadB64, "base64url").toString());
-    const now = Math.floor(Date.now() / 1000);
-    if (payload.exp && payload.exp < now) return null;
-
+    if (payload.exp && payload.exp < Math.floor(Date.now() / 1000)) return null;
     return payload;
-  } catch (err: any) {
-    return null;
-  }
+  } catch { return null; }
 }
 
 export const Route = (createFileRoute as any)("/api/sso")({
@@ -48,16 +32,14 @@ export const Route = (createFileRoute as any)("/api/sso")({
 
         if (!token) {
           return new Response(JSON.stringify({ error: "Token obrigatório" }), {
-            status: 400,
-            headers: { "Content-Type": "application/json" },
+            status: 400, headers: { "Content-Type": "application/json" },
           });
         }
 
         const payload = await verifyJWT(token, ORION_SSO_SECRET);
         if (!payload) {
           return new Response(JSON.stringify({ error: "Token inválido ou expirado" }), {
-            status: 401,
-            headers: { "Content-Type": "application/json" },
+            status: 401, headers: { "Content-Type": "application/json" },
           });
         }
 
@@ -69,73 +51,83 @@ export const Route = (createFileRoute as any)("/api/sso")({
           return Response.redirect(`${url.origin}/auth`, 302);
         }
 
-        const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_KEY, {
-          auth: { autoRefreshToken: false, persistSession: false },
+        const headers = {
+          apikey: SERVICE_KEY,
+          Authorization: `Bearer ${SERVICE_KEY}`,
+          "Content-Type": "application/json",
+        };
+
+        // 1. Gerar magic link diretamente via REST API
+        // Se usuário não existir, o Supabase cria o link mesmo assim (para usuários confirmados)
+        // Se não for confirmado, retorna erro e criamos o usuário
+        const linkResp = await fetch(`${SUPABASE_URL}/auth/v1/admin/generate_link`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            type: "magiclink",
+            email: payload.email,
+            options: { redirect_to: `${url.origin}/` },
+          }),
         });
 
-        // === PASSO 1: Verificar se usuário existe ===
-        // Busca na lista de users pelo email
-        let userExists = false;
-        let page = 1;
-        for (let i = 0; i < 10; i++) {
-          const { data: listData, error: listError } = await supabaseAdmin.auth.admin.listUsers({
-            page,
-            perPage: 100,
-          });
-          if (listError || !listData?.users) break;
-          const found = listData.users.find((u) => u.email === payload.email);
-          if (found) {
-            userExists = true;
-            break;
-          }
-          if (listData.users.length < 100) break;
-          page++;
+        const linkData = await linkResp.json();
+
+        // Se o magic link foi gerado com sucesso, action_link está no nível raiz
+        if (linkResp.ok && linkData?.action_link) {
+          console.log(`[sso] ✓ Login SSO: ${payload.email} → ${payload.company_id}`);
+          return Response.redirect(linkData.action_link, 302);
         }
 
-        // === PASSO 2: Se não existe, criar ===
-        if (!userExists) {
-          console.log(`[sso] Usuário não encontrado, criando: ${payload.email}`);
-          const tempPassword =
-            Math.random().toString(36).slice(2) +
-            Math.random().toString(36).slice(2) +
-            "A1!";
+        // 2. Se falhou (usuário não existe?), criar usuário
+        if (!linkResp.ok || !linkData?.action_link) {
+          console.log(`[sso] Magic link falhou, criando usuário: ${payload.email}`);
+          const tempPassword = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2) + "A1!";
 
-          const { data: newUserData, error: createError } = await supabaseAdmin.auth.admin.createUser({
-            email: payload.email,
-            password: tempPassword,
-            email_confirm: true,
-            user_metadata: {
-              name: payload.name,
-              company_id: payload.company_id, // slug do tenant
-              role: payload.role || "admin",
-              source: "orion_sso",
-            },
+          const createResp = await fetch(`${SUPABASE_URL}/auth/v1/admin/users`, {
+            method: "POST",
+            headers,
+            body: JSON.stringify({
+              email: payload.email,
+              password: tempPassword,
+              email_confirm: true,
+              user_metadata: {
+                name: payload.name,
+                company_id: payload.company_id,
+                role: payload.role || "admin",
+                source: "orion_sso",
+              },
+            }),
           });
 
-          if (createError) {
-            console.error("[sso] Erro criando usuário:", createError.message);
+          if (!createResp.ok) {
+            console.error("[sso] Erro criando usuário:", await createResp.text());
             return Response.redirect(`${url.origin}/auth`, 302);
           }
 
-          console.log(`[sso] ✓ Usuário criado: ${payload.email} → company_id: ${payload.company_id}`);
+          console.log(`[sso] ✓ Usuário criado: ${payload.email} → ${payload.company_id}`);
+
+          // 3. Tentar magic link novamente
+          const linkResp2 = await fetch(`${SUPABASE_URL}/auth/v1/admin/generate_link`, {
+            method: "POST",
+            headers,
+            body: JSON.stringify({
+              type: "magiclink",
+              email: payload.email,
+              options: { redirect_to: `${url.origin}/` },
+            }),
+          });
+
+          const linkData2 = await linkResp2.json();
+
+          if (linkResp2.ok && linkData2?.action_link) {
+            console.log(`[sso] ✓ Login SSO (novo user): ${payload.email}`);
+            return Response.redirect(linkData2.action_link, 302);
+          }
+
+          console.error("[sso] Magic link falhou após criar usuário");
         }
 
-        // === PASSO 3: Gerar magic link ===
-        const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
-          type: "magiclink",
-          email: payload.email,
-          options: {
-            redirectTo: `${url.origin}/`,
-          },
-        });
-
-        if (linkError || !linkData?.properties?.action_url) {
-          console.error("[sso] Erro gerando magic link:", linkError?.message);
-          return Response.redirect(`${url.origin}/auth`, 302);
-        }
-
-        console.log(`[sso] ✓ Login SSO redirecionando: ${payload.email} → ${payload.company_id}`);
-        return Response.redirect(linkData.properties.action_url, 302);
+        return Response.redirect(`${url.origin}/auth`, 302);
       },
     },
   },
