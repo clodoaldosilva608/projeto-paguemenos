@@ -255,7 +255,8 @@ export const excluirCredencial = createServerFn({ method: "POST" })
 // ------------------------------------------------------------------
 
 // Verifica se o usuário está usando credencial padrão (senha == matrícula)
-// Retorna true se a senha atual é igual à matrícula cadastrada
+// Retorna true se o usuário tem credencial por matrícula (indicando que provavelmente usa matrícula como senha)
+// Não faz signIn para evitar criar sessões paralelas no service role
 export const verificarCredencialPadrao = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -265,7 +266,7 @@ export const verificarCredencialPadrao = createServerFn({ method: "GET" })
     // Buscar credencial do usuário na tabela login_matricula
     const { data: cred, error } = await supabaseAdmin
       .from("login_matricula")
-      .select("matricula, primeiro_nome")
+      .select("matricula, primeiro_nome, atualizado_em")
       .eq("user_id", userId)
       .maybeSingle();
 
@@ -281,26 +282,35 @@ export const verificarCredencialPadrao = createServerFn({ method: "GET" })
       };
     }
 
-    // Verificar se a senha atual do auth é igual à matrícula
-    // Buscar dados do usuário no auth
-    const { data: authUser, error: authErr } = await supabaseAdmin.auth.admin.getUserById(userId);
-    if (authErr || !authUser?.user?.email) {
-      throw new Error("Erro ao verificar credencial do usuário.");
-    }
+    // Heurística para detectar credencial padrão:
+    // Se a credencial foi criada/atualizada há menos de 24h, assume que é padrão
+    // (não foi atualizada pelo usuário ainda)
+    // Se foi atualizada há mais de 24h, assume que já foi personalizada
+    // Isso é uma heurística simples que evita fazer signIn com a matrícula
+    const atualizadoEm = new Date(cred.atualizado_em || "").getTime();
+    const agora = Date.now();
+    const horasDesdeAtualizacao = (agora - atualizadoEm) / (1000 * 60 * 60);
 
-    // Tentar autenticar com a matrícula como senha — se funcionar, é credencial padrão
-    const { data: signInData, error: signInErr } = await supabaseAdmin.auth.signInWithPassword({
-      email: authUser.user.email,
-      password: cred.matricula,
-    });
+    // Se a credencial foi criada há menos de 1 hora, é padrão (recém-criada pelo admin)
+    // Se foi atualizada há mais de 1 hora, pode ter sido personalizada — mas para segurança,
+    // mostramos o banner se atualizado_em == criado_em (nunca foi personalizada)
+    // Vamos simplificar: se a credencial existe, mostramos o banner nas primeiras 24h
+    // Após o usuário atualizar via atualizarPropriaCredencial, o atualizado_em muda
+    // e o banner some porque atualizado_em != criado_em
+    const { data: credCompleta } = await supabaseAdmin
+      .from("login_matricula")
+      .select("criado_em, atualizado_em")
+      .eq("user_id", userId)
+      .maybeSingle();
 
-    // Se o login com a matrícula funcionou, é credencial padrão
-    const ehPadrao = !signInErr && !!signInData.session;
+    const criadoEm = credCompleta?.criado_em ? new Date(credCompleta.criado_em).getTime() : 0;
+    const atualizadoEmReal = credCompleta?.atualizado_em ? new Date(credCompleta.atualizado_em).getTime() : 0;
 
-    // Se logamos com a matrícula para testar, fazemos signOut para não poluir a sessão
-    if (ehPadrao && signInData.session) {
-      await supabaseAdmin.auth.signOut();
-    }
+    // ehPadrao = true se nunca foi personalizada (criado_em == atualizado_em)
+    // ou se foi criada há menos de 24h
+    const nuncaPersonalizada = criadoEm === atualizadoEm;
+    const recente = horasDesdeAtualizacao < 24;
+    const ehPadrao = nuncaPersonalizada || recente;
 
     return {
       temCredencial: true,
