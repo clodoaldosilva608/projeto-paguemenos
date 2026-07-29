@@ -151,7 +151,7 @@ const thinBorder: any = {
 function titleBlock(ws: WS, title: string, subtitle: string, lastCol: string) {
   ws.mergeCells(`A1:${lastCol}1`);
   const t = ws.getCell("A1");
-  t.value = `ORIONN — ${title}`;
+  t.value = `ORION — ${title}`;
   t.font = { name: "Poppins", size: 16, bold: true, color: { argb: "FFFFFFFF" } };
   t.fill = fill(NAVY);
   t.alignment = { vertical: "middle", horizontal: "left", indent: 1 };
@@ -582,7 +582,7 @@ const MANUAL: { titulo: string; icone: string; linhas: string[] }[] = [
     titulo: "1. Visão Geral",
     icone: "📋",
     linhas: [
-      "A planilha Orionn — Dashboard Executivo consolida o desempenho comercial da loja em 11 abas.",
+      "A planilha Orion — Dashboard Executivo consolida o desempenho comercial da loja em 11 abas.",
       "Abas 01 a 05: dashboards analíticos (Geral, Faturamento, Marcas Exclusivas, Genéricos e Super Desconto).",
       "Aba 06: Histórico de Vendas — é a BASE DE DADOS. Todas as fórmulas leem desta aba.",
       "Abas 07 a 12: painéis individuais de Adelino, Alicia, Clodoaldo, Elielton, Fabio e Mieko.",
@@ -647,7 +647,7 @@ const MANUAL: { titulo: string; icone: string; linhas: string[] }[] = [
     titulo: "7. Suporte",
     icone: "💬",
     linhas: [
-      "Relatório gerado automaticamente pelo Sistema Orionn.",
+      "Relatório gerado automaticamente pelo Sistema Orion.",
       "Fonte dos dados: Supabase → Google Sheets → Power BI.",
       "Em caso de divergência de números, execute SINCRONIZAR e confira o carimbo de Última Sincronização no cabeçalho.",
     ],
@@ -655,7 +655,7 @@ const MANUAL: { titulo: string; icone: string; linhas: string[] }[] = [
 ];
 
 // ============================================================
-// SERVER FUNCTION — GERAÇÃO DA PLANILHA EXECUTIVA ORIONN
+// SERVER FUNCTION — GERAÇÃO DA PLANILHA EXECUTIVA ORION
 // ============================================================
 export const gerarPlanilhaExecutiva = createServerFn({ method: "POST" })
   .validator((v: unknown) => z.object({}).parse(v))
@@ -664,7 +664,7 @@ export const gerarPlanilhaExecutiva = createServerFn({ method: "POST" })
     const d = await getDashboardData();
 
     const wb = new ExcelJS.Workbook();
-    wb.creator = "Sistema Orionn";
+    wb.creator = "Sistema Orion";
     wb.created = new Date("2026-07-28T21:00:59.098Z");
 
     // ══ 06 - Histórico de Vendas (lançamentos diários) ══
@@ -724,7 +724,7 @@ export const gerarPlanilhaExecutiva = createServerFn({ method: "POST" })
     titleBlock(
       ind,
       "Indicadores Sincronizados",
-      "Meta, realizado e projeção por vendedor e categoria (payload Orionn)",
+      "Meta, realizado e projeção por vendedor e categoria (payload Orion)",
       "G",
     );
     headerRow(ind, 3, [
@@ -1209,7 +1209,7 @@ export const gerarPlanilhaExecutiva = createServerFn({ method: "POST" })
     titleBlock(
       mws,
       "Manual de Uso",
-      "Guia completo de operação da planilha Orionn — Dashboard Executivo",
+      "Guia completo de operação da planilha Orion — Dashboard Executivo",
       "B",
     );
     let mr = 4;
@@ -1258,6 +1258,6 @@ export const gerarPlanilhaExecutiva = createServerFn({ method: "POST" })
 
     return {
       file: Array.from(new Uint8Array(buffer as ArrayBuffer)),
-      filename: `Orionn_Dashboard_Executivo_${hojeIso()}.xlsx`,
+      filename: `Orion_Dashboard_Executivo_${hojeIso()}.xlsx`,
     };
   });

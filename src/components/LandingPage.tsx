@@ -20,10 +20,18 @@ import {
   Clock,
   AlertTriangle,
   CheckCircle2,
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Lock,
+  User as UserIcon,
+  ShieldAlert,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { brlMoeda, pct as fmtPct } from "@/utils/format";
+import { useServerFn } from "@tanstack/react-start";
+import { buscarEmailPorMatricula } from "@/lib/login-matricula.functions";
 import IAAssistantFAB from "./IAAssistantFAB";
 
 // ============================================================================
@@ -106,6 +114,14 @@ const COLORS = {
   textGray: "#94A3B8",
 } as const;
 
+// Perfis que podem acessar o TV Mode (Painel de Monitoramento em Tempo Real)
+const PERFIS_TV_PERMITIDOS = ["admin", "gerente", "supervisor"] as const;
+type PerfilTV = (typeof PERFIS_TV_PERMITIDOS)[number];
+
+function podeAcessarTV(perfil: string | undefined): boolean {
+  return !!perfil && (PERFIS_TV_PERMITIDOS as readonly string[]).includes(perfil);
+}
+
 // ============================================================================
 // SUBCOMPONENTES VISUAIS
 // ============================================================================
@@ -117,13 +133,12 @@ function GridMesh() {
 
 /** Partículas flutuantes animadas com framer-motion. */
 function FloatingParticles({ count = 26 }: { count?: number }) {
-  // useMemo para que as posições aleatórias sejam fixas por mount
   const particles = useMemo(
     () =>
       Array.from({ length: count }).map((_, i) => ({
         id: i,
-        x: Math.random() * 100, // %
-        y: Math.random() * 100, // %
+        x: Math.random() * 100,
+        y: Math.random() * 100,
         size: 1 + Math.random() * 2.6,
         delay: Math.random() * 6,
         duration: 6 + Math.random() * 8,
@@ -167,7 +182,7 @@ function FloatingParticles({ count = 26 }: { count?: number }) {
 /** Spotlight que segue o cursor sobre o título — implementado com motion value. */
 function SpotlightText({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLHeadingElement>(null);
-  const mx = useMotionValue(50); // % dentro do título
+  const mx = useMotionValue(50);
   const my = useMotionValue(50);
   const sx = useSpring(mx, { stiffness: 120, damping: 20 });
   const sy = useSpring(my, { stiffness: 120, damping: 20 });
@@ -219,7 +234,7 @@ function ScrollIndicator({ onClick }: { onClick: () => void }) {
 }
 
 // ============================================================================
-// TV MODE — Painel de monitoramento em tempo real
+// TV MODE — Tipos e utilitários
 // ============================================================================
 
 interface VendedorTV {
@@ -237,14 +252,67 @@ interface ResumoLoja {
   realizadoTotal: number;
   projecaoTotal: number;
   vendedores: VendedorTV[];
+  // Indica se os números vieram de metas_individuais (true) ou vendas_diarias (false)
+  origem: "metas" | "vendas";
+  // Período efetivamente consultado
+  dataInicio: string;
+  dataFim: string;
 }
 
-/** Calcula o data_inicio do mês corrente (YYYY-MM-01) — usado no filtro Supabase. */
+type ModoPeriodo = "atual" | "anterior" | "custom";
+
+interface FiltroPeriodo {
+  modo: ModoPeriodo;
+  // Para modo "custom": data inicial e final ISO (YYYY-MM-DD)
+  customInicio?: string;
+  customFim?: string;
+}
+
+/** Retorna o primeiro dia do mês corrente (YYYY-MM-01). */
 function mesAtualInicio(): string {
   const d = new Date();
   const ano = d.getFullYear();
   const mes = String(d.getMonth() + 1).padStart(2, "0");
   return `${ano}-${mes}-01`;
+}
+
+/** Retorna o primeiro dia do mês corrente e o último dia (para filtros). */
+function periodoMesAtual(): { inicio: string; fim: string } {
+  const d = new Date();
+  const ano = d.getFullYear();
+  const mes = String(d.getMonth() + 1).padStart(2, "0");
+  const ultimoDia = new Date(ano, d.getMonth() + 1, 0).getDate();
+  return { inicio: `${ano}-${mes}-01`, fim: `${ano}-${mes}-${String(ultimoDia).padStart(2, "0")}` };
+}
+
+/** Retorna o primeiro e último dia do mês anterior. */
+function periodoMesAnterior(): { inicio: string; fim: string } {
+  const d = new Date();
+  const ano = d.getFullYear() - (d.getMonth() === 0 ? 1 : 0);
+  const mes = d.getMonth() === 0 ? 12 : d.getMonth(); // getMonth é 0-based, então já é o mês anterior
+  const mesStr = String(mes).padStart(2, "0");
+  const ultimoDia = new Date(ano, mes, 0).getDate();
+  return { inicio: `${ano}-${mesStr}-01`, fim: `${ano}-${mesStr}-${String(ultimoDia).padStart(2, "0")}` };
+}
+
+/** Resolve o filtro de período em datas ISO concretas. */
+function resolverPeriodo(filtro: FiltroPeriodo): { inicio: string; fim: string; rotulo: string } {
+  if (filtro.modo === "atual") {
+    const p = periodoMesAtual();
+    const nomeMes = new Date(p.inicio + "T00:00:00").toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+    return { ...p, rotulo: `Mês atual — ${nomeMes}` };
+  }
+  if (filtro.modo === "anterior") {
+    const p = periodoMesAnterior();
+    const nomeMes = new Date(p.inicio + "T00:00:00").toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+    return { ...p, rotulo: `Mês anterior — ${nomeMes}` };
+  }
+  // custom
+  const i = filtro.customInicio || mesAtualInicio();
+  const f = filtro.customFim || new Date().toISOString().slice(0, 10);
+  const di = new Date(i + "T00:00:00").toLocaleDateString("pt-BR");
+  const df = new Date(f + "T00:00:00").toLocaleDateString("pt-BR");
+  return { inicio: i, fim: f, rotulo: `Período: ${di} → ${df}` };
 }
 
 function statusPct(p: number): { label: string; color: string; bg: string } {
@@ -254,14 +322,23 @@ function statusPct(p: number): { label: string; color: string; bg: string } {
   return { label: "Crítico", color: COLORS.red, bg: "rgba(211,47,47,0.18)" };
 }
 
-/** Busca metas_individuais (mensal) + profiles para o TV mode. */
-async function carregarResumoLoja(): Promise<ResumoLoja> {
-  const inicio = mesAtualInicio();
+/**
+ * Busca metas_individuais (mensal) + profiles para o TV mode.
+ * Se período customizado, busca também vendas_diarias para somar realizado real do intervalo.
+ */
+async function carregarResumoLoja(filtro: FiltroPeriodo): Promise<ResumoLoja> {
+  const { inicio, fim } = resolverPeriodo(filtro);
+  const ehMesCheio = filtro.modo !== "custom";
+
+  // 1) Buscar metas_individuais (sempre mensal por data_inicio)
+  // Para "atual" usa o início do mês atual; para "anterior" usa o início do mês anterior;
+  // para "custom" usa o início do mês correspondente à data inicial.
+  const dataInicioMeta = inicio.slice(0, 8) + "01"; // YYYY-MM-01 do mês inicial
   const { data: metas, error } = await supabase
     .from("metas_individuais")
-    .select("usuario_id, categoria, periodo, valor_meta, valor_realizado, valor_projecao")
+    .select("usuario_id, categoria, periodo, valor_meta, valor_realizado, valor_projecao, data_inicio")
     .eq("periodo", "mensal")
-    .eq("data_inicio", inicio);
+    .eq("data_inicio", dataInicioMeta);
 
   if (error) throw new Error(error.message);
   const lista = metas ?? [];
@@ -271,7 +348,7 @@ async function carregarResumoLoja(): Promise<ResumoLoja> {
   for (const m of lista) {
     const uid = m.usuario_id as string;
     const meta = Number(m.valor_meta ?? 0);
-    const realizado = Number(m.valor_realizado ?? 0);
+    const realizadoBase = Number(m.valor_realizado ?? 0);
     const projecao = Number(m.valor_projecao ?? 0);
     const categoria = (m.categoria as string) || "geral";
 
@@ -288,15 +365,52 @@ async function carregarResumoLoja(): Promise<ResumoLoja> {
     }
     const v = porUsuario.get(uid)!;
     v.meta += meta;
-    v.realizado += realizado;
+    // Para modo mês atual: usa o valor_realizado da meta (que é atualizado pelo sistema)
+    // Para modo custom/anterior: vamos somar vendas_diarias depois, então zeramos o realizado aqui
+    v.realizado += ehMesCheio ? realizadoBase : 0;
     v.projecao += projecao;
     v.categorias[categoria] = {
       meta: (v.categorias[categoria]?.meta ?? 0) + meta,
-      realizado: (v.categorias[categoria]?.realizado ?? 0) + realizado,
+      realizado: (v.categorias[categoria]?.realizado ?? 0) + (ehMesCheio ? realizadoBase : 0),
     };
   }
 
-  // Busca profiles para nomes
+  // 2) Se for período custom ou mês anterior, buscar vendas_diarias no intervalo
+  if (!ehMesCheio || filtro.modo === "anterior") {
+    const { data: vendas, error: vendasErr } = await supabase
+      .from("vendas_diarias")
+      .select("usuario_id, categoria, data, valor_venda")
+      .gte("data", inicio)
+      .lte("data", fim);
+
+    if (vendasErr) {
+      console.warn("[TV] Falha ao buscar vendas_diarias:", vendasErr.message);
+    } else if (vendas) {
+      // Soma vendas por usuário — cria entradas para usuários que ainda não estão no mapa
+      for (const venda of vendas) {
+        const uid = venda.usuario_id as string;
+        const valor = Number(venda.valor_venda ?? 0);
+        const cat = (venda.categoria as string) || "faturamento";
+        if (!porUsuario.has(uid)) {
+          porUsuario.set(uid, {
+            usuario_id: uid,
+            nome: uid,
+            iniciais: null,
+            meta: 0,
+            realizado: 0,
+            projecao: 0,
+            categorias: {},
+          });
+        }
+        const v = porUsuario.get(uid)!;
+        v.realizado += valor;
+        if (!v.categorias[cat]) v.categorias[cat] = { meta: 0, realizado: 0 };
+        v.categorias[cat].realizado += valor;
+      }
+    }
+  }
+
+  // 3) Busca profiles para nomes
   const uids = Array.from(porUsuario.keys());
   let perfis: { id: string; nome: string; iniciais: string | null }[] = [];
   if (uids.length > 0) {
@@ -305,7 +419,6 @@ async function carregarResumoLoja(): Promise<ResumoLoja> {
       .select("id, nome, iniciais")
       .in("id", uids);
     if (profErr) {
-      // Não abortar: TV mode pode continuar mostrando IDs
       console.warn("[TV] Falha ao buscar profiles:", profErr.message);
     } else {
       perfis = (profData ?? []) as { id: string; nome: string; iniciais: string | null }[];
@@ -320,12 +433,22 @@ async function carregarResumoLoja(): Promise<ResumoLoja> {
     }
   }
 
-  const vendedores = Array.from(porUsuario.values()).sort((a, b) => b.realizado - a.realizado);
+  const vendedores = Array.from(porUsuario.values())
+    .filter((v) => v.meta > 0 || v.realizado > 0) // não mostrar quem não tem nada
+    .sort((a, b) => b.realizado - a.realizado);
   const metaTotal = vendedores.reduce((s, v) => s + v.meta, 0);
   const realizadoTotal = vendedores.reduce((s, v) => s + v.realizado, 0);
   const projecaoTotal = vendedores.reduce((s, v) => s + v.projecao, 0);
 
-  return { metaTotal, realizadoTotal, projecaoTotal, vendedores };
+  return {
+    metaTotal,
+    realizadoTotal,
+    projecaoTotal,
+    vendedores,
+    origem: ehMesCheio && filtro.modo === "atual" ? "metas" : "vendas",
+    dataInicio: inicio,
+    dataFim: fim,
+  };
 }
 
 function KpiCardTV({
@@ -456,35 +579,194 @@ function LinhaVendedorTV({ v, rank }: { v: VendedorTV; rank: number }) {
   );
 }
 
+// ============================================================================
+// TV LOGIN GATE — Tela de login inline para acesso ao TV Mode
+// ============================================================================
+
+function TVLoginGate({ onSucesso, onVoltar }: { onSucesso: () => void; onVoltar: () => void }) {
+  const { login } = useAuth();
+  const fnBuscarMatricula = useServerFn(buscarEmailPorMatricula);
+  const [identificador, setIdentificador] = useState(""); // email OU primeiro_nome
+  const [senha, setSenha] = useState(""); // senha OU matrícula
+  const [busy, setBusy] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErro(null);
+    if (!identificador.trim() || !senha.trim()) {
+      setErro("Preencha identificador e senha.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const ehEmail = identificador.trim().includes("@");
+      let ok = false;
+      if (ehEmail) {
+        ok = await login(identificador.trim(), senha.trim());
+      } else {
+        // Login por primeiro nome + matrícula
+        try {
+          const r = await fnBuscarMatricula({
+            data: { primeiro_nome: identificador.trim(), matricula: senha.trim() },
+          });
+          ok = await login(r.email, r.senha);
+        } catch (err: any) {
+          setErro(err.message || "Credenciais inválidas.");
+          setBusy(false);
+          return;
+        }
+      }
+      if (!ok) {
+        setErro("E-mail, senha ou matrícula inválidos. Verifique suas credenciais.");
+        setBusy(false);
+        return;
+      }
+      // Login OK — o AuthContext vai atualizar usuario; o pai vai detectar e liberar acesso
+      onSucesso();
+    } catch (err: any) {
+      setErro(err.message || "Falha inesperada no login.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="relative z-10 flex min-h-screen items-center justify-center p-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.4 }}
+        className="w-full max-w-md"
+      >
+        <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-8 shadow-2xl backdrop-blur-xl">
+          {/* Cabeçalho */}
+          <div className="mb-6 text-center">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 shadow-lg shadow-blue-600/30">
+              <Lock className="h-7 w-7 text-white" />
+            </div>
+            <h2 className="font-display mt-4 text-2xl font-bold text-white">Acesso Restrito</h2>
+            <p className="mt-1 text-sm text-slate-400">
+              Painel TV Mode disponível apenas para <span className="font-semibold text-blue-300">Admin Master</span>, <span className="font-semibold text-blue-300">Gerente</span> ou <span className="font-semibold text-blue-300">Supervisor</span>.
+            </p>
+          </div>
+
+          {/* Aviso de perfis */}
+          <div className="mb-5 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200">
+            <div className="flex items-start gap-2">
+              <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" />
+              <p>
+                Faça login com sua conta corporativa. Após autenticar, o sistema verificará
+                automaticamente se seu perfil tem permissão para visualizar o monitoramento em tempo real.
+              </p>
+            </div>
+          </div>
+
+          <form onSubmit={submit} className="space-y-4">
+            <div>
+              <label className="mb-1.5 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                <UserIcon className="h-3 w-3" /> E-mail ou Primeiro Nome
+              </label>
+              <input
+                type="text"
+                value={identificador}
+                onChange={(e) => setIdentificador(e.target.value)}
+                placeholder="ex: joao.silva@empresa.com OU joao"
+                autoFocus
+                className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                <Lock className="h-3 w-3" /> Senha ou Matrícula
+              </label>
+              <input
+                type="password"
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+                placeholder="Sua senha ou matrícula"
+                className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+              />
+            </div>
+
+            {erro && (
+              <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-300">
+                {erro}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={busy}
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-blue-600/25 hover:from-blue-500 hover:to-indigo-500 disabled:opacity-50"
+            >
+              <LogIn className="h-4 w-4" />
+              {busy ? "Autenticando..." : "Entrar e liberar painel"}
+            </button>
+          </form>
+
+          <button
+            onClick={onVoltar}
+            className="mt-4 w-full rounded-lg border border-white/10 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-white/5"
+          >
+            ← Voltar para a landing page
+          </button>
+
+          <p className="mt-4 text-center text-[11px] text-slate-500">
+            Após o login, seu perfil será validado. Apenas admin, gerente ou supervisor terão acesso ao monitoramento.
+          </p>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+// ============================================================================
+// TV MODE PANEL — Painel de monitoramento em tempo real
+// ============================================================================
+
 function TVModePanel({ onClose }: { onClose: () => void }) {
+  const { usuario, carregando } = useAuth();
   const [resumo, setResumo] = useState<ResumoLoja | null>(null);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
   const [ultimaAtualizacao, setUltimaAtualizacao] = useState<Date>(new Date());
   const [atualizando, setAtualizando] = useState(false);
   const [segundosRestantes, setSegundosRestantes] = useState(30);
+  const [filtro, setFiltro] = useState<FiltroPeriodo>({ modo: "atual" });
+  const [showCalendario, setShowCalendario] = useState(false);
 
-  const buscar = useCallback(async (silencioso = false) => {
-    if (silencioso) setAtualizando(true);
-    else setLoading(true);
-    setErro(null);
-    try {
-      const r = await carregarResumoLoja();
-      setResumo(r);
-      setUltimaAtualizacao(new Date());
-      setSegundosRestantes(30);
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : String(e);
-      setErro(msg || "Falha ao carregar dados do painel.");
-    } finally {
-      setLoading(false);
-      setAtualizando(false);
-    }
-  }, []);
+  // Verificação de perfil — se o usuário está carregando, espera
+  // Se não está autenticado, mostra tela de login
+  // Se está autenticado mas sem permissão, mostra bloqueio
+  const acessoLiberado = usuario ? podeAcessarTV(usuario.perfil) : false;
+
+  const buscar = useCallback(
+    async (silencioso = false) => {
+      // Só busca se acesso estiver liberado
+      if (!usuario || !podeAcessarTV(usuario.perfil)) return;
+      if (silencioso) setAtualizando(true);
+      else setLoading(true);
+      setErro(null);
+      try {
+        const r = await carregarResumoLoja(filtro);
+        setResumo(r);
+        setUltimaAtualizacao(new Date());
+        setSegundosRestantes(30);
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : String(e);
+        setErro(msg || "Falha ao carregar dados do painel.");
+      } finally {
+        setLoading(false);
+        setAtualizando(false);
+      }
+    },
+    [filtro, usuario],
+  );
 
   useEffect(() => {
+    if (!acessoLiberado) return;
     void buscar();
-    // Auto refresh a cada 30s + contador regressivo a cada 1s
     const refresh = setInterval(() => void buscar(true), 30_000);
     const ticker = setInterval(() => {
       setSegundosRestantes((s) => (s <= 1 ? 30 : s - 1));
@@ -493,7 +775,7 @@ function TVModePanel({ onClose }: { onClose: () => void }) {
       clearInterval(refresh);
       clearInterval(ticker);
     };
-  }, [buscar]);
+  }, [buscar, acessoLiberado]);
 
   const metaTotal = resumo?.metaTotal ?? 0;
   const realizadoTotal = resumo?.realizadoTotal ?? 0;
@@ -508,6 +790,142 @@ function TVModePanel({ onClose }: { onClose: () => void }) {
     second: "2-digit",
   });
 
+  const periodoRotulo = resolverPeriodo(filtro).rotulo;
+
+  // Atalho para navegar entre meses (atual ↔ anterior)
+  const trocarMes = (dir: "prev" | "next") => {
+    if (dir === "prev") {
+      // Se está no atual, vai para anterior; se está no anterior, vai para custom do mês retrasado
+      if (filtro.modo === "atual") setFiltro({ modo: "anterior" });
+      else if (filtro.modo === "anterior") {
+        const p = periodoMesAnterior();
+        // Volta mais um mês
+        const d = new Date(p.inicio + "T00:00:00");
+        d.setMonth(d.getMonth() - 1);
+        const novoInicio = d.toISOString().slice(0, 8) + "01";
+        const ultimoDia = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+        const novoFim = d.toISOString().slice(0, 8) + String(ultimoDia).padStart(2, "0");
+        setFiltro({ modo: "custom", customInicio: novoInicio, customFim: novoFim });
+      } else if (filtro.modo === "custom" && filtro.customInicio) {
+        const d = new Date(filtro.customInicio + "T00:00:00");
+        d.setMonth(d.getMonth() - 1);
+        const novoInicio = d.toISOString().slice(0, 8) + "01";
+        const ultimoDia = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+        const novoFim = d.toISOString().slice(0, 8) + String(ultimoDia).padStart(2, "0");
+        setFiltro({ modo: "custom", customInicio: novoInicio, customFim: novoFim });
+      }
+    } else {
+      // Próximo mês — só permite se não ultrapassar o atual
+      const atual = periodoMesAtual();
+      if (filtro.modo === "anterior") {
+        setFiltro({ modo: "atual" });
+      } else if (filtro.modo === "custom" && filtro.customInicio) {
+        const d = new Date(filtro.customInicio + "T00:00:00");
+        d.setMonth(d.getMonth() + 1);
+        const novoInicio = d.toISOString().slice(0, 8) + "01";
+        const ultimoDia = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+        const novoFim = d.toISOString().slice(0, 8) + String(ultimoDia).padStart(2, "0");
+        // Se o novo início for igual ao mês atual, volta para "atual"
+        if (novoInicio === atual.inicio) setFiltro({ modo: "atual" });
+        else if (novoInicio < atual.inicio) setFiltro({ modo: "custom", customInicio: novoInicio, customFim: novoFim });
+      }
+    }
+  };
+
+  const podeAvancar = (): boolean => {
+    const atual = periodoMesAtual();
+    if (filtro.modo === "anterior") return true;
+    if (filtro.modo === "atual") return false;
+    if (filtro.modo === "custom" && filtro.customInicio) {
+      return filtro.customInicio < atual.inicio;
+    }
+    return false;
+  };
+
+  // ============ ESTADOS DE ACESSO ============
+
+  // 1. Carregando sessão
+  if (carregando) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-[90] flex items-center justify-center"
+        style={{ background: "#06101f" }}
+      >
+        <div className="flex flex-col items-center gap-3">
+          <div
+            className="h-12 w-12 animate-spin rounded-full border-4 border-white/10"
+            style={{ borderTopColor: COLORS.blueLight }}
+          />
+          <p className="text-sm text-slate-400">Verificando sessão...</p>
+        </div>
+      </motion.div>
+    );
+  }
+
+  // 2. Não autenticado — mostrar login gate
+  if (!usuario) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-[90] overflow-y-auto orion-tv-scroll"
+        style={{ background: "#06101f" }}
+      >
+        <div className="pointer-events-none absolute inset-0 orion-aurora-bg opacity-30" />
+        <div className="pointer-events-none absolute inset-0 orion-grid-mesh opacity-40" />
+        <TVLoginGate onSucesso={() => void buscar()} onVoltar={onClose} />
+      </motion.div>
+    );
+  }
+
+  // 3. Autenticado mas sem permissão (vendedor ou outro perfil)
+  if (!acessoLiberado) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-[90] flex items-center justify-center overflow-y-auto p-6 orion-tv-scroll"
+        style={{ background: "#06101f" }}
+      >
+        <div className="pointer-events-none absolute inset-0 orion-aurora-bg opacity-30" />
+        <div className="pointer-events-none absolute inset-0 orion-grid-mesh opacity-40" />
+        <motion.div
+          initial={{ opacity: 0, y: 20, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.4 }}
+          className="relative z-10 w-full max-w-md rounded-2xl border border-red-500/30 bg-red-500/10 p-8 text-center backdrop-blur-xl"
+        >
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-red-500/20">
+            <ShieldAlert className="h-7 w-7 text-red-300" />
+          </div>
+          <h2 className="font-display text-xl font-bold text-white">Perfil sem acesso</h2>
+          <p className="mt-2 text-sm text-slate-300">
+            Olá, <span className="font-semibold text-white">{usuario.nome.split(" ")[0]}</span>!
+            Seu perfil <span className="font-bold uppercase text-red-300">{usuario.perfil}</span> não tem
+            permissão para visualizar o Painel TV Mode.
+          </p>
+          <p className="mt-2 text-xs text-slate-400">
+            Acesso liberado apenas para <strong>Admin Master</strong>, <strong>Gerente</strong> ou{" "}
+            <strong>Supervisor</strong>. Solicite à gestão a alteração do seu perfil caso precise acompanhar
+            o monitoramento em tempo real.
+          </p>
+          <button
+            onClick={onClose}
+            className="mt-6 w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-slate-200 hover:bg-white/10"
+          >
+            ← Voltar para a landing page
+          </button>
+        </motion.div>
+      </motion.div>
+    );
+  }
+
+  // 4. Acesso liberado — renderiza painel completo
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -531,18 +949,20 @@ function TVModePanel({ onClose }: { onClose: () => void }) {
           </div>
           <div>
             <h2 className="font-display text-xl font-bold tracking-wide text-white sm:text-2xl">
-              ORIONN · Monitoramento em Tempo Real
+              ORION · Monitoramento em Tempo Real
             </h2>
-            <p className="text-xs text-slate-400">Painel TV · atualização automática a cada 30s</p>
+            <p className="text-xs text-slate-400">
+              Painel TV · atualização automática a cada 30s · logado como{" "}
+              <span className="font-semibold text-blue-300">{usuario.nome.split(" ")[0]}</span> (
+              <span className="uppercase">{usuario.perfil}</span>)
+            </p>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5">
             <span className="orion-live-dot h-2 w-2 rounded-full bg-emerald-400" />
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-300">
-              AO VIVO
-            </span>
+            <span className="text-xs font-bold uppercase tracking-wider text-emerald-300">AO VIVO</span>
           </div>
           <div className="hidden items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-300 sm:flex">
             <Clock className="h-3.5 w-3.5" />
@@ -573,6 +993,128 @@ function TVModePanel({ onClose }: { onClose: () => void }) {
         </div>
       </header>
 
+      {/* SELETOR DE PERÍODO */}
+      <div className="relative z-10 border-b border-white/5 bg-black/20 px-6 py-3 backdrop-blur">
+        <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-400">
+              <Calendar className="h-3.5 w-3.5" /> Período:
+            </span>
+
+            {/* Botões de modo */}
+            <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 p-1">
+              <button
+                onClick={() => setFiltro({ modo: "atual" })}
+                className={`rounded-md px-3 py-1.5 text-xs font-semibold transition ${
+                  filtro.modo === "atual"
+                    ? "bg-blue-600 text-white shadow"
+                    : "text-slate-300 hover:bg-white/10"
+                }`}
+              >
+                Mês atual
+              </button>
+              <button
+                onClick={() => setFiltro({ modo: "anterior" })}
+                className={`rounded-md px-3 py-1.5 text-xs font-semibold transition ${
+                  filtro.modo === "anterior"
+                    ? "bg-blue-600 text-white shadow"
+                    : "text-slate-300 hover:bg-white/10"
+                }`}
+              >
+                Mês anterior
+              </button>
+              <button
+                onClick={() => {
+                  if (filtro.modo !== "custom") {
+                    setFiltro({
+                      modo: "custom",
+                      customInicio: mesAtualInicio(),
+                      customFim: new Date().toISOString().slice(0, 10),
+                    });
+                  }
+                  setShowCalendario((s) => !s);
+                }}
+                className={`rounded-md px-3 py-1.5 text-xs font-semibold transition ${
+                  filtro.modo === "custom"
+                    ? "bg-blue-600 text-white shadow"
+                    : "text-slate-300 hover:bg-white/10"
+                }`}
+              >
+                Personalizado
+              </button>
+            </div>
+
+            {/* Navegação entre meses (setas) */}
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => trocarMes("prev")}
+                className="rounded-md border border-white/10 bg-white/5 p-1.5 text-slate-300 hover:bg-white/10"
+                title="Mês anterior"
+                aria-label="Mês anterior"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <span className="min-w-[180px] text-center text-xs font-semibold text-slate-200">
+                {periodoRotulo}
+              </span>
+              <button
+                onClick={() => trocarMes("next")}
+                disabled={!podeAvancar()}
+                className="rounded-md border border-white/10 bg-white/5 p-1.5 text-slate-300 hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-white/5"
+                title="Próximo mês"
+                aria-label="Próximo mês"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Calendário customizado */}
+          {filtro.modo === "custom" && showCalendario && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="flex flex-wrap items-center gap-2 rounded-lg border border-white/10 bg-white/5 p-3"
+            >
+              <label className="flex items-center gap-2 text-xs text-slate-300">
+                De:
+                <input
+                  type="date"
+                  value={filtro.customInicio || ""}
+                  onChange={(e) => setFiltro({ ...filtro, customInicio: e.target.value })}
+                  className="rounded-md border border-white/10 bg-white/5 px-2 py-1 text-xs text-white outline-none focus:border-blue-500"
+                />
+              </label>
+              <label className="flex items-center gap-2 text-xs text-slate-300">
+                Até:
+                <input
+                  type="date"
+                  value={filtro.customFim || ""}
+                  onChange={(e) => setFiltro({ ...filtro, customFim: e.target.value })}
+                  className="rounded-md border border-white/10 bg-white/5 px-2 py-1 text-xs text-white outline-none focus:border-blue-500"
+                />
+              </label>
+              <button
+                onClick={() => void buscar()}
+                className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-500"
+              >
+                Aplicar
+              </button>
+            </motion.div>
+          )}
+
+          <div className="hidden items-center gap-2 text-xs text-slate-400 md:flex">
+            <span className="rounded-md border border-white/10 bg-white/5 px-2 py-1">
+              {resumo?.origem === "metas" ? "Fonte: metas_individuais" : "Fonte: vendas_diarias"}
+            </span>
+            <span className="rounded-md border border-white/10 bg-white/5 px-2 py-1">
+              {resumo ? `${resumo.dataInicio} → ${resumo.dataFim}` : "—"}
+            </span>
+          </div>
+        </div>
+      </div>
+
       {/* CONTEÚDO */}
       <main className="relative z-10 mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 sm:py-8">
         {loading ? (
@@ -600,7 +1142,7 @@ function TVModePanel({ onClose }: { onClose: () => void }) {
             <Target className="mx-auto mb-3 h-12 w-12 text-slate-500" />
             <h3 className="text-lg font-bold text-white">Nenhuma meta encontrada</h3>
             <p className="mt-1 text-sm text-slate-400">
-              Não há metas mensais cadastradas para o período atual ({mesAtualInicio()}).
+              Não há metas ou vendas registradas para o período selecionado ({periodoRotulo}).
             </p>
           </div>
         ) : resumo ? (
@@ -674,7 +1216,7 @@ function TVModePanel({ onClose }: { onClose: () => void }) {
                   Desempenho por Vendedor
                 </h3>
                 <span className="text-xs text-slate-400">
-                  {resumo.vendedores.length} vendedores ativos
+                  {resumo.vendedores.length} vendedores ativos · {periodoRotulo}
                 </span>
               </div>
               <div className="overflow-x-auto orion-tv-scroll">
@@ -709,9 +1251,9 @@ function TVModePanel({ onClose }: { onClose: () => void }) {
             </section>
 
             <p className="mt-6 text-center text-xs text-slate-500">
-              Orionn TV Mode · Mês de referência:{" "}
-              <span className="font-semibold text-slate-400">{mesAtualInicio()}</span> · dados
-              fornecidos pelo Supabase em tempo real
+              Orion TV Mode · Período:{" "}
+              <span className="font-semibold text-slate-400">{periodoRotulo}</span> · dados fornecidos
+              pelo Supabase em tempo real · atualização a cada 30s
             </p>
           </>
         ) : null}
@@ -842,9 +1384,9 @@ function Footer() {
               />
             </svg>
           </div>
-          <span className="font-display text-sm tracking-wide text-white">ORIONN</span>
+          <span className="font-display text-sm tracking-wide text-white">ORION</span>
         </div>
-        <p className="text-center">© 2026 Orionn · Sistema de Gestão Multi-Empresa</p>
+        <p className="text-center">© 2026 Orion · Sistema de Gestão Multi-Empresa</p>
         <div className="flex items-center gap-4">
           <a
             href="https://supabase.com"
@@ -888,9 +1430,6 @@ export default function LandingPage() {
   const [tvMode, setTvMode] = useState(false);
   const featuresRef = useRef<HTMLElement>(null);
 
-  // Se o usuário logar em outra aba enquanto a landing está aberta, o AuthContext
-  // dispara refresh e `usuario` é populado — então o IndexRouter do route/index
-  // já troca para OrionApp. Aqui só usamos para mostrar o nome no CTA.
   useEffect(() => {
     if (tvMode) {
       document.body.style.overflow = "hidden";
@@ -950,13 +1489,14 @@ export default function LandingPage() {
               />
             </svg>
           </div>
-          <span className="font-display text-xl font-black tracking-wide text-white">ORIONN</span>
+          <span className="font-display text-xl font-black tracking-wide text-white">ORION</span>
         </div>
 
         <nav className="flex items-center gap-2">
           <button
             onClick={() => setTvMode(true)}
-            className="hidden items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-white/10 sm:inline-flex"
+            className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-white/10"
+            title="Painel TV Mode — acesso restrito a admin, gerente ou supervisor"
           >
             <Tv className="h-4 w-4" /> Painel TV
           </button>
@@ -988,7 +1528,7 @@ export default function LandingPage() {
           </span>
 
           <div className="mt-6">
-            <SpotlightText>ORIONN</SpotlightText>
+            <SpotlightText>ORION</SpotlightText>
             <p className="orion-spotlight-text font-display mt-2 text-2xl font-bold sm:text-4xl">
               Sistema de Gestão Multi-Empresa e Performance
             </p>
