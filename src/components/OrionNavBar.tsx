@@ -28,6 +28,7 @@ import {
   Award,
   FileText,
   BrainCircuit,
+  KeyRound,
 } from "lucide-react";
 
 interface Item {
@@ -58,7 +59,7 @@ const ITEMS: Item[] = [
   { id: "ia", label: "IA", Icon: Bot, perfilMinimo: "gerente" },
   { id: "equipes", label: "Equipes", Icon: Users2, perfilMinimo: "gerente" },
   { id: "filiais", label: "Filiais", Icon: Building2, perfilMinimo: "gerente" },
-  { id: "usuarios", label: "Admin", Icon: ShieldCheck, perfilMinimo: "admin" },
+  { id: "usuarios", label: "Credenciais", Icon: KeyRound, perfilMinimo: "supervisor" },
   { id: "ia-config", label: "Config IA", Icon: BrainCircuit, perfilMinimo: "admin" },
   { id: "configuracoes", label: "Ajustes", Icon: Settings2, perfilMinimo: "gerente" },
   { id: "auditoria", label: "Auditoria", Icon: ClipboardList, perfilMinimo: "admin" },

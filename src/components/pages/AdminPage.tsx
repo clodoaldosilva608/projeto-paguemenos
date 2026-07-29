@@ -66,21 +66,34 @@ export default function AdminPage() {
 
   useEffect(() => { void reload(); }, []);
 
-  if (usuario?.perfil !== "admin") {
-    return <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-red-700 dark:border-red-900 dark:bg-red-950/50 dark:text-red-300">Acesso restrito ao administrador.</div>;
+  if (usuario?.perfil !== "admin" && usuario?.perfil !== "gerente" && usuario?.perfil !== "supervisor") {
+    return <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-red-700 dark:border-red-900 dark:bg-red-950/50 dark:text-red-300">Acesso restrito a administradores, gerentes e supervisores.</div>;
+  }
+
+  // Supervisor e gerente só veem a aba Credenciais (read-only para supervisor)
+  const ehAdmin = usuario?.perfil === "admin";
+  const abasVisiveis = ehAdmin
+    ? ([
+        { id: "usuarios", label: "Usuários", Icon: Power },
+        { id: "convites", label: "Convites", Icon: Send },
+        { id: "acessos", label: "Acessos rápidos", Icon: LinkIcon },
+        { id: "credenciais", label: "Credenciais", Icon: KeyRound },
+        { id: "integracoes", label: "Integrações", Icon: Plug },
+        { id: "auditoria", label: "Auditoria", Icon: History },
+      ] as const)
+    : ([
+        { id: "credenciais", label: "Credenciais", Icon: KeyRound },
+      ] as const);
+
+  // Se não for admin e a aba atual não for credenciais, força para credenciais
+  if (!ehAdmin && aba !== "credenciais") {
+    setAba("credenciais");
   }
 
   return (
     <div className="space-y-6 pb-24">
       <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-slate-200 bg-white p-1 shadow-sm dark:border-white/10 dark:bg-slate-900">
-        {([
-          { id: "usuarios", label: "Usuários", Icon: Power },
-          { id: "convites", label: "Convites", Icon: Send },
-          { id: "acessos", label: "Acessos rápidos", Icon: LinkIcon },
-          { id: "credenciais", label: "Credenciais", Icon: KeyRound },
-          { id: "integracoes", label: "Integrações", Icon: Plug },
-          { id: "auditoria", label: "Auditoria", Icon: History },
-        ] as const).map(({ id, label, Icon }) => (
+        {abasVisiveis.map(({ id, label, Icon }) => (
           <button key={id} onClick={() => setAba(id)}
             className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold transition sm:text-sm ${aba === id ? "bg-blue-600 text-white shadow" : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5"}`}>
             <Icon className="h-3.5 w-3.5" /> {label}
@@ -91,7 +104,7 @@ export default function AdminPage() {
 
       {loading && <p className="text-sm text-slate-500">Carregando...</p>}
 
-      {aba === "usuarios" && (
+      {ehAdmin && aba === "usuarios" && (
         <UsuariosTab
           profiles={profiles} roles={roles} usuarioLogadoId={usuario!.id}
           onChangeRole={async (uid, r) => { await call.alterarPerfil({ data: { user_id: uid, perfil: r } }); toast.success("Perfil atualizado"); reload(); }}
@@ -100,7 +113,7 @@ export default function AdminPage() {
         />
       )}
 
-      {aba === "convites" && (
+      {ehAdmin && aba === "convites" && (
         <ConvitesTab
           invites={invites}
           onCriar={async (payload) => {
@@ -117,7 +130,7 @@ export default function AdminPage() {
         />
       )}
 
-      {aba === "acessos" && (
+      {ehAdmin && aba === "acessos" && (
         <AcessosRapidosTab
           links={links}
           onSalvar={async (l) => { try { await call.salvarLink({ data: l }); toast.success("Botão salvo"); reloadLinks(); } catch (e: any) { toast.error(e.message); } }}
@@ -125,11 +138,11 @@ export default function AdminPage() {
         />
       )}
 
-      {aba === "integracoes" && <IntegracoesTab />}
+      {ehAdmin && aba === "integracoes" && <IntegracoesTab />}
 
       {aba === "credenciais" && <CredenciaisMatriculaTab />}
 
-      {aba === "auditoria" && <AuditoriaTab />}
+      {ehAdmin && aba === "auditoria" && <AuditoriaTab />}
     </div>
   );
 }
