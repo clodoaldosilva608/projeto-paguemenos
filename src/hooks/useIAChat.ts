@@ -153,30 +153,35 @@ async function buscarContextoReal(usuario: any): Promise<string | undefined> {
 export function detectarComandoVenda(texto: string): { valor: number; clientes: number; categoria: string } | null {
   const lower = texto.toLowerCase();
 
-  // Padrões: "registrei X vendas de R$ Y", "lançar R$ Y com Z clientes", "vendi R$ Y hoje"
-  const padroes = [
-    /(?:registrei|lançar|lancar|vendi|registrei|fiz)\s*(\d+)?\s*(?:vendas?|lançamentos?)?\s*(?:de|no valor de)?\s*r?\$?\s*([\d.,]+)/i,
-    /r?\$?\s*([\d.,]+)\s*(?:com|para|com\s*\d+\s*clientes?)?\s*(\d+)?\s*clientes?/i,
-  ];
+  // Extrair valor monetário (R$ X ou X reais)
+  const valorMatch = texto.match(/r?\$\s*([\d.,]+)/i) || texto.match(/([\d.,]+)\s*(?:reais?|R\$)/i);
+  if (!valorMatch) return null;
 
-  for (const padrao of padroes) {
-    const match = texto.match(padrao);
-    if (match) {
-      const valor = parseFloat(match[2]?.replace(/[.,]/g, (m, i) => i === 0 ? "" : ".") || match[1]?.replace(/[.,]/g, (m, i) => i === 0 ? "" : ".") || "0");
-      const clientes = parseInt(match[1] || match[2] || "1");
+  // Parsear valor (tratar vírgula como decimal brasileiro)
+  const valorStr = valorMatch[1].replace(/\./g, "").replace(",", ".");
+  const valor = parseFloat(valorStr);
+  if (!valor || valor <= 0) return null;
 
-      if (valor > 0) {
-        let categoria = "faturamento";
-        if (lower.includes("marca")) categoria = "marcas_exclusivas";
-        else if (lower.includes("genérico") || lower.includes("generico")) categoria = "genericos";
-        else if (lower.includes("desconto") || lower.includes("super")) categoria = "super_desconto";
-
-        return { valor, clientes: clientes > 0 ? clientes : 1, categoria };
-      }
+  // Extrair número de clientes (após "com" ou "para" + número + "clientes")
+  const clientesMatch = texto.match(/(?:com|para)\s+(\d+)\s*(?:clientes?|pessoas?|clientes)/i);
+  let clientes = 1;
+  if (clientesMatch) {
+    clientes = parseInt(clientesMatch[1]) || 1;
+  } else {
+    // Tentar extrair "X vendas" ou "X clientes" diretamente
+    const vendasMatch = texto.match(/(\d+)\s*(?:vendas?|clientes?|pessoas?)/i);
+    if (vendasMatch) {
+      clientes = parseInt(vendasMatch[1]) || 1;
     }
   }
 
-  return null;
+  // Detectar categoria
+  let categoria = "faturamento";
+  if (lower.includes("marca")) categoria = "marcas_exclusivas";
+  else if (lower.includes("genérico") || lower.includes("generico")) categoria = "genericos";
+  else if (lower.includes("desconto") || lower.includes("super")) categoria = "super_desconto";
+
+  return { valor, clientes, categoria };
 }
 
 export function useIAChat() {
