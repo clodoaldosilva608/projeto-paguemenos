@@ -46,23 +46,112 @@ export const buscarEmailPorMatricula = createServerFn({ method: "POST" })
   });
 
 // ------------------------------------------------------------------
-// CRUD de credenciais (admin/gerente gerencia)
+// CRUD de credenciais (admin/gerente gerencia; supervisor visualiza)
 // ------------------------------------------------------------------
 
-async function ensureAdmin(supabase: any, userId: string) {
+// Verifica se o usuário tem perfil admin, gerente ou supervisor (todos podem VISUALIZAR)
+async function ensureGestao(supabase: any, userId: string) {
+  const { data, error } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId)
+    .in("role", ["admin", "gerente", "supervisor"]);
+  if (error) throw new Error(error.message);
+  if (!data || data.length === 0)
+    throw new Error("Acesso negado. Necessário perfil admin, gerente ou supervisor.");
+}
+
+// Verifica se o usuário pode EDITAR (admin ou gerente) — supervisor é read-only
+async function ensureAdminOuGerente(supabase: any, userId: string) {
   const { data, error } = await supabase
     .from("user_roles")
     .select("role")
     .eq("user_id", userId)
     .in("role", ["admin", "gerente"]);
   if (error) throw new Error(error.message);
-  if (!data || data.length === 0) throw new Error("Acesso negado. Necessário perfil admin ou gerente.");
+  if (!data || data.length === 0)
+    throw new Error("Acesso negado. Apenas admin ou gerente podem editar credenciais.");
 }
 
+// Verifica se o usuário alvo é admin — NINGUÉM pode editar/excluir credencial de admin
+async function ensureTargetNaoEhAdmin(supabaseAdmin: any, targetUserId: string) {
+  const { data, error } = await supabaseAdmin
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", targetUserId)
+    .eq("role", "admin");
+  if (error) throw new Error(error.message);
+  if (data && data.length > 0)
+    throw new Error(
+      "Não é permitido editar ou excluir credencial de um Administrador Master. O admin faz login exclusivamente por email + senha.",
+    );
+}
+
+// Lista TODOS os usuários (profiles + roles + credencial se houver)
+// Retorna admin, gerente, supervisor e vendedores — todos visíveis para admin/gerente/supervisor
+export const listarUsuariosComCredenciais = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await ensureGestao(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Buscar profiles, user_roles e login_matricula em paralelo
+    const [profRes, rolesRes, credsRes] = await Promise.all([
+      supabaseAdmin.from("profiles").select("id, nome, email").order("nome"),
+      supabaseAdmin.from("user_roles").select("user_id, role"),
+      supabaseAdmin.from("login_matricula").select("*"),
+    ]);
+
+    if (profRes.error) throw new Error(profRes.error.message);
+    if (rolesRes.error) throw new Error(rolesRes.error.message);
+    if (credsRes.error) throw new Error(credsRes.error.message);
+
+    const profiles = profRes.data || [];
+    const roles = rolesRes.data || [];
+    const creds = credsRes.data || [];
+
+    const roleMap = new Map(roles.map((r: any) => [r.user_id, r.role]));
+    const credMap = new Map(creds.map((c: any) => [c.user_id, c]));
+
+    // Monta lista combinada: profile + role + credencial (se houver)
+    const usuarios = profiles.map((p: any) => {
+      const cred = credMap.get(p.id);
+      return {
+        user_id: p.id,
+        nome: p.nome || "",
+        email: p.email || "",
+        role: roleMap.get(p.id) || "vendedor",
+        // Campos de credencial (se existir)
+        credencial_id: cred?.id || null,
+        primeiro_nome: cred?.primeiro_nome || null,
+        matricula: cred?.matricula || null,
+        ativo: cred?.ativo ?? null,
+        tem_credencial: !!cred,
+      };
+    });
+
+    // Ordena: admin primeiro, depois gerente, supervisor, vendedores
+    const ordemRoles: Record<string, number> = {
+      admin: 0,
+      gerente: 1,
+      supervisor: 2,
+      vendedor: 3,
+    };
+    usuarios.sort((a: any, b: any) => {
+      const ra = ordemRoles[a.role] ?? 99;
+      const rb = ordemRoles[b.role] ?? 99;
+      if (ra !== rb) return ra - rb;
+      return (a.nome || "").localeCompare(b.nome || "");
+    });
+
+    return { usuarios };
+  });
+
+// Mantido para compatibilidade — agora apenas chama listarUsuariosComCredenciais
 export const listarCredenciais = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await ensureAdmin(context.supabase, context.userId);
+    await ensureGestao(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: creds, error } = await supabaseAdmin
@@ -101,8 +190,11 @@ export const salvarCredencial = createServerFn({ method: "POST" })
     }).parse(v),
   )
   .handler(async ({ data, context }) => {
-    await ensureAdmin(context.supabase, context.userId);
+    await ensureAdminOuGerente(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // BLOQUEIO: ninguém pode editar/criar credencial para um admin
+    await ensureTargetNaoEhAdmin(supabaseAdmin, data.user_id);
 
     const payload = {
       user_id: data.user_id,
@@ -137,8 +229,21 @@ export const excluirCredencial = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((v: unknown) => z.object({ id: z.string().uuid() }).parse(v))
   .handler(async ({ data, context }) => {
-    await ensureAdmin(context.supabase, context.userId);
+    await ensureAdminOuGerente(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Buscar a credencial para obter o user_id e validar que não é admin
+    const { data: cred, error: credErr } = await supabaseAdmin
+      .from("login_matricula")
+      .select("user_id")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (credErr) throw new Error(credErr.message);
+    if (!cred) throw new Error("Credencial não encontrada.");
+
+    // BLOQUEIO: ninguém pode excluir credencial de um admin
+    await ensureTargetNaoEhAdmin(supabaseAdmin, cred.user_id);
+
     const { error } = await supabaseAdmin.from("login_matricula").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
