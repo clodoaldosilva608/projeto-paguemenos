@@ -2,7 +2,15 @@
  * SSO Cross-App — PagueMenos
  *
  * Recebe JWT do Orion e faz login automático via magic link do Supabase.
- * Usa REST API direto (sem SDK) para evitar problemas de formato de resposta.
+ *
+ * IMPORTANTE: Só funciona para usuários que JÁ EXISTEM no Supabase do
+ * PagueMenos (criados pelo admin do PagueMenos). Não cria usuários
+ * automaticamente — cada tenant deve ter sua própria instância isolada.
+ *
+ * O Orion é a central de comando. O PagueMenos é o template/produto.
+ * Quando um cliente assina, o Orion provisiona uma instância separada
+ * (via Vercel for Platforms ou deploy independente) — NÃO compartilha
+ * o banco do PagueMenos.
  */
 
 import { createFileRoute } from "@tanstack/react-router";
@@ -57,9 +65,9 @@ export const Route = (createFileRoute as any)("/api/sso")({
           "Content-Type": "application/json",
         };
 
-        // 1. Gerar magic link diretamente via REST API
-        // Se usuário não existir, o Supabase cria o link mesmo assim (para usuários confirmados)
-        // Se não for confirmado, retorna erro e criamos o usuário
+        // Verificar se usuário JÁ EXISTE no Supabase do PagueMenos
+        // Se não existe, NÃO cria — redireciona para página de login
+        // com mensagem explicando que a instância está sendo provisionada
         const linkResp = await fetch(`${SUPABASE_URL}/auth/v1/admin/generate_link`, {
           method: "POST",
           headers,
@@ -70,64 +78,22 @@ export const Route = (createFileRoute as any)("/api/sso")({
           }),
         });
 
-        const linkData = await linkResp.json();
-
-        // Se o magic link foi gerado com sucesso, action_link está no nível raiz
-        if (linkResp.ok && linkData?.action_link) {
-          console.log(`[sso] ✓ Login SSO: ${payload.email} → ${payload.company_id}`);
-          return Response.redirect(linkData.action_link, 302);
+        if (linkResp.ok) {
+          const linkData = await linkResp.json();
+          if (linkData?.action_link) {
+            // Usuário existe — login automático
+            console.log(`[sso] ✓ Login SSO: ${payload.email}`);
+            return Response.redirect(linkData.action_link, 302);
+          }
         }
 
-        // 2. Se falhou (usuário não existe?), criar usuário
-        if (!linkResp.ok || !linkData?.action_link) {
-          console.log(`[sso] Magic link falhou, criando usuário: ${payload.email}`);
-          const tempPassword = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2) + "A1!";
-
-          const createResp = await fetch(`${SUPABASE_URL}/auth/v1/admin/users`, {
-            method: "POST",
-            headers,
-            body: JSON.stringify({
-              email: payload.email,
-              password: tempPassword,
-              email_confirm: true,
-              user_metadata: {
-                name: payload.name,
-                company_id: payload.company_id,
-                role: payload.role || "admin",
-                source: "orion_sso",
-              },
-            }),
-          });
-
-          if (!createResp.ok) {
-            console.error("[sso] Erro criando usuário:", await createResp.text());
-            return Response.redirect(`${url.origin}/auth`, 302);
-          }
-
-          console.log(`[sso] ✓ Usuário criado: ${payload.email} → ${payload.company_id}`);
-
-          // 3. Tentar magic link novamente
-          const linkResp2 = await fetch(`${SUPABASE_URL}/auth/v1/admin/generate_link`, {
-            method: "POST",
-            headers,
-            body: JSON.stringify({
-              type: "magiclink",
-              email: payload.email,
-              options: { redirect_to: `${url.origin}/` },
-            }),
-          });
-
-          const linkData2 = await linkResp2.json();
-
-          if (linkResp2.ok && linkData2?.action_link) {
-            console.log(`[sso] ✓ Login SSO (novo user): ${payload.email}`);
-            return Response.redirect(linkData2.action_link, 302);
-          }
-
-          console.error("[sso] Magic link falhou após criar usuário");
-        }
-
-        return Response.redirect(`${url.origin}/auth`, 302);
+        // Usuário NÃO existe — não cria automaticamente
+        // Redireciona para login com mensagem
+        console.log(`[sso] Usuário não encontrado no PagueMenos: ${payload.email} — redirecionando para login`);
+        const loginUrl = new URL(`${url.origin}/auth`);
+        loginUrl.searchParams.set("sso", "pending");
+        loginUrl.searchParams.set("email", payload.email);
+        return Response.redirect(loginUrl.toString(), 302);
       },
     },
   },
