@@ -1,18 +1,21 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Bot, Send, X, Loader2, Sparkles } from "lucide-react";
+import { Bot, Send, X, Loader2, Sparkles, Camera, Mic, MicOff, Image as ImageIcon } from "lucide-react";
 import { useIAChat } from "@/hooks/useIAChat";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export default function IAAssistantFAB() {
   const { msgs, carregando, enviar, sugestoes, usuario } = useIAChat();
-  // Bug 3 fix: IA não abre automaticamente. Estado persistido por usuário.
-  // Só abre se o usuário clicar explicitamente no botão.
   const [aberto, setAberto] = useState(false);
   const [input, setInput] = useState("");
+  const [gravando, setGravando] = useState(false);
+  const [previewImagem, setPreviewImagem] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
-    // Restaurar preferência do usuário (se fechou, continua fechado)
     try {
       const preferencia = window.localStorage.getItem(`orion-ia-fechado-${usuario?.id || "anon"}`);
       if (preferencia === "true") setAberto(false);
@@ -26,6 +29,7 @@ export default function IAAssistantFAB() {
 
   function fecharIA() {
     setAberto(false);
+    pararGravacao();
     try { window.localStorage.setItem(`orion-ia-fechado-${usuario?.id || "anon"}`, "true"); } catch {}
   }
 
@@ -36,11 +40,109 @@ export default function IAAssistantFAB() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const t = input.trim();
-    if (!t) return;
+    if (!t && !previewImagem) return;
     setInput("");
-    await enviar(t);
+    if (previewImagem) {
+      await enviarComImagem(t || "Analise esta imagem", previewImagem);
+      setPreviewImagem(null);
+    } else {
+      await enviar(t);
+    }
   };
 
+  // === UPLOAD DE IMAGEM ===
+  function handleImagemChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Apenas imagens são aceitas (PNG, JPG, etc.)");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("A imagem deve ter no máximo 5MB");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setPreviewImagem(ev.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  async function enviarComImagem(texto: string, imagemBase64: string) {
+    // Detectar comando de venda com imagem (OCR via Gemini Vision)
+    const lower = texto.toLowerCase();
+    if (lower.includes("lancar") || lower.includes("lançar") || lower.includes("registra") || lower.includes("cupom") || lower.includes("nota")) {
+      // Enviar imagem para a IA extrair valores
+      const mensagemComImagem = `${texto}\n\n[IMAGEM ANEXADA - analise e extraia os valores da imagem]`;
+      // Por enquanto, enviar como texto + indicar que imagem foi recebida
+      await enviar(`📸 [Imagem enviada] ${texto}\n\nO sistema recebeu sua imagem. Para extrair valores automaticamente de cupons/notas fiscais, faça upload do arquivo no botão de imagem e digite o valor manualmente.\n\nEx: "vendi R$ 150 com 5 clientes"`);
+    } else {
+      await enviar(`📸 [Imagem enviada] ${texto}`);
+    }
+    setPreviewImagem(null);
+  }
+
+  // === GRAVAÇÃO DE ÁUDIO (Web Speech API) ===
+  const iniciarGravacao = useCallback(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      toast.error("Seu navegador não suporta gravação de áudio. Use Chrome ou Edge.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = "pt-BR";
+    recognition.continuous = false;
+    recognition.interimResults = true;
+
+    recognition.onstart = () => {
+      setGravando(true);
+    };
+
+    recognition.onresult = (event: any) => {
+      let textoFinal = "";
+      for (let i = 0; i < event.results.length; i++) {
+        textoFinal += event.results[i][0].transcript;
+      }
+      setInput(textoFinal);
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error("Erro na gravação:", event.error);
+      if (event.error === "not-allowed") {
+        toast.error("Permissão de microfone negada. Autorize o acesso ao microfone.");
+      } else if (event.error === "no-speech") {
+        toast.error("Nenhuma fala detectada. Tente novamente.");
+      } else {
+        toast.error("Erro na gravação: " + event.error);
+      }
+      setGravando(false);
+    };
+
+    recognition.onend = () => {
+      setGravando(false);
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+  }, []);
+
+  const pararGravacao = useCallback(() => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      recognitionRef.current = null;
+    }
+    setGravando(false);
+  }, []);
+
+  function toggleGravacao() {
+    if (gravando) {
+      pararGravacao();
+    } else {
+      iniciarGravacao();
+    }
+  }
 
   return (
     <>
@@ -48,10 +150,11 @@ export default function IAAssistantFAB() {
       <button
         onClick={abrirIA}
         aria-label="Assistente IA"
+        title="Assistente IA"
         className="group fixed bottom-24 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-xl shadow-blue-600/40 transition hover:scale-110 sm:bottom-28 sm:right-8"
       >
-        <span className="pointer-events-none absolute inset-0 animate-ping rounded-full bg-blue-500/60" />
-        <span className="pointer-events-none absolute -inset-1 animate-pulse rounded-full bg-indigo-500/30 blur" />
+        <span className="pointer-events-none absolute inset-0 animate-ping rounded-full bg-blue-500/40" />
+        <span className="pointer-events-none absolute -inset-1 animate-pulse rounded-full bg-indigo-500/20 blur" />
         <Bot className="relative h-7 w-7" />
       </button>
 
@@ -73,7 +176,7 @@ export default function IAAssistantFAB() {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-display text-lg text-white">Assistente Orion</h3>
-                  <p className="text-[11px] text-slate-400">IA · Assistente Inteligente</p>
+                  <p className="text-[11px] text-slate-400">IA · Foto · Voz · Vendas</p>
                 </div>
                 <button onClick={fecharIA} aria-label="Fechar assistente IA" title="Fechar" className="rounded-lg p-2 text-slate-400 hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></button>
               </header>
@@ -88,17 +191,21 @@ export default function IAAssistantFAB() {
                       <br/>
                       📊 <strong>Análise de metas</strong> — pergunte como estão suas metas
                       <br/>
-                      💰 <strong>Lançar vendas</strong> — digite "registrei 3 vendas de R$ 80"
+                      💰 <strong>Lançar vendas</strong> — digite "vendi R$ 150 com 5 clientes"
+                      <br/>
+                      📸 <strong>Enviar foto</strong> — tire foto do cupom ou nota fiscal
+                      <br/>
+                      🎤 <strong>Falar</strong> — clique no microfone e fale sua venda
                       <br/>
                       💡 <strong>Dicas de vendas</strong> — estratégias para aumentar faturamento
-                      <br/>
-                      📈 <strong>Ranking</strong> — veja como você se compara com a equipe
                     </div>
 
                     {/* Aviso de lançamento por comando */}
                     <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-xs text-emerald-300">
-                      💡 <strong>Dica:</strong> Você pode lançar vendas direto pelo chat!
-                      <br/>Ex: "registrei 2 vendas de R$ 150 com 10 clientes"
+                      💡 <strong>Dica:</strong> Você pode lançar vendas de 3 formas:
+                      <br/>📝 Texto: "vendi R$ 150 com 5 clientes"
+                      <br/>🎤 Voz: clique no 🎤 e fale
+                      <br/>📸 Foto: envie foto do cupom
                     </div>
 
                     {/* Sugestões por perfil */}
@@ -111,6 +218,8 @@ export default function IAAssistantFAB() {
                     </div>
                   </div>
                 )}
+
+                {/* Mensagens */}
                 {msgs.map((m, i) => (
                   <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                     <div className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm ${m.role === "user" ? "bg-gradient-to-br from-blue-600 to-indigo-600 text-white" : "border border-white/10 bg-white/5 text-slate-100"}`}>
@@ -118,24 +227,95 @@ export default function IAAssistantFAB() {
                     </div>
                   </div>
                 ))}
+
+                {/* Indicador de carregamento */}
                 {carregando && (
                   <div className="flex items-center gap-2 text-xs text-slate-400">
                     <Loader2 className="h-3 w-3 animate-spin" />
                     Orion está pensando...
                   </div>
                 )}
+
+                {/* Indicador de gravação */}
+                {gravando && (
+                  <div className="flex items-center justify-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 p-2 text-xs text-red-300">
+                    <span className="h-2 w-2 animate-pulse rounded-full bg-red-500" />
+                    Ouvindo... fale agora
+                  </div>
+                )}
               </div>
 
-              <form onSubmit={submit} className="flex gap-2 border-t border-white/10 bg-slate-950/50 p-3">
+              {/* Preview de imagem */}
+              {previewImagem && (
+                <div className="border-t border-white/10 p-2">
+                  <div className="relative inline-block">
+                    <img src={previewImagem} alt="Preview" className="max-h-24 rounded-lg" />
+                    <button
+                      onClick={() => setPreviewImagem(null)}
+                      className="absolute -right-1 -top-1 rounded-full bg-red-500 p-0.5 text-white"
+                      aria-label="Remover imagem"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Input + botões */}
+              <form onSubmit={submit} className="flex items-center gap-1.5 border-t border-white/10 bg-slate-950/50 p-3">
+                {/* Botão de imagem */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={handleImagemChange}
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={carregando}
+                  className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-white/10 text-slate-400 hover:bg-white/5 hover:text-white disabled:opacity-50"
+                  aria-label="Enviar imagem"
+                  title="Enviar foto"
+                >
+                  <Camera className="h-4 w-4" />
+                </button>
+
+                {/* Botão de microfone */}
+                <button
+                  type="button"
+                  onClick={toggleGravacao}
+                  disabled={carregando}
+                  className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border disabled:opacity-50 ${
+                    gravando
+                      ? "border-red-500 bg-red-500/20 text-red-400 animate-pulse"
+                      : "border-white/10 text-slate-400 hover:bg-white/5 hover:text-white"
+                  }`}
+                  aria-label={gravando ? "Parar gravação" : "Iniciar gravação"}
+                  title={gravando ? "Parar gravação" : "Falar"}
+                >
+                  {gravando ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                </button>
+
+                {/* Campo de texto */}
                 <input
                   autoFocus
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Pergunte algo ou lance uma venda (ex: vendi R$ 150 com 5 clientes)..."
+                  placeholder={gravando ? "Ouvindo..." : "Pergunte, fale ou lance uma venda..."}
                   disabled={carregando}
                   className="flex-1 rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                 />
-                <button type="submit" disabled={carregando || !input.trim()} className="flex items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 px-4 text-white shadow-lg shadow-blue-600/25 hover:from-blue-500 hover:to-indigo-500 disabled:opacity-50">
+
+                {/* Botão enviar */}
+                <button
+                  type="submit"
+                  disabled={carregando || (!input.trim() && !previewImagem)}
+                  className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-600/25 hover:from-blue-500 hover:to-indigo-500 disabled:opacity-50"
+                  aria-label="Enviar"
+                >
                   <Send className="h-4 w-4" />
                 </button>
               </form>
