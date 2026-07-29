@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { useMemo, useRef } from "react";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { useNavigate } from "@tanstack/react-router";
 import {
   LogIn,
@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import IAAssistantFAB from "./IAAssistantFAB";
-import TVModePanel from "./TVModePanel";
 
 // ============================================================================
 // ESTILOS / ANIMAÇÕES (Aurora, Grid Mesh, Glow Pulse, Spotlight)
@@ -342,19 +341,7 @@ function Footer() {
 export default function LandingPage() {
   const navigate = useNavigate();
   const { usuario } = useAuth();
-  const [tvMode, setTvMode] = useState(false);
   const featuresRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    if (tvMode) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [tvMode]);
 
   const irParaAuth = () => navigate({ to: "/auth", search: { mode: "signin" } });
   const irParaTV = () => navigate({ to: "/tv" });
@@ -404,7 +391,7 @@ export default function LandingPage() {
 
         <nav className="flex items-center gap-2">
           <button
-            onClick={() => setTvMode(true)}
+            onClick={irParaTV}
             className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-white/10"
             title="Painel TV Mode — acesso restrito a admin, gerente ou supervisor"
           >
@@ -460,7 +447,7 @@ export default function LandingPage() {
               <LogIn className="h-4 w-4" /> Entrar no Sistema
             </button>
             <button
-              onClick={() => setTvMode(true)}
+              onClick={irParaTV}
               className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/5 px-6 py-3.5 text-sm font-bold text-white backdrop-blur transition-colors hover:bg-white/10"
             >
               <Tv className="h-4 w-4" /> Painel em Tempo Real
@@ -494,11 +481,6 @@ export default function LandingPage() {
 
       {/* FAB da IA */}
       <IAAssistantFAB />
-
-      {/* TV MODE OVERLAY (modal) */}
-      <AnimatePresence>
-        {tvMode && <TVModePanel onClose={() => setTvMode(false)} />}
-      </AnimatePresence>
     </div>
   );
 }
