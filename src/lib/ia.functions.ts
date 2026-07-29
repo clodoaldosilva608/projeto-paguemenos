@@ -3,16 +3,30 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import { gerarRespostaDemo } from "./ia-config.functions";
 
+// Schema que aceita content como string OU array (para imagens)
 const MsgSchema = z.object({
   role: z.enum(["system", "user", "assistant"]),
-  content: z.string().min(1).max(4000),
+  content: z.union([
+    z.string().min(1).max(4000),
+    z.array(z.union([
+      z.object({
+        type: z.literal("text"),
+        text: z.string().min(1).max(4000),
+      }),
+      z.object({
+        type: z.literal("image_url"),
+        image_url: z.object({
+          url: z.string().min(1).max(500000),
+        }),
+      }),
+    ])).min(1).max(5),
+  ]),
 });
 
-// Prompt padrão de fallback (usado somente se não houver config no banco)
 const SYSTEM_PROMPT_FALLBACK =
   "Você é o assistente IA do Orion — plataforma de gestão de metas e vendas para redes de farmácia (Pague Menos). Responda em português do Brasil, seja direto, útil e amigável.";
 const ASSISTANT_PROMPT_FALLBACK =
-  "Você é um assistente inteligente especializado em farmácias, gestão farmacêutica, indicadores comerciais, atendimento ao cliente, medicamentos, produtos de saúde, vendas consultivas, metas, estoque, treinamentos, liderança de equipes, gestão operacional e suporte aos colaboradores. Sempre responda de forma profissional, clara, objetiva e humanizada. Utilize exclusivamente dados reais existentes no banco de dados da aplicação. Nunca invente números. Nunca gere indicadores fictícios. Caso não existam dados suficientes, informe isso claramente.";
+  "Você é um assistente inteligente especializado em farmácias, gestão farmacêutica, indicadores comerciais, atendimento ao cliente, medicamentos, produtos de saúde, vendas consultivas, metas, estoque, treinamentos, liderança de equipes, gestão operacional e suporte aos colaboradores. Sempre responda de forma profissional, clara, objetiva e humanizada. Utilize exclusivamente dados reais existentes no banco de dados da aplicação. Nunca invente números. Nunca gere indicadores fictícios. Caso não existam dados suficientes, informe isso claramente. Quando receber uma imagem (foto de cupom fiscal, nota, comprovante), analise os dados visíveis e extraia: valor total, quantidade de itens/clientes, data, e categorize se possível. Formate a resposta como comando de venda se detectar valores.";
 
 export const chatIA = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -27,7 +41,7 @@ export const chatIA = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    // 1) Carregar configuração ativa do banco (admin pode ter alterado)
+    // 1) Carregar configuração ativa do banco
     let cfg: any = null;
     try {
       const { data: c } = await supabaseAdmin
@@ -36,42 +50,37 @@ export const chatIA = createServerFn({ method: "POST" })
         .eq("ativo", true)
         .maybeSingle();
       cfg = c;
-    } catch {
-      // Tabela pode não existir ainda (antes da migration) — usa fallback
-    }
+    } catch {}
 
-    // 2) 🔬 MODO DEMO — sem API externa
+    // 2) MODO DEMO — sem API externa
     if (cfg?.provider === "demo" || cfg?.model?.startsWith("demo-")) {
       const t0 = Date.now();
       await new Promise((r) => setTimeout(r, 800 + Math.random() * 700));
       const tempo_ms = Date.now() - t0;
       const ultimaMsg = data.messages[data.messages.length - 1];
-      const resposta = gerarRespostaDemo(ultimaMsg?.content || "", cfg);
-      // Log de uso
+      // Para demo, extrair texto da mensagem (mesmo se for array com imagem)
+      const textoPergunta = typeof ultimaMsg?.content === "string"
+        ? ultimaMsg.content
+        : Array.isArray(ultimaMsg?.content)
+          ? ((ultimaMsg.content as any[]).find((c: any) => c.type === "text")?.text || "") + " [imagem]"
+          : "";
+      const resposta = gerarRespostaDemo(textoPergunta, cfg);
       try {
         await supabaseAdmin.from("ai_logs").insert({
           user_id: context.userId,
           user_email: context.claims?.email,
-          pergunta: (ultimaMsg?.content || "").slice(0, 2000),
+          pergunta: textoPergunta.slice(0, 2000),
           resposta: resposta.slice(0, 5000),
           tempo_ms,
           modelo: cfg.model,
           provedor: cfg.provider,
           status: "ok",
         });
-      } catch {
-        // tabela pode não existir — ignora
-      }
+      } catch {}
       return { text: resposta };
     }
 
-    // 3) Determinar chave: exclusivamente do banco (sem fallback para LOVABLE_API_KEY).
-    // 🔒 Segurança: antes havia fallback para `process.env.LOVABLE_API_KEY`, o que
-    // permitia que a IA funcionasse "magicamente" sem config no banco — mascarando
-    // configurações faltantes e dependendo de segredo em ambiente (propenso a
-    // vazamento e a erros 429/400 silenciosos). Agora, se não há chave no banco e
-    // não é modo demo, lançamos um erro claro que direciona o admin para a tela
-    // de Configuração da IA.
+    // 3) Chave do banco
     const apiKey = cfg?.api_key_ciphertext;
     if (!apiKey) {
       throw new Error(
@@ -79,13 +88,13 @@ export const chatIA = createServerFn({ method: "POST" })
       );
     }
 
-    // 3) Determinar endpoint, modelo e prompts
-    const baseUrl = cfg?.base_url || "https://ai.gateway.lovable.dev/v1/chat/completions";
-    const model = cfg?.model || "google/gemini-2.5-flash";
+    // 4) Endpoint, modelo e prompts
+    const baseUrl = cfg?.base_url || "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
+    const model = cfg?.model || "gemini-flash-latest";
     const systemPrompt = cfg?.system_prompt || SYSTEM_PROMPT_FALLBACK;
     const assistantPrompt = cfg?.assistant_prompt || ASSISTANT_PROMPT_FALLBACK;
 
-    // 4) Montar system prompt completo (system + especialização + estilo + contexto)
+    // 5) Montar system prompt
     const estilo = cfg
       ? `Tom: ${cfg.tom}. Nível de detalhes: ${cfg.nivel_detalhes}. Criatividade: ${cfg.criatividade}. Idioma: ${cfg.idioma}.`
       : "";
@@ -96,7 +105,7 @@ export const chatIA = createServerFn({ method: "POST" })
       content: `${systemPrompt}\n\n${assistantPrompt}\n\n${estilo}${contexto}`,
     };
 
-    // 5) Headers (Anthropic usa x-api-key, demais usam Bearer)
+    // 6) Headers
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
@@ -111,6 +120,14 @@ export const chatIA = createServerFn({ method: "POST" })
     let errorMsg: string | null = null;
     let resposta = "";
 
+    // 7) Extrair texto da última mensagem para log
+    const ultimaMsg = data.messages[data.messages.length - 1];
+    const textoPerguntaLog = typeof ultimaMsg?.content === "string"
+      ? ultimaMsg.content
+      : Array.isArray(ultimaMsg?.content)
+        ? ultimaMsg.content.map((c: any) => c.type === "text" ? c.text : "[imagem]").join(" ")
+        : "";
+
     try {
       const resp = await fetch(baseUrl, {
         method: "POST",
@@ -119,6 +136,8 @@ export const chatIA = createServerFn({ method: "POST" })
           model,
           messages: [system, ...data.messages],
           temperature: cfg?.temperature != null ? Number(cfg.temperature) : 0.7,
+          // max_tokens para respostas mais longas com análise de imagem
+          max_tokens: 2000,
         }),
       });
 
@@ -144,23 +163,19 @@ export const chatIA = createServerFn({ method: "POST" })
       errorMsg = e.message;
       throw e;
     } finally {
-      // 6) Log de uso (apenas se a tabela existir)
       const tempo_ms = Date.now() - t0;
       try {
-        const ultimaMsg = data.messages[data.messages.length - 1];
         await supabaseAdmin.from("ai_logs").insert({
           user_id: context.userId,
           user_email: context.claims?.email,
-          pergunta: ultimaMsg?.content?.slice(0, 2000) || "",
+          pergunta: textoPerguntaLog.slice(0, 2000),
           resposta: resposta?.slice(0, 5000) || null,
           tempo_ms,
           modelo: model,
-          provedor: cfg?.provider || "lovable",
+          provedor: cfg?.provider || "google",
           status,
           erro: errorMsg,
         });
-      } catch {
-        // tabela pode não existir — ignora
-      }
+      } catch {}
     }
   });

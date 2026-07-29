@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export default function IAAssistantFAB() {
-  const { msgs, carregando, enviar, sugestoes, usuario } = useIAChat();
+  const { msgs, carregando, enviar, enviarComImagem, sugestoes, usuario } = useIAChat();
   const [aberto, setAberto] = useState(false);
   const [input, setInput] = useState("");
   const [gravando, setGravando] = useState(false);
@@ -43,7 +43,7 @@ export default function IAAssistantFAB() {
     if (!t && !previewImagem) return;
     setInput("");
     if (previewImagem) {
-      await enviarComImagem(t || "Analise esta imagem", previewImagem);
+      await handleImagemSubmit(t, previewImagem);
       setPreviewImagem(null);
     } else {
       await enviar(t);
@@ -69,17 +69,9 @@ export default function IAAssistantFAB() {
     reader.readAsDataURL(file);
   }
 
-  async function enviarComImagem(texto: string, imagemBase64: string) {
-    // Detectar comando de venda com imagem (OCR via Gemini Vision)
-    const lower = texto.toLowerCase();
-    if (lower.includes("lancar") || lower.includes("lançar") || lower.includes("registra") || lower.includes("cupom") || lower.includes("nota")) {
-      // Enviar imagem para a IA extrair valores
-      const mensagemComImagem = `${texto}\n\n[IMAGEM ANEXADA - analise e extraia os valores da imagem]`;
-      // Por enquanto, enviar como texto + indicar que imagem foi recebida
-      await enviar(`📸 [Imagem enviada] ${texto}\n\nO sistema recebeu sua imagem. Para extrair valores automaticamente de cupons/notas fiscais, faça upload do arquivo no botão de imagem e digite o valor manualmente.\n\nEx: "vendi R$ 150 com 5 clientes"`);
-    } else {
-      await enviar(`📸 [Imagem enviada] ${texto}`);
-    }
+  async function handleImagemSubmit(texto: string, imagemBase64: string) {
+    // Usar a função do hook que envia para Gemini Vision
+    await enviarComImagem(texto || "Analise esta imagem e extraia os valores de venda", imagemBase64);
     setPreviewImagem(null);
   }
 

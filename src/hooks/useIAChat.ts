@@ -6,6 +6,12 @@ import { supabase } from "@/integrations/supabase/client";
 
 export interface IAMessage { role: "user" | "assistant"; content: string }
 
+// Tipo interno para mensagens que podem ter imagem
+interface InternalMessage {
+  role: "system" | "user" | "assistant";
+  content: string | Array<{ type: "text"; text: string } | { type: "image_url"; image_url: { url: string } }>;
+}
+
 // Sugestões dinâmicas por perfil
 const SUGESTOES_POR_PERFIL: Record<string, string[]> = {
   vendedor: [
@@ -293,7 +299,105 @@ export function useIAChat() {
     }
   }, [msgs, carregando, usuario, call, contextoDados]);
 
+  // Enviar mensagem com imagem (Gemini Vision OCR)
+  const enviarComImagem = useCallback(async (texto: string, imagemBase64: string) => {
+    const t = texto.trim();
+    if (carregando) return;
+
+    // Adicionar mensagem do usuário com preview de texto
+    setMsgs((m) => [...m, { role: "user", content: `📸 ${t}` }]);
+    setCarregando(true);
+
+    try {
+      // Montar mensagem no formato multimodal (texto + imagem)
+      const mensagemMultimodal: InternalMessage = {
+        role: "user",
+        content: [
+          { type: "text", text: `${t}\n\nAnalise a imagem enviada. Se for um cupom fiscal, nota ou comprovante de venda, extraia: valor total, quantidade de itens/clientes, data e categoria. Se conseguir identificar os valores, formate a resposta como um comando de venda: "Venda detectada: R$ X com Y clientes". Caso contrário, descreva o que vê na imagem.` },
+          { type: "image_url", image_url: { url: imagemBase64 } },
+        ],
+      };
+
+      // Converter msgs anteriores para formato interno
+      const mensagensInternas: InternalMessage[] = msgs.map((m) => ({
+        role: m.role as "user" | "assistant",
+        content: m.content,
+      }));
+      mensagensInternas.push(mensagemMultimodal);
+
+      const r = await call({ data: { messages: mensagensInternas as any, contexto: contextoDados } });
+      const resposta = r.text;
+
+      // Verificar se a IA detectou comando de venda na resposta
+      const matchVenda = resposta.match(/R\$\s*([\d.,]+)/i);
+      if (matchVenda && usuario) {
+        const valorStr = matchVenda[1].replace(/\./g, "").replace(",", ".");
+        const valor = parseFloat(valorStr);
+        if (valor > 0) {
+          // Tentar extrair número de clientes da resposta
+          const matchClientes = resposta.match(/(\d+)\s*(?:clientes?|itens|pessoas)/i);
+          const clientes = matchClientes ? parseInt(matchClientes[1]) : 1;
+
+          // Lançar venda automaticamente
+          const hoje = new Date().toISOString().slice(0, 10);
+          await supabase.from("vendas_diarias").insert({
+            usuario_id: usuario.id,
+            filial_id: usuario.filialId || "7537",
+            data: hoje,
+            categoria: "faturamento",
+            valor_venda: valor,
+            qtd_clientes: clientes,
+          });
+
+          // Sincronizar meta
+          const anoMes = hoje.slice(0, 7);
+          const { data: vendasMes } = await supabase
+            .from("vendas_diarias")
+            .select("valor_venda")
+            .eq("usuario_id", usuario.id)
+            .eq("categoria", "faturamento")
+            .gte("data", `${anoMes}-01`)
+            .lte("data", `${anoMes}-31`);
+
+          const totalRealizado = (vendasMes || []).reduce((s, v) => s + Number(v.valor_venda), 0);
+          await supabase
+            .from("metas_individuais")
+            .update({
+              valor_realizado: totalRealizado,
+              status: "em_andamento",
+              atualizado_em: new Date().toISOString(),
+            })
+            .eq("usuario_id", usuario.id)
+            .eq("periodo", "mensal")
+            .eq("categoria", "faturamento")
+            .eq("data_inicio", `${anoMes}-01`);
+
+          const respostaFinal = `${resposta}
+
+---
+✅ **Venda lançada automaticamente da imagem!**
+- Valor: R$ ${valor.toFixed(2)}
+- Clientes: ${clientes}
+- Categoria: faturamento
+- Data: ${new Date().toLocaleDateString("pt-BR")}
+💰 Meta atualizada!`;
+
+          setMsgs((m) => [...m, { role: "assistant", content: respostaFinal }]);
+          void buscarContextoReal(usuario).then(setContextoDados);
+          return;
+        }
+      }
+
+      // Se não detectou venda, apenas mostrar resposta da IA
+      setMsgs((m) => [...m, { role: "assistant", content: resposta }]);
+    } catch (e: any) {
+      setMsgs((m) => [...m, { role: "assistant", content: `⚠️ Erro ao analisar imagem: ${e.message}` }]);
+    } finally {
+      setCarregando(false);
+    }
+  }, [msgs, carregando, usuario, call, contextoDados]);
+
   const limpar = useCallback(() => setMsgs([]), []);
 
-  return { msgs, carregando, enviar, limpar, sugestoes, usuario };
+  return { msgs, carregando, enviar, enviarComImagem, limpar, sugestoes, usuario };
 }
