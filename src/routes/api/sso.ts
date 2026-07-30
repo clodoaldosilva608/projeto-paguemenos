@@ -11,11 +11,25 @@
  * Quando um cliente assina, o Orion provisiona uma instância separada
  * (via Vercel for Platforms ou deploy independente) — NÃO compartilha
  * o banco do PagueMenos.
+ *
+ * SEGURANÇA: ORION_SSO_SECRET deve ser definido via env var.
+ * NÃO há fallback hardcoded — se não definido, SSO desabilita por segurança.
  */
 
 import { createFileRoute } from "@tanstack/react-router";
+import { applyRateLimit, RATE_LIMITS, getClientIP } from "@/lib/rate-limit";
 
-const ORION_SSO_SECRET = process.env.ORION_SSO_SECRET || "orion-sso-secret-dev-2026";
+// Validação: ORION_SSO_SECRET deve estar definido em produção.
+// Se não estiver, o SSO é desabilitado (retorna erro 503).
+// NUNCA usar fallback hardcoded — seria uma vulnerabilidade crítica.
+function getSSOSecret(): string | null {
+  const secret = process.env.ORION_SSO_SECRET;
+  if (!secret) {
+    console.error("[sso] ORION_SSO_SECRET não configurado — SSO desabilitado por segurança.");
+    return null;
+  }
+  return secret;
+}
 
 async function verifyJWT(token: string, secret: string): Promise<any | null> {
   try {
@@ -35,6 +49,19 @@ export const Route = (createFileRoute as any)("/api/sso")({
   server: {
     handlers: {
       GET: async ({ request }: { request: Request }) => {
+        // Rate limit: 20 requisições por minuto por IP (proteção contra abuso)
+        try {
+          await applyRateLimit(request, "sso", RATE_LIMITS.sso.max, RATE_LIMITS.sso.windowMs);
+        } catch (e: any) {
+          return new Response(JSON.stringify({ error: e.message }), {
+            status: 429,
+            headers: {
+              "Content-Type": "application/json",
+              "Retry-After": "60",
+            },
+          });
+        }
+
         const url = new URL(request.url);
         const token = url.searchParams.get("token");
 
@@ -44,7 +71,18 @@ export const Route = (createFileRoute as any)("/api/sso")({
           });
         }
 
-        const payload = await verifyJWT(token, ORION_SSO_SECRET);
+        // Validar que ORION_SSO_SECRET está configurado
+        const SSO_SECRET = getSSOSecret();
+        if (!SSO_SECRET) {
+          return new Response(JSON.stringify({
+            error: "SSO não configurado neste servidor. Contate o administrador.",
+          }), {
+            status: 503,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+
+        const payload = await verifyJWT(token, SSO_SECRET);
         if (!payload) {
           return new Response(JSON.stringify({ error: "Token inválido ou expirado" }), {
             status: 401, headers: { "Content-Type": "application/json" },
@@ -82,14 +120,14 @@ export const Route = (createFileRoute as any)("/api/sso")({
           const linkData = await linkResp.json();
           if (linkData?.action_link) {
             // Usuário existe — login automático
-            console.log(`[sso] ✓ Login SSO: ${payload.email}`);
+            console.log(`[sso] ✓ Login SSO: ${payload.email} (IP: ${getClientIP(request)})`);
             return Response.redirect(linkData.action_link, 302);
           }
         }
 
         // Usuário NÃO existe — não cria automaticamente
         // Redireciona para login com mensagem
-        console.log(`[sso] Usuário não encontrado no PagueMenos: ${payload.email} — redirecionando para login`);
+        console.log(`[sso] Usuário não encontrado no PagueMenos: ${payload.email} (IP: ${getClientIP(request)}) — redirecionando para login`);
         const loginUrl = new URL(`${url.origin}/auth`);
         loginUrl.searchParams.set("sso", "pending");
         loginUrl.searchParams.set("email", payload.email);

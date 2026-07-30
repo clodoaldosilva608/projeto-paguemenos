@@ -2,7 +2,22 @@ import { useState, useEffect } from "react";
 import { FileText, Plus, Trash2, Search, Download, Edit, X } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import DOMPurify from "dompurify";
 import { useAuth } from "@/contexts/AuthContext";
+
+// Sanitiza HTML para prevenir XSS — remove scripts, event handlers, etc
+function sanitizeHTML(html: string): string {
+  return DOMPurify.sanitize(html, {
+    ALLOWED_TAGS: [
+      "p", "br", "b", "i", "u", "strong", "em", "ul", "ol", "li",
+      "h1", "h2", "h3", "h4", "h5", "h6", "span", "div", "a", "img",
+      "table", "thead", "tbody", "tr", "th", "td", "blockquote", "code", "pre",
+    ],
+    ALLOWED_ATTR: ["href", "src", "alt", "title", "class", "style", "target", "rel"],
+    FORBID_ATTR: ["onerror", "onload", "onclick", "onmouseover", "onmouseout", "onfocus", "onblur"],
+    FORBID_TAGS: ["script", "iframe", "object", "embed", "form"],
+  });
+}
 
 interface Documento {
   id: string;
@@ -129,7 +144,13 @@ function DocForm({ doc, onClose, onSalvar }: { doc: Documento | null; onClose: (
             <button onClick={() => document.execCommand("underline")} className="rounded px-2 py-1 text-xs underline hover:bg-slate-100">U</button>
             <button onClick={() => document.execCommand("insertUnorderedList")} className="rounded px-2 py-1 text-xs hover:bg-slate-100">• Lista</button>
           </div>
-          <div contentEditable suppressContentEditableWarning onBlur={e => setConteudo(e.target.innerHTML)} dangerouslySetInnerHTML={{ __html: conteudo }} className="min-h-[200px] rounded-lg border border-slate-200 p-3 text-sm outline-none" />
+          <div
+            contentEditable
+            suppressContentEditableWarning
+            onBlur={e => setConteudo(sanitizeHTML(e.target.innerHTML))}
+            dangerouslySetInnerHTML={{ __html: sanitizeHTML(conteudo) }}
+            className="min-h-[200px] rounded-lg border border-slate-200 p-3 text-sm outline-none dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+          />
         </div>
         <div className="mt-4 flex justify-end gap-2">
           <button onClick={onClose} className="rounded-lg border border-slate-200 px-4 py-2 text-sm">Cancelar</button>
