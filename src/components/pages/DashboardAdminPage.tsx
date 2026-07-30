@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import {
   Users2, Edit3, X, Save, Crown, AlertCircle, CheckCircle2,
   TrendingUp, Calendar, User, Package, Tag, Percent,
+  Store, ChevronDown, ChevronRight, Building2,
 } from "lucide-react";
 
 interface MetaVendedor {
@@ -48,6 +49,7 @@ export default function DashboardAdminPage({ onImpersonate }: { onImpersonate?: 
   const [vendedores, setVendedores] = useState<MetaVendedor[]>([]);
   const [selected, setSelected] = useState<MetaVendedor | null>(null);
   const [editando, setEditando] = useState(false);
+  const [expandedFilial, setExpandedFilial] = useState<string | null>(null);
 
   // Filtro de filial: admin vê todas, demais perfis veem apenas sua filial
   const filialId = usuario?.perfil === "admin" ? undefined : usuario?.filialId;
@@ -106,7 +108,10 @@ export default function DashboardAdminPage({ onImpersonate }: { onImpersonate?: 
       }
 
       const lista: MetaVendedor[] = (profiles ?? [])
-        .filter((p) => rolesMap.get(p.id) === "vendedor")
+        .filter((p) => {
+          const role = rolesMap.get(p.id) as string | undefined;
+          return role === "vendedor" || role === "farmaceutica";
+        })
         .map((p) => ({
           usuario_id: p.id,
           nome: p.nome,
@@ -208,151 +213,181 @@ export default function DashboardAdminPage({ onImpersonate }: { onImpersonate?: 
         />
       </div>
 
-      {/* ====== TABELA METAS POR COLABORADOR ====== */}
+      {/* ====== TABELA METAS POR COLABORADOR — AGRUPADO POR FILIAL ====== */}
       <div className="overflow-hidden rounded-2xl bg-white shadow-md dark:bg-slate-900">
         <div className="flex items-center justify-between bg-[#7c3aed] px-5 py-2.5 text-white">
           <h2 className="text-sm font-bold uppercase tracking-wider">👥 Metas por Colaborador</h2>
           <span className="text-xs font-semibold uppercase tracking-wider text-purple-200">
-            {vendedores.length} vendedores
+            {vendedores.length} vendedores · {Object.keys(vendedores.reduce((acc, v) => { acc[v.filial_id || "sem-filial"] = true; return acc; }, {} as Record<string, boolean>)).length} filiais
           </span>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-xs sm:text-sm">
-            <thead className="bg-[#1e3a8a] text-white">
-              <tr>
-                <th className="px-3 py-2.5 text-left font-bold uppercase tracking-wider">Colaborador</th>
-                <th className="px-2 py-2.5 text-right font-bold uppercase tracking-wider">Meta Mensal</th>
-                <th className="px-2 py-2.5 text-right font-bold uppercase tracking-wider">Meta Diária</th>
-                <th className="px-2 py-2.5 text-right font-bold uppercase tracking-wider">Genéricos Mensal</th>
-                <th className="px-2 py-2.5 text-right font-bold uppercase tracking-wider">Genéricos Diária</th>
-                <th className="px-2 py-2.5 text-right font-bold uppercase tracking-wider">SD Mensal</th>
-                <th className="px-2 py-2.5 text-right font-bold uppercase tracking-wider">SD Diária</th>
-                <th className="px-2 py-2.5 text-right font-bold uppercase tracking-wider">Marcas Exclusivas</th>
-                <th className="px-2 py-2.5 text-right font-bold uppercase tracking-wider">ME Diária</th>
-                <th className="px-2 py-2.5 text-center font-bold uppercase tracking-wider">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {vendedores.map((v, idx) => {
-                const fat = v.categorias.faturamento;
-                const me = v.categorias.marcas_exclusivas;
-                const gen = v.categorias.genericos;
-                const sd = v.categorias.super_desconto;
-                const isFerias = !fat;
-                const pctFat = fat && fat.meta > 0 ? (fat.realizado / fat.meta) * 100 : 0;
-                const dentro = pctFat >= 50;
+        {/* Agrupar vendedores por filial */}
+        {(() => {
+          // Agrupar vendedores por filial_id
+          const filiaisMap = new Map<string, MetaVendedor[]>();
+          for (const v of vendedores) {
+            const fid = v.filial_id || "sem-filial";
+            if (!filiaisMap.has(fid)) filiaisMap.set(fid, []);
+            filiaisMap.get(fid)!.push(v);
+          }
 
-                return (
-                  <tr
-                    key={v.usuario_id}
-                    className={`border-t border-slate-100 transition hover:bg-blue-50/50 dark:border-white/5 dark:hover:bg-white/5 ${
-                      idx % 2 === 1 ? "bg-slate-50/50 dark:bg-white/[0.02]" : ""
-                    }`}
-                  >
-                    <td className="px-3 py-2.5">
-                      <div className="flex items-center gap-2">
-                        <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-[10px] font-bold text-white">
-                          {v.iniciais}
-                        </div>
-                        <div>
-                          <p className="font-bold text-slate-800 dark:text-slate-100">{v.nome.split(" ")[0].toUpperCase()}</p>
-                          <p className="text-[10px] text-slate-500">{v.email}</p>
-                        </div>
-                        {dentro && !isFerias && (
-                          <span className="ml-1 inline-flex items-center gap-0.5 rounded-full bg-emerald-100 px-1.5 py-0.5 text-[9px] font-bold text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300">
-                            <CheckCircle2 className="h-2.5 w-2.5" /> DENTRO
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    {isFerias ? (
-                      <td colSpan={8} className="px-3 py-2.5 text-center font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                        🏖️ FÉRIAS
-                      </td>
-                    ) : (
-                      <>
-                        <td className="px-2 py-2.5 text-right font-mono text-slate-700 dark:text-slate-200">
-                          R$ {fat?.meta.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                          {fat?.realizado !== undefined && fat.realizado > 0 && (
-                            <span className="block text-[10px] text-emerald-600 dark:text-emerald-400">
-                              ↳ R$ {fat.realizado.toLocaleString("pt-BR", { minimumFractionDigits: 0 })}
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-2 py-2.5 text-right font-mono text-slate-700 dark:text-slate-200">
-                          R$ {(fat?.meta_diaria || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                        </td>
-                        <td className="px-2 py-2.5 text-right font-mono text-slate-700 dark:text-slate-200">
-                          {gen ? `R$ ${gen.meta.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "—"}
-                        </td>
-                        <td className="px-2 py-2.5 text-right font-mono text-slate-700 dark:text-slate-200">
-                          {gen?.meta_diaria ? `R$ ${gen.meta_diaria.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "—"}
-                        </td>
-                        <td className="px-2 py-2.5 text-right font-mono text-slate-700 dark:text-slate-200">
-                          {sd ? `R$ ${sd.meta.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "—"}
-                        </td>
-                        <td className="px-2 py-2.5 text-right font-mono text-slate-700 dark:text-slate-200">
-                          {sd?.meta_diaria ? `R$ ${sd.meta_diaria.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "—"}
-                        </td>
-                        <td className="px-2 py-2.5 text-right font-mono text-slate-700 dark:text-slate-200">
-                          {me ? `R$ ${me.meta.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "—"}
-                        </td>
-                        <td className="px-2 py-2.5 text-right font-mono text-slate-700 dark:text-slate-200">
-                          {me?.meta_diaria ? `R$ ${me.meta_diaria.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "—"}
-                        </td>
-                      </>
-                    )}
-                    <td className="px-2 py-2.5">
-                      <div className="flex items-center justify-center gap-1">
-                        {!isFerias && (
-                          <button
-                            onClick={() => { setSelected(v); setEditando(false); }}
-                            className="rounded-lg bg-slate-100 p-1.5 text-slate-600 hover:bg-blue-100 hover:text-blue-700 dark:bg-white/5 dark:text-slate-300"
-                            title="Ver detalhes / Editar"
-                          >
-                            <Edit3 className="h-3.5 w-3.5" />
-                          </button>
-                        )}
-                        {onImpersonate && !isFerias && (
-                          <button
-                            onClick={() => onImpersonate(v.usuario_id, v.nome)}
-                            className="rounded-lg bg-blue-600 p-1.5 text-white hover:bg-blue-500"
-                            title={`Acessar como ${v.nome}`}
-                          >
-                            <Users2 className="h-3.5 w-3.5" />
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
+          const filiaisOrdenadas = Array.from(filiaisMap.keys()).sort();
 
-              {/* LINHA MÉDIA DIÁRIA */}
-              <tr className="border-t-2 border-[#1e3a8a] bg-slate-100 font-bold dark:bg-white/5">
-                <td className="px-3 py-2.5 uppercase tracking-wider text-[#1e3a8a] dark:text-blue-300">📊 Média Diária</td>
-                <td className="px-2 py-2.5 text-right font-mono text-slate-500">—</td>
-                <td className="px-2 py-2.5 text-right font-mono text-emerald-600 dark:text-emerald-400">
-                  R$ {META_FILIAL.diaria.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                </td>
-                <td className="px-2 py-2.5 text-right font-mono text-slate-500">—</td>
-                <td className="px-2 py-2.5 text-right font-mono text-emerald-600 dark:text-emerald-400">
-                  R$ {META_FILIAL.genericos_diaria.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                </td>
-                <td className="px-2 py-2.5 text-right font-mono text-slate-500">—</td>
-                <td className="px-2 py-2.5 text-right font-mono text-emerald-600 dark:text-emerald-400">
-                  R$ {META_FILIAL.sd_diaria.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                </td>
-                <td className="px-2 py-2.5 text-right font-mono text-slate-500">—</td>
-                <td className="px-2 py-2.5 text-right font-mono text-emerald-600 dark:text-emerald-400">
-                  R$ {META_FILIAL.me_diaria.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                </td>
-                <td className="px-2 py-2.5"></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+          return filiaisOrdenadas.map((fid) => {
+            const vendedoresFilial = filiaisMap.get(fid) || [];
+            const isExpanded = expandedFilial === fid || filiaisOrdenadas.length === 1;
+            const totalMetaFilial = vendedoresFilial.reduce((s, v) => s + (v.categorias.faturamento?.meta || 0), 0);
+            const totalRealizadoFilial = vendedoresFilial.reduce((s, v) => s + (v.categorias.faturamento?.realizado || 0), 0);
+            const pctFilial = totalMetaFilial > 0 ? (totalRealizadoFilial / totalMetaFilial) * 100 : 0;
+
+            return (
+              <div key={fid} className="border-b border-slate-100 dark:border-white/5">
+                {/* Header da filial — clicável para expandir */}
+                <button
+                  onClick={() => setExpandedFilial(isExpanded ? null : fid)}
+                  className="flex w-full items-center justify-between bg-slate-50 px-4 py-3 hover:bg-slate-100 dark:bg-white/5 dark:hover:bg-white/10"
+                >
+                  <div className="flex items-center gap-2">
+                    {isExpanded ? <ChevronDown className="h-4 w-4 text-slate-400" /> : <ChevronRight className="h-4 w-4 text-slate-400" />}
+                    <Store className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    <span className="font-bold text-slate-700 dark:text-slate-200">
+                      {fid === "sem-filial" ? "Sem Filial" : `Filial ${fid}`}
+                    </span>
+                    <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-700 dark:bg-blue-950/50 dark:text-blue-300">
+                      {vendedoresFilial.length} vendedores
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3 text-xs">
+                    <span className="text-slate-500">Meta: <strong className="text-slate-700 dark:text-slate-200">R$ {totalMetaFilial.toLocaleString("pt-BR", { minimumFractionDigits: 0 })}</strong></span>
+                    <span className="text-emerald-600 dark:text-emerald-400">Realizado: <strong>R$ {totalRealizadoFilial.toLocaleString("pt-BR", { minimumFractionDigits: 0 })}</strong></span>
+                    <span className={`font-bold ${pctFilial >= 75 ? "text-emerald-600" : pctFilial >= 50 ? "text-amber-600" : "text-red-600"}`}>
+                      {pctFilial.toFixed(1)}%
+                    </span>
+                  </div>
+                </button>
+
+                {/* Tabela de vendedores — visível quando expandida */}
+                {isExpanded && (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs sm:text-sm">
+                      <thead className="bg-[#1e3a8a] text-white">
+                        <tr>
+                          <th className="px-3 py-2.5 text-left font-bold uppercase tracking-wider">Colaborador</th>
+                          <th className="px-2 py-2.5 text-right font-bold uppercase tracking-wider">Meta Mensal</th>
+                          <th className="px-2 py-2.5 text-right font-bold uppercase tracking-wider">Meta Diária</th>
+                          <th className="px-2 py-2.5 text-right font-bold uppercase tracking-wider">Genéricos Mensal</th>
+                          <th className="px-2 py-2.5 text-right font-bold uppercase tracking-wider">Genéricos Diária</th>
+                          <th className="px-2 py-2.5 text-right font-bold uppercase tracking-wider">SD Mensal</th>
+                          <th className="px-2 py-2.5 text-right font-bold uppercase tracking-wider">SD Diária</th>
+                          <th className="px-2 py-2.5 text-right font-bold uppercase tracking-wider">Marcas Exclusivas</th>
+                          <th className="px-2 py-2.5 text-right font-bold uppercase tracking-wider">ME Diária</th>
+                          <th className="px-2 py-2.5 text-center font-bold uppercase tracking-wider">Ações</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {vendedoresFilial.map((v, idx) => {
+                          const fat = v.categorias.faturamento;
+                          const me = v.categorias.marcas_exclusivas;
+                          const gen = v.categorias.genericos;
+                          const sd = v.categorias.super_desconto;
+                          const isFerias = !fat;
+                          const pctFat = fat && fat.meta > 0 ? (fat.realizado / fat.meta) * 100 : 0;
+                          const dentro = pctFat >= 50;
+
+                          return (
+                            <tr
+                              key={v.usuario_id}
+                              className={`border-t border-slate-100 transition hover:bg-blue-50/50 dark:border-white/5 dark:hover:bg-white/5 ${
+                                idx % 2 === 1 ? "bg-slate-50/50 dark:bg-white/[0.02]" : ""
+                              }`}
+                            >
+                              <td className="px-3 py-2.5">
+                                <div className="flex items-center gap-2">
+                                  <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-[10px] font-bold text-white">
+                                    {v.iniciais}
+                                  </div>
+                                  <div>
+                                    <p className="font-bold text-slate-800 dark:text-slate-100">{v.nome.split(" ")[0].toUpperCase()}</p>
+                                    <p className="text-[10px] text-slate-500">{v.email}</p>
+                                  </div>
+                                  {dentro && !isFerias && (
+                                    <span className="ml-1 inline-flex items-center gap-0.5 rounded-full bg-emerald-100 px-1.5 py-0.5 text-[9px] font-bold text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300">
+                                      <CheckCircle2 className="h-2.5 w-2.5" /> DENTRO
+                                    </span>
+                                  )}
+                                </div>
+                              </td>
+                              {isFerias ? (
+                                <td colSpan={8} className="px-3 py-2.5 text-center font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                                  🏖️ FÉRIAS
+                                </td>
+                              ) : (
+                                <>
+                                  <td className="px-2 py-2.5 text-right font-mono text-slate-700 dark:text-slate-200">
+                                    R$ {fat?.meta.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                                    {fat?.realizado !== undefined && fat.realizado > 0 && (
+                                      <span className="block text-[10px] text-emerald-600 dark:text-emerald-400">
+                                        ↳ R$ {fat.realizado.toLocaleString("pt-BR", { minimumFractionDigits: 0 })}
+                                      </span>
+                                    )}
+                                  </td>
+                                  <td className="px-2 py-2.5 text-right font-mono text-slate-700 dark:text-slate-200">
+                                    R$ {(fat?.meta_diaria || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                                  </td>
+                                  <td className="px-2 py-2.5 text-right font-mono text-slate-700 dark:text-slate-200">
+                                    {gen ? `R$ ${gen.meta.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "—"}
+                                  </td>
+                                  <td className="px-2 py-2.5 text-right font-mono text-slate-700 dark:text-slate-200">
+                                    {gen?.meta_diaria ? `R$ ${gen.meta_diaria.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "—"}
+                                  </td>
+                                  <td className="px-2 py-2.5 text-right font-mono text-slate-700 dark:text-slate-200">
+                                    {sd ? `R$ ${sd.meta.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "—"}
+                                  </td>
+                                  <td className="px-2 py-2.5 text-right font-mono text-slate-700 dark:text-slate-200">
+                                    {sd?.meta_diaria ? `R$ ${sd.meta_diaria.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "—"}
+                                  </td>
+                                  <td className="px-2 py-2.5 text-right font-mono text-slate-700 dark:text-slate-200">
+                                    {me ? `R$ ${me.meta.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "—"}
+                                  </td>
+                                  <td className="px-2 py-2.5 text-right font-mono text-slate-700 dark:text-slate-200">
+                                    {me?.meta_diaria ? `R$ ${me.meta_diaria.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "—"}
+                                  </td>
+                                </>
+                              )}
+                              <td className="px-2 py-2.5">
+                                <div className="flex items-center justify-center gap-1">
+                                  {!isFerias && (
+                                    <button
+                                      onClick={() => { setSelected(v); setEditando(false); }}
+                                      className="rounded-lg bg-slate-100 p-1.5 text-slate-600 hover:bg-blue-100 hover:text-blue-700 dark:bg-white/5 dark:text-slate-300"
+                                      title="Ver detalhes / Editar"
+                                    >
+                                      <Edit3 className="h-3.5 w-3.5" />
+                                    </button>
+                                  )}
+                                  {onImpersonate && !isFerias && (
+                                    <button
+                                      onClick={() => onImpersonate(v.usuario_id, v.nome)}
+                                      className="rounded-lg bg-blue-600 p-1.5 text-white hover:bg-blue-500"
+                                      title={`Acessar como ${v.nome}`}
+                                    >
+                                      <Users2 className="h-3.5 w-3.5" />
+                                    </button>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            );
+          });
+        })()}
       </div>
 
       {/* ====== RODAPÉ ====== */}
