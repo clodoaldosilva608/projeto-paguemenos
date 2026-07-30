@@ -51,28 +51,35 @@ export default function DashboardAdminPage({ onImpersonate }: { onImpersonate?: 
   const [editando, setEditando] = useState(false);
   const [expandedFilial, setExpandedFilial] = useState<string | null>(null);
 
-  // Filtro de filial: admin vê todas, demais perfis veem apenas sua filial
-  const filialId = usuario?.perfil === "admin" ? undefined : usuario?.filialId;
+  // Filtro de filial: admin usa seletor global, gerente usa equipe_id, supervisor usa filial_id
+  const isAdmin = usuario?.perfil === "admin";
+  const isGerente = usuario?.perfil === "gerente";
+  const filialId = !isAdmin ? usuario?.filialId : undefined;
+  const equipeId = isGerente ? usuario?.equipeId : undefined;
 
   useEffect(() => {
     void carregar();
-  }, [filialId]);
+  }, [filialId, equipeId]);
 
   async function carregar() {
     setLoading(true);
     try {
-      // Buscar profiles — filtrar por filial se não for admin
+      // Buscar profiles
       let profilesQuery = supabase
         .from("profiles")
-        .select("id, nome, email, iniciais, ativo, filial_id, cargo")
+        .select("id, nome, email, iniciais, ativo, filial_id, cargo, equipe_id")
         .order("nome");
-      if (filialId) {
+      if (equipeId) {
+        // Gerente filtra por equipe_id
+        profilesQuery = (profilesQuery as any).eq("equipe_id", equipeId);
+      } else if (filialId) {
+        // Supervisor/vendedor filtra por filial_id
         profilesQuery = profilesQuery.eq("filial_id", filialId);
       }
       const { data: profiles, error: errP } = await profilesQuery;
       if (errP) throw new Error(errP.message);
 
-      // Buscar roles dos usuários desta filial
+      // Buscar roles dos usuários desta filial/equipe
       const userIds = (profiles ?? []).map((p) => p.id);
       const { data: roles, error: errR } = await supabase
         .from("user_roles")
@@ -80,12 +87,14 @@ export default function DashboardAdminPage({ onImpersonate }: { onImpersonate?: 
         .in("user_id", userIds.length > 0 ? userIds : ["00000000-0000-0000-0000-000000000000"]);
       if (errR) throw new Error(errR.message);
 
-      // Buscar metas — filtrar por filial se não for admin
+      // Buscar metas
       let metasQuery = supabase
         .from("metas_individuais")
         .select("usuario_id, categoria, periodo, valor_meta, valor_realizado, valor_projecao")
         .eq("data_inicio", PERIODO_INICIO);
-      if (filialId) {
+      if (equipeId) {
+        metasQuery = (metasQuery as any).eq("equipe_id", equipeId);
+      } else if (filialId) {
         metasQuery = metasQuery.eq("filial_id", filialId);
       }
       const { data: metas, error: errM } = await metasQuery;

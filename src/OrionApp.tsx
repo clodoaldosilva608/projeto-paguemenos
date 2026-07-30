@@ -23,6 +23,8 @@ import { TourFAB } from "./components/tour/AdminTour";
 import TrialBanner from "./components/TrialBanner";
 import NotificacoesGerente from "./components/NotificacoesGerente";
 import AtualizarCredencialBanner from "./components/AtualizarCredencialBanner";
+import { FilialProvider } from "./contexts/FilialContext";
+import FilialSeletorGlobal from "./components/FilialSeletorGlobal";
 import { useAutoSync } from "./hooks/useAutoSync";
 
 import type { Pagina } from "./components/Sidebar";
@@ -220,11 +222,19 @@ export default function OrionApp() {
   const leftPadding = variant === "sidebar-float" ? "md:pl-20" : "";
 
   return (
+    <FilialProvider>
     <div
       className={`min-h-screen bg-[var(--pm-paper)] text-gray-900 dark:bg-slate-950 dark:text-gray-100 ${leftPadding}`}
     >
       <main className={`paper-grid mx-auto max-w-7xl px-4 ${bottomPadding} pt-6 sm:px-8 sm:pt-8`}>
         {variant === "top-minimal" && renderNavbar()}
+
+        {/* SELETOR DE FILIAL GLOBAL (apenas admin/gerente) */}
+        {(usuario?.perfil === "admin" || usuario?.perfil === "gerente") && (
+          <div className="mb-3 flex justify-end">
+            <FilialSeletorGlobal />
+          </div>
+        )}
 
         {/* BANNER: atualizar credencial padrão (senha == matrícula) */}
         <AtualizarCredencialBanner />
@@ -347,5 +357,6 @@ export default function OrionApp() {
 
       {variant !== "top-minimal" && renderNavbar()}
     </div>
+    </FilialProvider>
   );
 }
