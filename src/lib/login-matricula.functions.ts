@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { applyRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
 // ------------------------------------------------------------------
 // Login por matrícula: recebe primeiro_nome + matricula
@@ -15,7 +16,15 @@ export const buscarEmailPorMatricula = createServerFn({ method: "POST" })
       matricula: z.string().min(4).max(20),
     }).parse(v),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    // Rate limit: 10 tentativas por minuto por IP (proteção contra força bruta)
+    await applyRateLimit(
+      (context as any)?.request,
+      "matricula",
+      RATE_LIMITS.matricula.max,
+      RATE_LIMITS.matricula.windowMs,
+    );
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // Buscar na tabela login_matricula (case-insensitive no primeiro_nome)
