@@ -167,14 +167,14 @@ const ITENS: ItemNav[] = [
     label: "Auditoria",
     icone:
       "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4",
-    perfilMinimo: "admin",
+    perfilMinimo: "gerente",
   },
   {
     id: "ia-config",
     label: "Configuração da IA",
     icone:
       "M12 2a4 4 0 014 4v1h1a4 4 0 014 4v1h-2v-1a2 2 0 00-2-2h-3V6a2 2 0 00-4 0v1H6a2 2 0 00-2 2v1H2V8a4 4 0 014-4h1V6a2 2 0 004 0V4a4 4 0 014-4z M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2v-9a2 2 0 012-2h10a2 2 0 012 2v9a2 2 0 01-2 2z",
-    perfilMinimo: "admin",
+    perfilMinimo: "gerente",
   },
 ];
 

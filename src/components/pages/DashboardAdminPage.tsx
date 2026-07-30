@@ -49,29 +49,44 @@ export default function DashboardAdminPage({ onImpersonate }: { onImpersonate?: 
   const [selected, setSelected] = useState<MetaVendedor | null>(null);
   const [editando, setEditando] = useState(false);
 
+  // Filtro de filial: admin vê todas, demais perfis veem apenas sua filial
+  const filialId = usuario?.perfil === "admin" ? undefined : usuario?.filialId;
+
   useEffect(() => {
     void carregar();
-  }, []);
+  }, [filialId]);
 
   async function carregar() {
     setLoading(true);
     try {
-      const { data: profiles, error: errP } = await supabase
+      // Buscar profiles — filtrar por filial se não for admin
+      let profilesQuery = supabase
         .from("profiles")
         .select("id, nome, email, iniciais, ativo, filial_id, cargo")
         .order("nome");
+      if (filialId) {
+        profilesQuery = profilesQuery.eq("filial_id", filialId);
+      }
+      const { data: profiles, error: errP } = await profilesQuery;
       if (errP) throw new Error(errP.message);
 
+      // Buscar roles dos usuários desta filial
+      const userIds = (profiles ?? []).map((p) => p.id);
       const { data: roles, error: errR } = await supabase
         .from("user_roles")
-        .select("user_id, role");
+        .select("user_id, role")
+        .in("user_id", userIds.length > 0 ? userIds : ["00000000-0000-0000-0000-000000000000"]);
       if (errR) throw new Error(errR.message);
 
-      // Buscar todas as metas (mensal + diaria) de julho
-      const { data: metas, error: errM } = await supabase
+      // Buscar metas — filtrar por filial se não for admin
+      let metasQuery = supabase
         .from("metas_individuais")
         .select("usuario_id, categoria, periodo, valor_meta, valor_realizado, valor_projecao")
         .eq("data_inicio", PERIODO_INICIO);
+      if (filialId) {
+        metasQuery = metasQuery.eq("filial_id", filialId);
+      }
+      const { data: metas, error: errM } = await metasQuery;
       if (errM) throw new Error(errM.message);
 
       const rolesMap = new Map((roles ?? []).map((r) => [r.user_id, r.role]));

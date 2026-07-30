@@ -3,15 +3,17 @@ import type { Perfil, Permissao, Usuario } from "../types/core";
 export function gerarPermissoes(perfil: Perfil): Permissao[] {
   const modulos = ["dashboard","metas","indicadores","campanhas","equipes","filiais","usuarios","ranking","gamificacao","relatorios","notificacoes","auditoria","configuracoes","ia"];
   const isAdmin = perfil === "admin";
+  // Gerente tem acesso total igual ao admin (todas as ferramentas e funções)
   const isGerente = perfil === "admin" || perfil === "gerente";
   const isSupervisor = isGerente || perfil === "supervisor";
   // 'farmaceutica' tem as mesmas permissões de vendedor: pode lançar vendas, sem poder gerencial
   const isVendedorOuFarmaceutica = perfil === "vendedor" || perfil === "farmaceutica";
   return modulos.map((modulo) => ({
     modulo, ler: true,
-    criar: isAdmin || (isGerente && !["usuarios","auditoria"].includes(modulo)),
-    editar: isAdmin || (isGerente && !["usuarios","auditoria"].includes(modulo)),
-    excluir: isAdmin, exportar: isSupervisor,
+    criar: isGerente,
+    editar: isGerente,
+    excluir: isGerente,
+    exportar: isSupervisor,
   }));
 }
 

@@ -31,6 +31,7 @@ interface Funcionario {
 
 export default function FuncionariosPage() {
   const { usuario: gestor } = useAuth();
+  const filialId = gestor?.perfil === "admin" ? undefined : gestor?.filialId;
   const [funcionarios, setFuncionarios] = useState<Funcionario[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtro, setFiltro] = useState<FiltroStatus>("Todos");
@@ -42,8 +43,13 @@ export default function FuncionariosPage() {
   const carregar = async () => {
     setLoading(true);
     try {
+      // Filtrar profiles por filial (exceto admin que vê todos)
+      let profilesQuery = (supabase as any).from("profiles").select("*").order("nome");
+      if (filialId) {
+        profilesQuery = profilesQuery.eq("filial_id", filialId);
+      }
       const [{ data: profiles }, { data: roles }] = await Promise.all([
-        (supabase as any).from("profiles").select("*").order("nome"),
+        profilesQuery,
         (supabase as any).from("user_roles").select("user_id, role"),
       ]);
       const rolesMap = new Map((roles || []).map((r: any) => [r.user_id, r.role]));

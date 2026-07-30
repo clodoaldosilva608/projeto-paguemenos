@@ -166,16 +166,23 @@ function statusPct(p: number): { label: string; color: string; bg: string } {
   return { label: "Crítico", color: COLORS.red, bg: "rgba(211,47,47,0.18)" };
 }
 
-async function carregarResumoLoja(filtro: FiltroPeriodo): Promise<ResumoLoja> {
+async function carregarResumoLoja(filtro: FiltroPeriodo, filialId?: string): Promise<ResumoLoja> {
   const { inicio, fim } = resolverPeriodo(filtro);
   const ehMesCheio = filtro.modo !== "custom";
 
   const dataInicioMeta = inicio.slice(0, 8) + "01";
-  const { data: metas, error } = await supabase
+  let metasQuery = supabase
     .from("metas_individuais")
     .select("usuario_id, categoria, periodo, valor_meta, valor_realizado, valor_projecao, data_inicio")
     .eq("periodo", "mensal")
     .eq("data_inicio", dataInicioMeta);
+
+  // Filtrar por filial se fornecido (gerente/supervisor veem apenas sua filial)
+  if (filialId) {
+    metasQuery = metasQuery.eq("filial_id", filialId);
+  }
+
+  const { data: metas, error } = await metasQuery;
 
   if (error) throw new Error(error.message);
   const lista = metas ?? [];
@@ -210,11 +217,15 @@ async function carregarResumoLoja(filtro: FiltroPeriodo): Promise<ResumoLoja> {
   }
 
   if (!ehMesCheio || filtro.modo === "anterior") {
-    const { data: vendas, error: vendasErr } = await supabase
+    let vendasQuery = supabase
       .from("vendas_diarias")
       .select("usuario_id, categoria, data, valor_venda")
       .gte("data", inicio)
       .lte("data", fim);
+    if (filialId) {
+      vendasQuery = vendasQuery.eq("filial_id", filialId);
+    }
+    const { data: vendas, error: vendasErr } = await vendasQuery;
 
     if (vendasErr) {
       console.warn("[TV] Falha ao buscar vendas_diarias:", vendasErr.message);
@@ -602,13 +613,15 @@ export default function TVModePanel({ onClose, standalone = false }: TVModePanel
   }, [logout]);
 
   const buscar = useCallback(
-    async (silencioso = false) => {
+    async (silencoso = false) => {
       if (!usuario || !podeAcessarTV(usuario.perfil)) return;
-      if (silencioso) setAtualizando(true);
+      if (silencoso) setAtualizando(true);
       else setLoading(true);
       setErro(null);
       try {
-        const r = await carregarResumoLoja(filtro);
+        // Admin vê todas as filiais; gerente/supervisor vê apenas sua filial
+        const filialId = usuario.perfil === "admin" ? undefined : usuario.filialId;
+        const r = await carregarResumoLoja(filtro, filialId);
         setResumo(r);
         setUltimaAtualizacao(new Date());
         setSegundosRestantes(30);
