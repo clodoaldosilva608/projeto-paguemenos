@@ -5,9 +5,9 @@ import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { Loader2, ShieldAlert, Home, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 
-export const Route = createFileRoute("/admin/__root")({
+export const Route = createFileRoute("/admin")({
   component: AdminLayout,
-  beforeLoad: ({ location }) => {
+  beforeLoad: () => {
     // Client-side guard será feito no componente (precisa do useAuth)
     // Server-side guard é feito nas server functions via ensureAdmin
   },

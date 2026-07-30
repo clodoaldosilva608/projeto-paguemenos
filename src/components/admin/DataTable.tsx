@@ -87,7 +87,8 @@ export default function DataTable({
     } finally {
       setLoading(false);
     }
-  }, [table, page, pageSize, search, orderBy, orderDesc, externalFilters, localFilters, searchColumns, fnList]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [table, page, pageSize, search, orderBy, orderDesc, JSON.stringify(externalFilters), JSON.stringify(localFilters), JSON.stringify(searchColumns)]);
 
   useEffect(() => {
     void fetchData();

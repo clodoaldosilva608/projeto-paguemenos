@@ -8,11 +8,12 @@ import { applyRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 // Cada entidade usa estas funções com parâmetros de tabela
 // ============================================================================
 
-async function ensureAdmin(supabase: any, userId: string) {
-  const { data, error } = await supabase
+async function ensureAdmin(context: any): Promise<void> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data, error } = await supabaseAdmin
     .from("user_roles")
     .select("role")
-    .eq("user_id", userId)
+    .eq("user_id", context.userId)
     .eq("role", "admin")
     .maybeSingle();
   if (error) throw new Error(error.message);
@@ -97,7 +98,7 @@ export const crudList = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((v: unknown) => listSchema.parse(v))
   .handler(async ({ data, context }) => {
-    await ensureAdmin(context.supabase, context.userId);
+    await ensureAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const admin = supabaseAdmin as any;
 
@@ -105,7 +106,7 @@ export const crudList = createServerFn({ method: "POST" })
     validateTable(table, false);
     const offset = (page - 1) * pageSize;
 
-    let query = admin.from(table).select("*", { count: "exact" });
+    let query = admin.from(table).select("*");
 
     // Aplicar filtros
     if (filters) {
@@ -133,18 +134,51 @@ export const crudList = createServerFn({ method: "POST" })
       query = query.order(orderBy, { ascending: !orderDesc });
     }
 
-    // Paginação
-    query = query.range(offset, offset + pageSize - 1);
+    // Paginação — usar limit/offset em vez de range
+    query = query.limit(pageSize);
+    if (offset > 0) {
+      query = query.offset(offset);
+    }
 
-    const { data: rows, error, count } = await query;
+    const { data: rows, error } = await query;
     if (error) throw new Error(error.message);
 
+    // Contar total separadamente
+    let total = 0;
+    try {
+      let countQuery = admin.from(table).select("*", { count: "exact", head: true });
+      if (filters) {
+        for (const [key, value] of Object.entries(filters)) {
+          if (value !== null && value !== undefined && value !== "") {
+            countQuery = countQuery.eq(key, value);
+          }
+        }
+      }
+      const { count } = await countQuery;
+      total = count || 0;
+    } catch (e) {
+      total = (rows || []).length;
+    }
+
+    // Serializar manualmente para evitar erro do Seroval
+    // Converter datas e valores especiais para strings
+    const serializedRows = (rows || []).map((row: any) => {
+      const out: Record<string, any> = {};
+      for (const [k, v] of Object.entries(row)) {
+        if (v instanceof Date) out[k] = v.toISOString();
+        else if (typeof v === "bigint") out[k] = Number(v);
+        else if (v === undefined) out[k] = null;
+        else out[k] = v;
+      }
+      return out;
+    });
+
     return {
-      rows: rows || [],
-      total: count || 0,
+      rows: serializedRows,
+      total,
       page,
       pageSize,
-      totalPages: Math.ceil((count || 0) / pageSize),
+      totalPages: Math.ceil(total / pageSize),
     };
   });
 
@@ -159,7 +193,7 @@ export const crudCreate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((v: unknown) => createSchema.parse(v))
   .handler(async ({ data, context }) => {
-    await ensureAdmin(context.supabase, context.userId);
+    await ensureAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const admin = supabaseAdmin as any;
 
@@ -189,7 +223,7 @@ export const crudCreate = createServerFn({ method: "POST" })
       after: created,
     });
 
-    return { row: created };
+    return { row: JSON.parse(JSON.stringify(created)) };
   });
 
 // Schema para atualizar
@@ -204,7 +238,7 @@ export const crudUpdate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((v: unknown) => updateSchema.parse(v))
   .handler(async ({ data, context }) => {
-    await ensureAdmin(context.supabase, context.userId);
+    await ensureAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const admin = supabaseAdmin as any;
 
@@ -241,7 +275,7 @@ export const crudUpdate = createServerFn({ method: "POST" })
       after: updated,
     });
 
-    return { row: updated };
+    return { row: JSON.parse(JSON.stringify(updated)) };
   });
 
 // Schema para excluir
@@ -255,7 +289,7 @@ export const crudDelete = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((v: unknown) => deleteSchema.parse(v))
   .handler(async ({ data, context }) => {
-    await ensureAdmin(context.supabase, context.userId);
+    await ensureAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const admin = supabaseAdmin as any;
 
@@ -308,7 +342,7 @@ export const crudBulkDelete = createServerFn({ method: "POST" })
       60_000,
     );
 
-    await ensureAdmin(context.supabase, context.userId);
+    await ensureAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const admin = supabaseAdmin as any;
 
@@ -351,7 +385,7 @@ export const crudBulkDelete = createServerFn({ method: "POST" })
 export const getDashboardStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await ensureAdmin(context.supabase, context.userId);
+    await ensureAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const admin = supabaseAdmin as any;
 

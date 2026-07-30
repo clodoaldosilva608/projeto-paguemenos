@@ -9,13 +9,13 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as Admin_rootRouteImport } from './routes/admin/__root'
 import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as TvRouteImport } from './routes/tv'
 import { Route as SetupRouteImport } from './routes/setup'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ApiCriarTabelasRouteImport } from './routes/api-criar-tabelas'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as ApiSsoRouteImport } from './routes/api/sso'
@@ -35,10 +35,6 @@ import { Route as AdminAiLogsRouteImport } from './routes/admin/ai-logs'
 import { Route as AdminAiConfigRouteImport } from './routes/admin/ai-config'
 import { Route as ApiPublicPowerbiVendasRouteImport } from './routes/api/public/powerbi/vendas'
 
-const Admin_rootRoute = Admin_rootRouteImport.update({
-  id: '/admin/__root',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const WelcomeRoute = WelcomeRouteImport.update({
   id: '/welcome',
   path: '/welcome',
@@ -69,15 +65,20 @@ const ApiCriarTabelasRoute = ApiCriarTabelasRouteImport.update({
   path: '/api-criar-tabelas',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
-  id: '/admin/',
-  path: '/admin/',
-  getParentRoute: () => rootRouteImport,
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
 } as any)
 const ApiSsoRoute = ApiSsoRouteImport.update({
   id: '/api/sso',
@@ -85,74 +86,74 @@ const ApiSsoRoute = ApiSsoRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminVendasRoute = AdminVendasRouteImport.update({
-  id: '/admin/vendas',
-  path: '/admin/vendas',
-  getParentRoute: () => rootRouteImport,
+  id: '/vendas',
+  path: '/vendas',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminTreinamentosRoute = AdminTreinamentosRouteImport.update({
-  id: '/admin/treinamentos',
-  path: '/admin/treinamentos',
-  getParentRoute: () => rootRouteImport,
+  id: '/treinamentos',
+  path: '/treinamentos',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminQuickLinksRoute = AdminQuickLinksRouteImport.update({
-  id: '/admin/quick-links',
-  path: '/admin/quick-links',
-  getParentRoute: () => rootRouteImport,
+  id: '/quick-links',
+  path: '/quick-links',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminProfilesRoute = AdminProfilesRouteImport.update({
-  id: '/admin/profiles',
-  path: '/admin/profiles',
-  getParentRoute: () => rootRouteImport,
+  id: '/profiles',
+  path: '/profiles',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminMetasRoute = AdminMetasRouteImport.update({
-  id: '/admin/metas',
-  path: '/admin/metas',
-  getParentRoute: () => rootRouteImport,
+  id: '/metas',
+  path: '/metas',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminInvitesRoute = AdminInvitesRouteImport.update({
-  id: '/admin/invites',
-  path: '/admin/invites',
-  getParentRoute: () => rootRouteImport,
+  id: '/invites',
+  path: '/invites',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminIntegracoesRoute = AdminIntegracoesRouteImport.update({
-  id: '/admin/integracoes',
-  path: '/admin/integracoes',
-  getParentRoute: () => rootRouteImport,
+  id: '/integracoes',
+  path: '/integracoes',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminFiliaisRoute = AdminFiliaisRouteImport.update({
-  id: '/admin/filiais',
-  path: '/admin/filiais',
-  getParentRoute: () => rootRouteImport,
+  id: '/filiais',
+  path: '/filiais',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminCredenciaisRoute = AdminCredenciaisRouteImport.update({
-  id: '/admin/credenciais',
-  path: '/admin/credenciais',
-  getParentRoute: () => rootRouteImport,
+  id: '/credenciais',
+  path: '/credenciais',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminCompaniesRoute = AdminCompaniesRouteImport.update({
-  id: '/admin/companies',
-  path: '/admin/companies',
-  getParentRoute: () => rootRouteImport,
+  id: '/companies',
+  path: '/companies',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminCampanhasRoute = AdminCampanhasRouteImport.update({
-  id: '/admin/campanhas',
-  path: '/admin/campanhas',
-  getParentRoute: () => rootRouteImport,
+  id: '/campanhas',
+  path: '/campanhas',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminAuditoriaRoute = AdminAuditoriaRouteImport.update({
-  id: '/admin/auditoria',
-  path: '/admin/auditoria',
-  getParentRoute: () => rootRouteImport,
+  id: '/auditoria',
+  path: '/auditoria',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminAiLogsRoute = AdminAiLogsRouteImport.update({
-  id: '/admin/ai-logs',
-  path: '/admin/ai-logs',
-  getParentRoute: () => rootRouteImport,
+  id: '/ai-logs',
+  path: '/ai-logs',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminAiConfigRoute = AdminAiConfigRouteImport.update({
-  id: '/admin/ai-config',
-  path: '/admin/ai-config',
-  getParentRoute: () => rootRouteImport,
+  id: '/ai-config',
+  path: '/ai-config',
+  getParentRoute: () => AdminRoute,
 } as any)
 const ApiPublicPowerbiVendasRoute = ApiPublicPowerbiVendasRouteImport.update({
   id: '/api/public/powerbi/vendas',
@@ -162,13 +163,13 @@ const ApiPublicPowerbiVendasRoute = ApiPublicPowerbiVendasRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/api-criar-tabelas': typeof ApiCriarTabelasRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/setup': typeof SetupRoute
   '/tv': typeof TvRoute
   '/welcome': typeof WelcomeRoute
-  '/admin': typeof Admin_rootRoute
   '/admin/ai-config': typeof AdminAiConfigRoute
   '/admin/ai-logs': typeof AdminAiLogsRoute
   '/admin/auditoria': typeof AdminAuditoriaRoute
@@ -195,7 +196,6 @@ export interface FileRoutesByTo {
   '/setup': typeof SetupRoute
   '/tv': typeof TvRoute
   '/welcome': typeof WelcomeRoute
-  '/admin': typeof AdminIndexRoute
   '/admin/ai-config': typeof AdminAiConfigRoute
   '/admin/ai-logs': typeof AdminAiLogsRoute
   '/admin/auditoria': typeof AdminAuditoriaRoute
@@ -211,18 +211,19 @@ export interface FileRoutesByTo {
   '/admin/treinamentos': typeof AdminTreinamentosRoute
   '/admin/vendas': typeof AdminVendasRoute
   '/api/sso': typeof ApiSsoRoute
+  '/admin': typeof AdminIndexRoute
   '/api/public/powerbi/vendas': typeof ApiPublicPowerbiVendasRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/api-criar-tabelas': typeof ApiCriarTabelasRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/setup': typeof SetupRoute
   '/tv': typeof TvRoute
   '/welcome': typeof WelcomeRoute
-  '/admin/__root': typeof Admin_rootRoute
   '/admin/ai-config': typeof AdminAiConfigRoute
   '/admin/ai-logs': typeof AdminAiLogsRoute
   '/admin/auditoria': typeof AdminAuditoriaRoute
@@ -245,13 +246,13 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/api-criar-tabelas'
     | '/auth'
     | '/reset-password'
     | '/setup'
     | '/tv'
     | '/welcome'
-    | '/admin'
     | '/admin/ai-config'
     | '/admin/ai-logs'
     | '/admin/auditoria'
@@ -278,7 +279,6 @@ export interface FileRouteTypes {
     | '/setup'
     | '/tv'
     | '/welcome'
-    | '/admin'
     | '/admin/ai-config'
     | '/admin/ai-logs'
     | '/admin/auditoria'
@@ -294,17 +294,18 @@ export interface FileRouteTypes {
     | '/admin/treinamentos'
     | '/admin/vendas'
     | '/api/sso'
+    | '/admin'
     | '/api/public/powerbi/vendas'
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/api-criar-tabelas'
     | '/auth'
     | '/reset-password'
     | '/setup'
     | '/tv'
     | '/welcome'
-    | '/admin/__root'
     | '/admin/ai-config'
     | '/admin/ai-logs'
     | '/admin/auditoria'
@@ -326,41 +327,19 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
   ApiCriarTabelasRoute: typeof ApiCriarTabelasRoute
   AuthRoute: typeof AuthRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SetupRoute: typeof SetupRoute
   TvRoute: typeof TvRoute
   WelcomeRoute: typeof WelcomeRoute
-  Admin_rootRoute: typeof Admin_rootRoute
-  AdminAiConfigRoute: typeof AdminAiConfigRoute
-  AdminAiLogsRoute: typeof AdminAiLogsRoute
-  AdminAuditoriaRoute: typeof AdminAuditoriaRoute
-  AdminCampanhasRoute: typeof AdminCampanhasRoute
-  AdminCompaniesRoute: typeof AdminCompaniesRoute
-  AdminCredenciaisRoute: typeof AdminCredenciaisRoute
-  AdminFiliaisRoute: typeof AdminFiliaisRoute
-  AdminIntegracoesRoute: typeof AdminIntegracoesRoute
-  AdminInvitesRoute: typeof AdminInvitesRoute
-  AdminMetasRoute: typeof AdminMetasRoute
-  AdminProfilesRoute: typeof AdminProfilesRoute
-  AdminQuickLinksRoute: typeof AdminQuickLinksRoute
-  AdminTreinamentosRoute: typeof AdminTreinamentosRoute
-  AdminVendasRoute: typeof AdminVendasRoute
   ApiSsoRoute: typeof ApiSsoRoute
-  AdminIndexRoute: typeof AdminIndexRoute
   ApiPublicPowerbiVendasRoute: typeof ApiPublicPowerbiVendasRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/admin/__root': {
-      id: '/admin/__root'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof Admin_rootRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/welcome': {
       id: '/welcome'
       path: '/welcome'
@@ -403,6 +382,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiCriarTabelasRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -412,10 +398,10 @@ declare module '@tanstack/react-router' {
     }
     '/admin/': {
       id: '/admin/'
-      path: '/admin'
+      path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/api/sso': {
       id: '/api/sso'
@@ -426,101 +412,101 @@ declare module '@tanstack/react-router' {
     }
     '/admin/vendas': {
       id: '/admin/vendas'
-      path: '/admin/vendas'
+      path: '/vendas'
       fullPath: '/admin/vendas'
       preLoaderRoute: typeof AdminVendasRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/treinamentos': {
       id: '/admin/treinamentos'
-      path: '/admin/treinamentos'
+      path: '/treinamentos'
       fullPath: '/admin/treinamentos'
       preLoaderRoute: typeof AdminTreinamentosRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/quick-links': {
       id: '/admin/quick-links'
-      path: '/admin/quick-links'
+      path: '/quick-links'
       fullPath: '/admin/quick-links'
       preLoaderRoute: typeof AdminQuickLinksRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/profiles': {
       id: '/admin/profiles'
-      path: '/admin/profiles'
+      path: '/profiles'
       fullPath: '/admin/profiles'
       preLoaderRoute: typeof AdminProfilesRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/metas': {
       id: '/admin/metas'
-      path: '/admin/metas'
+      path: '/metas'
       fullPath: '/admin/metas'
       preLoaderRoute: typeof AdminMetasRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/invites': {
       id: '/admin/invites'
-      path: '/admin/invites'
+      path: '/invites'
       fullPath: '/admin/invites'
       preLoaderRoute: typeof AdminInvitesRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/integracoes': {
       id: '/admin/integracoes'
-      path: '/admin/integracoes'
+      path: '/integracoes'
       fullPath: '/admin/integracoes'
       preLoaderRoute: typeof AdminIntegracoesRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/filiais': {
       id: '/admin/filiais'
-      path: '/admin/filiais'
+      path: '/filiais'
       fullPath: '/admin/filiais'
       preLoaderRoute: typeof AdminFiliaisRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/credenciais': {
       id: '/admin/credenciais'
-      path: '/admin/credenciais'
+      path: '/credenciais'
       fullPath: '/admin/credenciais'
       preLoaderRoute: typeof AdminCredenciaisRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/companies': {
       id: '/admin/companies'
-      path: '/admin/companies'
+      path: '/companies'
       fullPath: '/admin/companies'
       preLoaderRoute: typeof AdminCompaniesRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/campanhas': {
       id: '/admin/campanhas'
-      path: '/admin/campanhas'
+      path: '/campanhas'
       fullPath: '/admin/campanhas'
       preLoaderRoute: typeof AdminCampanhasRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/auditoria': {
       id: '/admin/auditoria'
-      path: '/admin/auditoria'
+      path: '/auditoria'
       fullPath: '/admin/auditoria'
       preLoaderRoute: typeof AdminAuditoriaRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/ai-logs': {
       id: '/admin/ai-logs'
-      path: '/admin/ai-logs'
+      path: '/ai-logs'
       fullPath: '/admin/ai-logs'
       preLoaderRoute: typeof AdminAiLogsRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/ai-config': {
       id: '/admin/ai-config'
-      path: '/admin/ai-config'
+      path: '/ai-config'
       fullPath: '/admin/ai-config'
       preLoaderRoute: typeof AdminAiConfigRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/api/public/powerbi/vendas': {
       id: '/api/public/powerbi/vendas'
@@ -532,15 +518,25 @@ declare module '@tanstack/react-router' {
   }
 }
 
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  ApiCriarTabelasRoute: ApiCriarTabelasRoute,
-  AuthRoute: AuthRoute,
-  ResetPasswordRoute: ResetPasswordRoute,
-  SetupRoute: SetupRoute,
-  TvRoute: TvRoute,
-  WelcomeRoute: WelcomeRoute,
-  Admin_rootRoute: Admin_rootRoute,
+interface AdminRouteChildren {
+  AdminAiConfigRoute: typeof AdminAiConfigRoute
+  AdminAiLogsRoute: typeof AdminAiLogsRoute
+  AdminAuditoriaRoute: typeof AdminAuditoriaRoute
+  AdminCampanhasRoute: typeof AdminCampanhasRoute
+  AdminCompaniesRoute: typeof AdminCompaniesRoute
+  AdminCredenciaisRoute: typeof AdminCredenciaisRoute
+  AdminFiliaisRoute: typeof AdminFiliaisRoute
+  AdminIntegracoesRoute: typeof AdminIntegracoesRoute
+  AdminInvitesRoute: typeof AdminInvitesRoute
+  AdminMetasRoute: typeof AdminMetasRoute
+  AdminProfilesRoute: typeof AdminProfilesRoute
+  AdminQuickLinksRoute: typeof AdminQuickLinksRoute
+  AdminTreinamentosRoute: typeof AdminTreinamentosRoute
+  AdminVendasRoute: typeof AdminVendasRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
   AdminAiConfigRoute: AdminAiConfigRoute,
   AdminAiLogsRoute: AdminAiLogsRoute,
   AdminAuditoriaRoute: AdminAuditoriaRoute,
@@ -555,8 +551,21 @@ const rootRouteChildren: RootRouteChildren = {
   AdminQuickLinksRoute: AdminQuickLinksRoute,
   AdminTreinamentosRoute: AdminTreinamentosRoute,
   AdminVendasRoute: AdminVendasRoute,
-  ApiSsoRoute: ApiSsoRoute,
   AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  AdminRoute: AdminRouteWithChildren,
+  ApiCriarTabelasRoute: ApiCriarTabelasRoute,
+  AuthRoute: AuthRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
+  SetupRoute: SetupRoute,
+  TvRoute: TvRoute,
+  WelcomeRoute: WelcomeRoute,
+  ApiSsoRoute: ApiSsoRoute,
   ApiPublicPowerbiVendasRoute: ApiPublicPowerbiVendasRoute,
 }
 export const routeTree = rootRouteImport
