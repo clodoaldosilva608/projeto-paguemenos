@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useFilial } from "@/contexts/FilialContext";
 import { Bell, AlertTriangle, Megaphone, CheckSquare, X, ChevronDown, ChevronUp } from "lucide-react";
 
 interface Notificacao {
@@ -14,6 +15,7 @@ interface Notificacao {
 
 export default function NotificacoesGerente() {
   const { usuario } = useAuth();
+  const { filialFiltro } = useFilial();
   const [notificacoes, setNotificacoes] = useState<Notificacao[]>([]);
   const [expandido, setExpandido] = useState(true);
   const [dispensado, setDispensado] = useState(false);
@@ -23,77 +25,98 @@ export default function NotificacoesGerente() {
     if (!usuario) return;
     if (usuario.perfil !== "admin" && usuario.perfil !== "gerente") return;
     void carregar();
-  }, [usuario]);
+  }, [usuario, filialFiltro]);
 
   async function carregar() {
     setLoading(true);
     const notifs: Notificacao[] = [];
 
     try {
+      // Determinar filtro de filial
+      // Admin com filial selecionada: filtrar por filial_id
+      // Admin com "Todas": não filtrar
+      // Gerente: filtrar por equipe_id
+      const isAdmin = usuario?.perfil === "admin";
+      const isGerente = usuario?.perfil === "gerente";
+      const filialId = isAdmin ? filialFiltro : undefined;
+      const equipeId = isGerente ? usuario?.equipeId : undefined;
+
       // 1. Buscar vendedores com metas abaixo de 50%
-      const { data: profiles } = await supabase
-        .from("profiles")
-        .select("id, nome")
-        .eq("ativo", true);
+      let profilesQuery = (supabase as any).from("profiles").select("id, nome").eq("ativo", true);
+      if (equipeId) {
+        profilesQuery = profilesQuery.eq("equipe_id", equipeId);
+      } else if (filialId) {
+        profilesQuery = profilesQuery.eq("filial_id", filialId);
+      }
+      const { data: profiles } = await profilesQuery;
 
-      const { data: roles } = await supabase
-        .from("user_roles")
-        .select("user_id, role")
-        .eq("role", "vendedor");
+      let rolesQuery = (supabase as any).from("user_roles").select("user_id, role").eq("role", "vendedor");
+      const { data: roles } = await rolesQuery;
 
-      const vendedorIds = (roles || []).map((r) => r.user_id);
+      // Filtrar roles apenas dos profiles visíveis
+      const profileIds = new Set((profiles || []).map((p: any) => p.id));
+      const vendedorIds = (roles || []).filter((r: any) => profileIds.has(r.user_id)).map((r: any) => r.user_id);
 
-      const { data: metas } = await supabase
-        .from("metas_individuais")
+      let metasQuery = (supabase as any).from("metas_individuais")
         .select("usuario_id, valor_meta, valor_realizado, categoria")
         .eq("periodo", "mensal")
         .eq("categoria", "faturamento");
+      if (equipeId) {
+        metasQuery = metasQuery.eq("equipe_id", equipeId);
+      } else if (filialId) {
+        metasQuery = metasQuery.eq("filial_id", filialId);
+      }
+      const { data: metas } = await metasQuery;
 
-      const profileMap = new Map((profiles || []).map((p) => [p.id, p.nome]));
+      const profileMap = new Map((profiles || []).map((p: any) => [p.id, p.nome]));
       const vendedoresBaixo = (metas || [])
-        .filter((m) => vendedorIds.includes(m.usuario_id) && m.valor_meta > 0)
-        .map((m) => ({
+        .filter((m: any) => vendedorIds.includes(m.usuario_id) && m.valor_meta > 0)
+        .map((m: any) => ({
           nome: profileMap.get(m.usuario_id) || "Vendedor",
           pct: (Number(m.valor_realizado) / Number(m.valor_meta)) * 100,
         }))
-        .filter((v) => v.pct < 50);
+        .filter((v: any) => v.pct < 50);
 
       if (vendedoresBaixo.length > 0) {
         notifs.push({
           tipo: "alerta",
           icone: AlertTriangle,
           titulo: `${vendedoresBaixo.length} vendedor(es) abaixo de 50% da meta`,
-          detalhe: vendedoresBaixo.map((v) => `${v.nome} (${v.pct.toFixed(0)}%)`).join(", "),
+          detalhe: vendedoresBaixo.map((v: any) => `${v.nome} (${v.pct.toFixed(0)}%)`).join(", "),
           cor: "border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-300",
         });
       }
 
-      // 2. Buscar campanhas ativas
-      const { data: campanhas } = await supabase
-        .from("campanhas")
-        .select("nome")
-        .eq("status", "ativa");
+      // 2. Buscar campanhas ativas (filtrar por filial se selecionada)
+      let campanhasQuery = (supabase as any).from("campanhas").select("nome").eq("status", "ativa");
+      if (filialId) {
+        campanhasQuery = campanhasQuery.eq("filial_id", filialId);
+      }
+      const { data: campanhas } = await campanhasQuery;
 
       if (campanhas && campanhas.length > 0) {
         notifs.push({
           tipo: "info",
           icone: Megaphone,
           titulo: `${campanhas.length} campanha(s) ativa(s)`,
-          detalhe: campanhas.map((c) => c.nome).join(", "),
+          detalhe: campanhas.map((c: any) => c.nome).join(", "),
           cor: "border-blue-300 bg-blue-50 text-blue-800 dark:border-blue-700 dark:bg-blue-950/30 dark:text-blue-300",
         });
       }
 
-      // 3. Buscar vendas diárias lançadas hoje (check-in)
+      // 3. Buscar vendas diárias lançadas hoje (filtrar por filial/equipe)
       const hoje = new Date().toISOString().slice(0, 10);
-      const { data: vendasHoje } = await supabase
-        .from("vendas_diarias")
-        .select("usuario_id")
-        .eq("data", hoje);
+      let vendasQuery = (supabase as any).from("vendas_diarias").select("usuario_id").eq("data", hoje);
+      if (equipeId) {
+        vendasQuery = vendasQuery.eq("equipe_id", equipeId);
+      } else if (filialId) {
+        vendasQuery = vendasQuery.eq("filial_id", filialId);
+      }
+      const { data: vendasHoje } = await vendasQuery;
 
-      const vendedoresComVendaHoje = new Set((vendasHoje || []).map((v) => v.usuario_id));
-      const vendedoresSemVenda = vendedorIds.filter((id) => !vendedoresComVendaHoje.has(id));
-      const nomesSemVenda = vendedoresSemVenda.map((id) => profileMap.get(id)).filter(Boolean);
+      const vendedoresComVendaHoje = new Set((vendasHoje || []).map((v: any) => v.usuario_id));
+      const vendedoresSemVenda = vendedorIds.filter((id: string) => !vendedoresComVendaHoje.has(id));
+      const nomesSemVenda = vendedoresSemVenda.map((id: string) => profileMap.get(id)).filter(Boolean);
 
       if (nomesSemVenda.length > 0) {
         notifs.push({
@@ -105,7 +128,7 @@ export default function NotificacoesGerente() {
         });
       }
     } catch {
-      // Silencioso — notificações são opcionais
+      // Silencioso
     } finally {
       setLoading(false);
     }
@@ -113,7 +136,6 @@ export default function NotificacoesGerente() {
     setNotificacoes(notifs);
   }
 
-  // Não mostrar para vendedor/supervisor ou se não há notificações
   if (loading || dispensado || notificacoes.length === 0) return null;
   if (usuario?.perfil !== "admin" && usuario?.perfil !== "gerente") return null;
 
@@ -123,7 +145,6 @@ export default function NotificacoesGerente() {
       animate={{ opacity: 1, y: 0 }}
       className="mb-4 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-slate-900"
     >
-      {/* Header */}
       <div className="flex items-center justify-between border-b border-slate-100 px-4 py-2 dark:border-white/10">
         <div className="flex items-center gap-2">
           <div className="relative">
@@ -156,7 +177,6 @@ export default function NotificacoesGerente() {
         </div>
       </div>
 
-      {/* Lista de notificações */}
       <AnimatePresence>
         {expandido && (
           <motion.div

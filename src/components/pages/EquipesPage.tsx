@@ -2,10 +2,11 @@ import { motion } from "framer-motion";
 import { Users, Plus, Search, Edit, Trash2, X, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { useFilial } from "@/contexts/FilialContext";
 
 interface Equipe {
   id: string; nome: string; filialNome: string; supervisor: string;
-  membros: string[]; ativo: boolean; criadoEm: string;
+  membros: string[]; ativo: boolean; criadoEm: string; filialId?: string;
 }
 
 const STORAGE_KEY = "orion-equipes";
@@ -15,13 +16,20 @@ function carregar(): Equipe[] {
 function salvar(e: Equipe[]) { localStorage.setItem(STORAGE_KEY, JSON.stringify(e)); }
 
 export default function EquipesPage() {
+  const { filialFiltro } = useFilial();
   const [equipes, setEquipes] = useState<Equipe[]>([]);
   const [loading, setLoading] = useState(true);
   const [busca, setBusca] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editando, setEditando] = useState<Equipe | null>(null);
 
-  useEffect(() => { setEquipes(carregar()); setLoading(false); }, []);
+  useEffect(() => {
+    const todas = carregar();
+    // Filtrar por filial se selecionada
+    const filtradas = filialFiltro ? todas.filter(e => !e.filialId || e.filialId === filialFiltro) : todas;
+    setEquipes(filtradas);
+    setLoading(false);
+  }, [filialFiltro]);
 
   const handleSalvar = (eq: Equipe) => {
     const existe = equipes.find(e => e.id === eq.id);

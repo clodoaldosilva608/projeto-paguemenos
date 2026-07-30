@@ -1,22 +1,58 @@
 import { motion } from "framer-motion";
-import { brlMoeda, pct } from "../../utils/format";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useFilial } from "@/contexts/FilialContext";
+import { brlMoeda } from "../../utils/format";
+import { Loader2, Store, MapPin } from "lucide-react";
 
-// Filiais vindas do localStorage/Supabase — sem dados fake
-const filiais: any[] = [
-  
-  
-  
-  
-];
+interface Filial {
+  id: string;
+  nome: string;
+  cidade: string;
+  estado: string;
+  ativo: boolean;
+}
 
 export default function FiliaisPage() {
+  const { filialFiltro } = useFilial();
+  const [filiais, setFiliais] = useState<Filial[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    void carregar();
+  }, [filialFiltro]);
+
+  async function carregar() {
+    setLoading(true);
+    try {
+      let query = (supabase as any).from("filiais").select("*").order("nome");
+      // Se uma filial específica está selecionada, mostrar apenas ela
+      if (filialFiltro) {
+        query = query.eq("id", filialFiltro);
+      }
+      const { data } = await query;
+      setFiliais(data || []);
+    } catch {
+      // Silent
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-6 w-6 animate-spin text-slate-400 dark:text-slate-500" />
+      </div>
+    );
+  }
+
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-500">{filiais.length} filiais cadastradas</p>
-        <button className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-500">
-          <span>+</span> Nova Filial
-        </button>
+        <p className="text-sm text-slate-500 dark:text-slate-400">
+          {filiais.length} filial(is) {filialFiltro ? "(filtrada)" : "cadastradas"}
+        </p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -34,51 +70,35 @@ export default function FiliaisPage() {
                   {f.id}
                 </div>
                 <div>
-                  <p className="font-bold text-slate-800 dark:text-white">Filial {f.id}</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500">{f.cidade}</p>
+                  <p className="font-bold text-slate-800 dark:text-white">{f.nome}</p>
+                  <p className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
+                    <MapPin className="h-3 w-3" /> {f.cidade} - {f.estado}
+                  </p>
                 </div>
               </div>
               <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase ${
-                f.status === "green"
+                f.ativo
                   ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400"
                   : "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
               }`}>
-                {f.status === "green" ? "Dentro da Meta" : "Fora da Meta"}
+                {f.ativo ? "Ativo" : "Inativo"}
               </span>
             </div>
 
-            <div className="mt-4 grid grid-cols-3 gap-3 text-center">
-              <div>
-                <p className="text-[10px] font-semibold uppercase text-slate-500 dark:text-slate-400 dark:text-slate-500">Realizado</p>
-                <p className="font-num text-sm font-bold text-slate-800 dark:text-white">{brlMoeda(f.realizado)}</p>
-              </div>
-              <div>
-                <p className="text-[10px] font-semibold uppercase text-slate-500 dark:text-slate-400 dark:text-slate-500">Meta</p>
-                <p className="font-num text-sm font-bold text-slate-800 dark:text-white">{brlMoeda(f.meta)}</p>
-              </div>
-              <div>
-                <p className="text-[10px] font-semibold uppercase text-slate-500 dark:text-slate-400 dark:text-slate-500">Atingimento</p>
-                <p className={`font-num text-sm font-bold ${f.status === "green" ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}>
-                  {pct(f.atingimento)}
-                </p>
-              </div>
+            <div className="mt-4 flex items-center gap-2 text-xs text-slate-400">
+              <Store className="h-3.5 w-3.5" />
+              <span>Filial #{f.id}</span>
             </div>
-
-            <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${Math.min(100, f.atingimento)}%` }}
-                transition={{ duration: 0.8 }}
-                className={`h-full rounded-full ${f.status === "green" ? "bg-emerald-500" : "bg-red-500"}`}
-              />
-            </div>
-
-            <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
-              Gerente: <span className="font-semibold text-slate-700 dark:text-slate-300">{f.gerente}</span>
-            </p>
           </motion.div>
         ))}
       </div>
+
+      {filiais.length === 0 && (
+        <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center dark:border-slate-700 dark:bg-slate-800/50">
+          <Store className="mx-auto mb-2 h-10 w-10 text-slate-400" />
+          <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">Nenhuma filial encontrada</p>
+        </div>
+      )}
     </motion.div>
   );
 }

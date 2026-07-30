@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useFilial } from "@/contexts/FilialContext";
 import { useQuickLinks, type QuickLink } from "@/hooks/useQuickLinks";
 import {
   criarConvite, revogarConvite, alterarPerfilUsuario, alternarAtivo, excluirUsuario,
@@ -34,6 +35,7 @@ const ICONES = [
 
 export default function AdminPage() {
   const { usuario } = useAuth();
+  const { filialFiltro } = useFilial();
   const [aba, setAba] = useState<AbaAdmin>("usuarios");
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [roles, setRoles] = useState<RoleRow[]>([]);
@@ -51,12 +53,18 @@ export default function AdminPage() {
     excluirLink: useServerFn(excluirQuickLink),
   };
 
+  const filialId = usuario?.perfil === "admin" ? filialFiltro : undefined;
+
   const reload = async () => {
     setLoading(true);
+    let profilesQuery = (supabase as any).from("profiles").select("id,nome,email,ativo,filial_id,cargo").order("nome");
+    if (filialId) {
+      profilesQuery = profilesQuery.eq("filial_id", filialId);
+    }
     const [{ data: pRows }, { data: rRows }, { data: iRows }] = await Promise.all([
-      supabase.from("profiles").select("id,nome,email,ativo,filial_id,cargo").order("nome"),
-      supabase.from("user_roles").select("user_id,role"),
-      supabase.from("invites").select("*").order("criado_em", { ascending: false }),
+      profilesQuery,
+      (supabase as any).from("user_roles").select("user_id,role"),
+      (supabase as any).from("invites").select("*").order("criado_em", { ascending: false }),
     ]);
     setProfiles((pRows ?? []) as Profile[]);
     setRoles((rRows ?? []) as RoleRow[]);
@@ -64,7 +72,7 @@ export default function AdminPage() {
     setLoading(false);
   };
 
-  useEffect(() => { void reload(); }, []);
+  useEffect(() => { void reload(); }, [filialId]);
 
   if (usuario?.perfil !== "admin" && usuario?.perfil !== "gerente" && usuario?.perfil !== "supervisor") {
     return <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-red-700 dark:border-red-900 dark:bg-red-950/50 dark:text-red-300">Acesso restrito a administradores, gerentes e supervisores.</div>;
