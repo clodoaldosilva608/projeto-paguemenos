@@ -181,11 +181,11 @@ function PerfilCard({
   return (
     <div
       className="flex items-center gap-2 rounded-lg p-3"
-      style={{ background: `${color}11` }}
+      style={{ background: `${color}22` }}
     >
       <div
         className="flex h-8 w-8 items-center justify-center rounded-lg"
-        style={{ background: `${color}22`, color }}
+        style={{ background: `${color}33`, color }}
       >
         <Icon className="h-4 w-4" />
       </div>

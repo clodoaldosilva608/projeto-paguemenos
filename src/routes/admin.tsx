@@ -97,7 +97,7 @@ function AdminLayout() {
       <AdminSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* Conteúdo */}
-      <div className="flex flex-1 flex-col overflow-hidden lg:pl-0">
+      <div className="flex flex-1 flex-col overflow-hidden lg:pl-64">
         {/* Topbar com breadcrumbs */}
         <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-slate-200 bg-white/80 px-4 py-3 backdrop-blur dark:border-white/10 dark:bg-slate-900/80 sm:px-6">
           <button
