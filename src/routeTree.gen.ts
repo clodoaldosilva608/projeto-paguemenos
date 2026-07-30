@@ -24,6 +24,7 @@ import { Route as AdminTreinamentosRouteImport } from './routes/admin/treinament
 import { Route as AdminQuickLinksRouteImport } from './routes/admin/quick-links'
 import { Route as AdminProfilesRouteImport } from './routes/admin/profiles'
 import { Route as AdminMetasRouteImport } from './routes/admin/metas'
+import { Route as AdminLoginRouteImport } from './routes/admin/login'
 import { Route as AdminInvitesRouteImport } from './routes/admin/invites'
 import { Route as AdminIntegracoesRouteImport } from './routes/admin/integracoes'
 import { Route as AdminFiliaisRouteImport } from './routes/admin/filiais'
@@ -110,6 +111,11 @@ const AdminMetasRoute = AdminMetasRouteImport.update({
   path: '/metas',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminInvitesRoute = AdminInvitesRouteImport.update({
   id: '/invites',
   path: '/invites',
@@ -179,6 +185,7 @@ export interface FileRoutesByFullPath {
   '/admin/filiais': typeof AdminFiliaisRoute
   '/admin/integracoes': typeof AdminIntegracoesRoute
   '/admin/invites': typeof AdminInvitesRoute
+  '/admin/login': typeof AdminLoginRoute
   '/admin/metas': typeof AdminMetasRoute
   '/admin/profiles': typeof AdminProfilesRoute
   '/admin/quick-links': typeof AdminQuickLinksRoute
@@ -205,6 +212,7 @@ export interface FileRoutesByTo {
   '/admin/filiais': typeof AdminFiliaisRoute
   '/admin/integracoes': typeof AdminIntegracoesRoute
   '/admin/invites': typeof AdminInvitesRoute
+  '/admin/login': typeof AdminLoginRoute
   '/admin/metas': typeof AdminMetasRoute
   '/admin/profiles': typeof AdminProfilesRoute
   '/admin/quick-links': typeof AdminQuickLinksRoute
@@ -233,6 +241,7 @@ export interface FileRoutesById {
   '/admin/filiais': typeof AdminFiliaisRoute
   '/admin/integracoes': typeof AdminIntegracoesRoute
   '/admin/invites': typeof AdminInvitesRoute
+  '/admin/login': typeof AdminLoginRoute
   '/admin/metas': typeof AdminMetasRoute
   '/admin/profiles': typeof AdminProfilesRoute
   '/admin/quick-links': typeof AdminQuickLinksRoute
@@ -262,6 +271,7 @@ export interface FileRouteTypes {
     | '/admin/filiais'
     | '/admin/integracoes'
     | '/admin/invites'
+    | '/admin/login'
     | '/admin/metas'
     | '/admin/profiles'
     | '/admin/quick-links'
@@ -288,6 +298,7 @@ export interface FileRouteTypes {
     | '/admin/filiais'
     | '/admin/integracoes'
     | '/admin/invites'
+    | '/admin/login'
     | '/admin/metas'
     | '/admin/profiles'
     | '/admin/quick-links'
@@ -315,6 +326,7 @@ export interface FileRouteTypes {
     | '/admin/filiais'
     | '/admin/integracoes'
     | '/admin/invites'
+    | '/admin/login'
     | '/admin/metas'
     | '/admin/profiles'
     | '/admin/quick-links'
@@ -445,6 +457,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminMetasRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/invites': {
       id: '/admin/invites'
       path: '/invites'
@@ -528,6 +547,7 @@ interface AdminRouteChildren {
   AdminFiliaisRoute: typeof AdminFiliaisRoute
   AdminIntegracoesRoute: typeof AdminIntegracoesRoute
   AdminInvitesRoute: typeof AdminInvitesRoute
+  AdminLoginRoute: typeof AdminLoginRoute
   AdminMetasRoute: typeof AdminMetasRoute
   AdminProfilesRoute: typeof AdminProfilesRoute
   AdminQuickLinksRoute: typeof AdminQuickLinksRoute
@@ -546,6 +566,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminFiliaisRoute: AdminFiliaisRoute,
   AdminIntegracoesRoute: AdminIntegracoesRoute,
   AdminInvitesRoute: AdminInvitesRoute,
+  AdminLoginRoute: AdminLoginRoute,
   AdminMetasRoute: AdminMetasRoute,
   AdminProfilesRoute: AdminProfilesRoute,
   AdminQuickLinksRoute: AdminQuickLinksRoute,

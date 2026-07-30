@@ -5,78 +5,153 @@ import DataTable, { type Column } from "@/components/admin/DataTable";
 import FormDrawer, { type FormField } from "@/components/admin/FormDrawer";
 import { crudDelete } from "@/lib/admin/crud.functions";
 import { toast } from "sonner";
-import { Trash2 } from "lucide-react";
 import ConfirmDialog from "@/components/admin/ConfirmDialog";
 
 export const Route = createFileRoute("/admin/integracoes")({
   component: AdminIntegracoes,
 });
 
-interface Integracao {
+interface Integration {
   id: string;
-  connector_id: string;
-  connection_key_ciphertext: string | null;
-  user_id: string | null;
-  created_at: string;
+  nome: string;
+  tipo: string;
+  status: string;
+  escopo: string;
+  filial_id: string | null;
+  sync_enabled: boolean;
+  sync_interval_min: number;
+  last_sync_at: string | null;
+  last_sync_status: string | null;
+  ativo: boolean;
+  criado_em: string;
 }
 
-const columns: Column<Integracao>[] = [
+const columns: Column<Integration>[] = [
   {
-    key: "connector_id",
-    label: "Connector ID",
+    key: "nome",
+    label: "Nome",
     sortable: true,
     searchable: true,
     render: (r) => (
-      <span className="font-mono text-xs font-semibold text-slate-700 dark:text-slate-200">
-        {r.connector_id}
+      <div>
+        <p className="font-semibold text-slate-800 dark:text-slate-100">{r.nome}</p>
+        <p className="text-[10px] text-slate-400">{r.tipo}</p>
+      </div>
+    ),
+  },
+  {
+    key: "tipo",
+    label: "Tipo",
+    sortable: true,
+    render: (r) => (
+      <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+        {r.tipo || "—"}
       </span>
     ),
   },
   {
-    key: "connection_key_ciphertext",
-    label: "Connection Key",
-    render: (r) => {
-      if (!r.connection_key_ciphertext) return "—";
-      const val = String(r.connection_key_ciphertext);
-      const truncated = val.length > 32 ? val.slice(0, 32) + "..." : val;
-      return (
-        <span className="font-mono text-[10px] text-slate-500" title={val}>
-          {truncated}
-        </span>
-      );
-    },
+    key: "status",
+    label: "Status",
+    sortable: true,
+    render: (r) => (
+      <span
+        className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${
+          r.status === "ativo" || r.status === "conectado"
+            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300"
+            : r.status === "pendente"
+              ? "bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300"
+              : "bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-300"
+        }`}
+      >
+        {r.status || "—"}
+      </span>
+    ),
   },
   {
-    key: "created_at",
-    label: "Criado em",
-    sortable: true,
+    key: "escopo",
+    label: "Escopo",
+    render: (r) => r.escopo || "—",
+  },
+  {
+    key: "sync_enabled",
+    label: "Sync",
+    render: (r) => (
+      <span className={r.sync_enabled ? "text-emerald-600" : "text-slate-400"}>
+        {r.sync_enabled ? "✓ Ativo" : "✗ Inativo"}
+      </span>
+    ),
+  },
+  {
+    key: "ativo",
+    label: "Ativo",
+    render: (r) => (
+      <span
+        className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${
+          r.ativo
+            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300"
+            : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
+        }`}
+      >
+        {r.ativo ? "Sim" : "Não"}
+      </span>
+    ),
+  },
+  {
+    key: "last_sync_at",
+    label: "Última Sync",
     render: (r) =>
-      r.created_at ? new Date(r.created_at).toLocaleDateString("pt-BR") : "—",
+      r.last_sync_at ? new Date(r.last_sync_at).toLocaleString("pt-BR") : "Nunca",
   },
 ];
 
 const fields: FormField[] = [
+  { key: "nome", label: "Nome", type: "text", required: true, placeholder: "Google Sheets — Vendas" },
   {
-    key: "connector_id",
-    label: "Connector ID",
-    type: "text",
+    key: "tipo",
+    label: "Tipo",
+    type: "select",
     required: true,
-    placeholder: "Ex: whatsapp, hubspot, etc",
+    options: [
+      { value: "google_sheets", label: "Google Sheets" },
+      { value: "powerbi", label: "Power BI" },
+      { value: "webhook", label: "Webhook" },
+      { value: "api", label: "API Externa" },
+    ],
   },
   {
-    key: "connection_key_ciphertext",
-    label: "Connection Key (ciphertext)",
-    type: "textarea",
-    required: true,
-    placeholder: "Chave criptografada (base64/JSON)",
+    key: "status",
+    label: "Status",
+    type: "select",
+    options: [
+      { value: "pendente", label: "Pendente" },
+      { value: "conectado", label: "Conectado" },
+      { value: "ativo", label: "Ativo" },
+      { value: "erro", label: "Erro" },
+    ],
+    defaultValue: "pendente",
   },
-  { key: "user_id", label: "User ID", type: "text", placeholder: "UUID do usuário (opcional)" },
+  {
+    key: "escopo",
+    label: "Escopo",
+    type: "select",
+    options: [
+      { value: "empresa", label: "Empresa" },
+      { value: "filial", label: "Filial" },
+      { value: "usuario", label: "Usuário" },
+    ],
+    defaultValue: "empresa",
+  },
+  { key: "filial_id", label: "Filial ID", type: "text", placeholder: "7537 (se escopo=filial)" },
+  { key: "sync_enabled", label: "Sincronização Ativa", type: "checkbox", defaultValue: false },
+  { key: "sync_interval_min", label: "Intervalo Sync (min)", type: "number", defaultValue: 60, min: 1, max: 1440 },
+  { key: "config", label: "Configuração (JSON)", type: "json", placeholder: '{"key": "value"}' },
+  { key: "ativo", label: "Ativo", type: "checkbox", defaultValue: true },
 ];
 
 function AdminIntegracoes() {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [editRow, setEditRow] = useState<Integracao | null>(null);
-  const [deleteRow, setDeleteRow] = useState<Integracao | null>(null);
+  const [editRow, setEditRow] = useState<Integration | null>(null);
+  const [deleteRow, setDeleteRow] = useState<Integration | null>(null);
   const fnDelete = useServerFn(crudDelete);
 
   function handleCreate() {
@@ -84,7 +159,7 @@ function AdminIntegracoes() {
     setDrawerOpen(true);
   }
 
-  function handleEdit(row: Integracao) {
+  function handleEdit(row: Integration) {
     setEditRow(row);
     setDrawerOpen(true);
   }
@@ -92,7 +167,7 @@ function AdminIntegracoes() {
   async function handleDelete() {
     if (!deleteRow) return;
     try {
-      await fnDelete({ data: { table: "integration_credentials", id: deleteRow.id } });
+      await fnDelete({ data: { table: "integrations", id: deleteRow.id } });
       toast.success("Integração excluída.");
       setDeleteRow(null);
       window.location.reload();
@@ -106,22 +181,22 @@ function AdminIntegracoes() {
       <div>
         <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Integrações</h1>
         <p className="text-sm text-slate-500">
-          Gerenciar credenciais de integrações externas (connectors).
+          Gerenciar integrações com Google Sheets, Power BI, webhooks e APIs externas.
         </p>
       </div>
 
       <DataTable
-        table="integration_credentials"
+        table="integrations"
         columns={columns}
-        searchColumns={["connector_id"]}
-        title="Integration Credentials"
+        searchColumns={["nome", "tipo"]}
+        title="Integrações"
         onEdit={handleEdit}
         onCreate={handleCreate}
         rowKey="id"
       />
 
       <FormDrawer
-        table="integration_credentials"
+        table="integrations"
         fields={fields}
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
@@ -133,7 +208,7 @@ function AdminIntegracoes() {
       <ConfirmDialog
         open={!!deleteRow}
         title="Excluir Integração"
-        message={`Excluir permanentemente a integração "${deleteRow?.connector_id}"? Esta ação não pode ser desfeita.`}
+        message={`Excluir "${deleteRow?.nome}"? Esta ação não pode ser desfeita.`}
         confirmLabel="Excluir"
         onConfirm={handleDelete}
         onClose={() => setDeleteRow(null)}

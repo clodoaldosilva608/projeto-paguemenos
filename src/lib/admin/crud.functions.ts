@@ -53,7 +53,7 @@ const ALLOWED_TABLES = [
   "invites", "treinamentos", "treinamentos_concluidos",
   "quick_links", "login_matricula",
   "ai_config", "ai_prompt_versions", "ai_logs",
-  "audit_log", "integration_credentials",
+  "audit_log", "integrations",
 ];
 
 // Tabelas que permitem criar/editar/excluir (exclui read-only como ai_logs, audit_log)
@@ -63,7 +63,7 @@ const MUTABLE_TABLES = [
   "invites", "treinamentos", "treinamentos_concluidos",
   "quick_links", "login_matricula",
   "ai_config", "ai_prompt_versions",
-  "integration_credentials",
+  "integrations",
 ];
 
 // Tabelas que permitem exclusão em lote

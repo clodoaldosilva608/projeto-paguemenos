@@ -1,9 +1,12 @@
-import { createFileRoute, redirect, Outlet, Link, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Outlet, Link, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/contexts/AuthContext";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
-import { Loader2, ShieldAlert, Home, ChevronRight } from "lucide-react";
-import { motion } from "framer-motion";
+import { Loader2, ShieldAlert, Home, ChevronRight, Store, ChevronDown } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin")({
   component: AdminLayout,
@@ -111,6 +114,7 @@ function AdminLayout() {
           </button>
           <Breadcrumbs />
           <div className="ml-auto flex items-center gap-2 text-xs text-slate-400">
+            <FilialSeletor />
             <span className="hidden sm:inline">{usuario.email}</span>
             <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold uppercase text-red-700 dark:bg-red-950/50 dark:text-red-300">
               Admin
@@ -149,5 +153,102 @@ function Breadcrumbs() {
         </span>
       ))}
     </nav>
+  );
+}
+
+// ============================================================================
+// Seletor de Filial — admin master pode alternar entre filiais
+// A filial selecionada é salva no localStorage e usada como filtro nas listagens
+// ============================================================================
+function FilialSeletor() {
+  const [filiais, setFiliais] = useState<{ id: string; nome: string }[]>([]);
+  const [selecionada, setSelecionada] = useState<string>(
+    () => localStorage.getItem("admin-filial-selecionada") || "todas",
+  );
+  const [aberto, setAberto] = useState(false);
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const { data } = await (supabase as any)
+          .from("filiais")
+          .select("id, nome")
+          .order("nome");
+        if (data) setFiliais(data as any);
+      } catch {
+        // ignorar — admin pode não ter acesso via client
+      }
+    })();
+  }, []);
+
+  function selecionar(id: string) {
+    setSelecionada(id);
+    localStorage.setItem("admin-filial-selecionada", id);
+    setAberto(false);
+    toast.success(
+      id === "todas"
+        ? "Visualizando todas as filiais"
+        : `Filtrando por filial: ${filiais.find((f) => f.id === id)?.nome || id}`,
+    );
+    // Recarregar a página para aplicar o filtro
+    window.location.reload();
+  }
+
+  const nomeAtual =
+    selecionada === "todas"
+      ? "Todas as Filiais"
+      : filiais.find((f) => f.id === selecionada)?.nome || "Todas as Filiais";
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setAberto((v) => !v)}
+        className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 dark:border-white/10 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-white/5"
+      >
+        <Store className="h-3.5 w-3.5" />
+        <span className="hidden max-w-[120px] truncate sm:inline">{nomeAtual}</span>
+        <ChevronDown className="h-3 w-3" />
+      </button>
+      <AnimatePresence>
+        {aberto && (
+          <>
+            <div className="fixed inset-0 z-10" onClick={() => setAberto(false)} />
+            <motion.div
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -5 }}
+              className="absolute right-0 top-full z-20 mt-1 min-w-[200px] overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl dark:border-white/10 dark:bg-slate-800"
+            >
+              <button
+                onClick={() => selecionar("todas")}
+                className={`flex w-full items-center gap-2 px-3 py-2 text-xs font-medium hover:bg-slate-50 dark:hover:bg-white/5 ${
+                  selecionada === "todas"
+                    ? "bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-300"
+                    : "text-slate-600 dark:text-slate-300"
+                }`}
+              >
+                <Store className="h-3.5 w-3.5" />
+                Todas as Filiais
+              </button>
+              {filiais.map((f) => (
+                <button
+                  key={f.id}
+                  onClick={() => selecionar(f.id)}
+                  className={`flex w-full items-center gap-2 px-3 py-2 text-xs font-medium hover:bg-slate-50 dark:hover:bg-white/5 ${
+                    selecionada === f.id
+                      ? "bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-300"
+                      : "text-slate-600 dark:text-slate-300"
+                  }`}
+                >
+                  <Store className="h-3.5 w-3.5" />
+                  <span className="truncate">{f.nome}</span>
+                  <span className="ml-auto text-[10px] text-slate-400">#{f.id}</span>
+                </button>
+              ))}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }

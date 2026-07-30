@@ -291,6 +291,7 @@ function FeaturesSection() {
 // ============================================================================
 
 function Footer() {
+  const navigate = useNavigate();
   return (
     <footer className="relative z-10 mt-auto border-t border-white/10 bg-black/40 backdrop-blur">
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 py-8 text-xs text-slate-400 dark:text-slate-500 sm:flex-row">
@@ -317,16 +318,21 @@ function Footer() {
         </div>
         <p className="text-center">© 2026 Orion · Sistema de Gestão Multi-Empresa</p>
         <div className="flex items-center gap-4">
+          <button
+            onClick={() => navigate({ to: "/admin/login" })}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-white/10 hover:text-white"
+            title="Acesso restrito ao painel administrativo"
+          >
+            <ShieldCheck className="h-3.5 w-3.5" />
+            Painel Admin
+          </button>
+          <span>·</span>
           <a href="https://supabase.com" target="_blank" rel="noreferrer" className="hover:text-white">
             Supabase
           </a>
           <span>·</span>
           <a href="https://vercel.com" target="_blank" rel="noreferrer" className="hover:text-white">
             Vercel
-          </a>
-          <span>·</span>
-          <a href="https://github.com" target="_blank" rel="noreferrer" className="hover:text-white">
-            GitHub
           </a>
         </div>
       </div>

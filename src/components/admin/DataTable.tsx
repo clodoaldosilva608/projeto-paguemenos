@@ -67,6 +67,17 @@ export default function DataTable({
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
+      // Aplicar filtro de filial selecionada (do seletor do admin)
+      const filialSelecionada = typeof localStorage !== "undefined"
+        ? localStorage.getItem("admin-filial-selecionada")
+        : null;
+
+      // Tabelas que suportam isolamento por filial
+      const FILIAL_TABLES = ["vendas_diarias", "metas_individuais", "profiles", "campanhas"];
+      const filialFilter = filialSelecionada && filialSelecionada !== "todas" && FILIAL_TABLES.includes(table)
+        ? { filial_id: filialSelecionada }
+        : {};
+
       const r = await fnList({
         data: {
           table,
@@ -76,7 +87,7 @@ export default function DataTable({
           searchColumns: searchColumns.length > 0 ? searchColumns : undefined,
           orderBy,
           orderDesc,
-          filters: { ...externalFilters, ...localFilters },
+          filters: { ...filialFilter, ...externalFilters, ...localFilters },
         },
       });
       setRows(r.rows);
