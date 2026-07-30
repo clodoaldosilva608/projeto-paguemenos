@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useFilial } from "@/contexts/FilialContext";
 import {
   Users2, Edit3, X, Save, Crown, AlertCircle, CheckCircle2,
   TrendingUp, Calendar, User, Package, Tag, Percent,
@@ -45,6 +46,7 @@ const META_FILIAL = {
 
 export default function DashboardAdminPage({ onImpersonate }: { onImpersonate?: (userId: string, nome: string) => void }) {
   const { usuario } = useAuth();
+  const { filialFiltro, isTodasFiliais } = useFilial();
   const [loading, setLoading] = useState(true);
   const [vendedores, setVendedores] = useState<MetaVendedor[]>([]);
   const [selected, setSelected] = useState<MetaVendedor | null>(null);
@@ -54,12 +56,15 @@ export default function DashboardAdminPage({ onImpersonate }: { onImpersonate?: 
   // Filtro de filial: admin usa seletor global, gerente usa equipe_id, supervisor usa filial_id
   const isAdmin = usuario?.perfil === "admin";
   const isGerente = usuario?.perfil === "gerente";
-  const filialId = !isAdmin ? usuario?.filialId : undefined;
+  // Admin: filialFiltro do contexto (undefined se "Todas", ou ID da filial)
+  // Gerente: equipe_id
+  // Supervisor/Vendedor: filial_id do usuário
+  const filialId = isAdmin ? filialFiltro : (!isGerente ? usuario?.filialId : undefined);
   const equipeId = isGerente ? usuario?.equipeId : undefined;
 
   useEffect(() => {
     void carregar();
-  }, [filialId, equipeId]);
+  }, [filialId, equipeId, isTodasFiliais]);
 
   async function carregar() {
     setLoading(true);

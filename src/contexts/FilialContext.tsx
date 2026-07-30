@@ -2,10 +2,16 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from "
 import { useAuth } from "./AuthContext";
 
 interface FilialContextValue {
-  filialSelecionada: string; // "todas" ou ID da filial
+  /** "todas" ou ID da filial selecionada */
+  filialSelecionada: string;
+  /** Define a filial ativa (admin pode escolher "todas") */
   setFilialSelecionada: (id: string) => void;
+  /** True quando "Todas as Filiais" está selecionado */
   isTodasFiliais: boolean;
+  /** True se o usuário pode ver todas as filiais (apenas admin) */
   podeVerTodas: boolean;
+  /** Retorna o filial_id para filtrar queries, ou undefined se "todas" */
+  filialFiltro: string | undefined;
 }
 
 const FilialCtx = createContext<FilialContextValue | null>(null);
@@ -21,18 +27,25 @@ export function FilialProvider({ children }: { children: ReactNode }) {
     return localStorage.getItem(STORAGE_KEY) || "todas";
   });
 
-  // Se nao for admin, forcar a filial do usuario
+  // Se não for admin, forçar a filial do usuário
   useEffect(() => {
-    if (!podeVerTodas && usuario?.filialId) {
+    if (usuario && !podeVerTodas && usuario.filialId) {
       setFilialSelecionadaState(usuario.filialId);
       localStorage.setItem(STORAGE_KEY, usuario.filialId);
     }
-  }, [podeVerTodas, usuario?.filialId]);
+    // Admin começa com "todas" se não houver seleção salva
+    if (podeVerTodas && !localStorage.getItem(STORAGE_KEY)) {
+      setFilialSelecionadaState("todas");
+    }
+  }, [podeVerTodas, usuario]);
 
   const setFilialSelecionada = (id: string) => {
     setFilialSelecionadaState(id);
     localStorage.setItem(STORAGE_KEY, id);
   };
+
+  // filialFiltro: undefined para "todas" (não filtrar), ou o ID da filial
+  const filialFiltro = filialSelecionada === "todas" ? undefined : filialSelecionada;
 
   return (
     <FilialCtx.Provider
@@ -41,6 +54,7 @@ export function FilialProvider({ children }: { children: ReactNode }) {
         setFilialSelecionada,
         isTodasFiliais: filialSelecionada === "todas",
         podeVerTodas,
+        filialFiltro,
       }}
     >
       {children}
@@ -51,12 +65,12 @@ export function FilialProvider({ children }: { children: ReactNode }) {
 export function useFilial() {
   const ctx = useContext(FilialCtx);
   if (!ctx) {
-    // Fallback se não tiver provider
     return {
       filialSelecionada: "todas",
       setFilialSelecionada: () => {},
       isTodasFiliais: true,
       podeVerTodas: false,
+      filialFiltro: undefined as string | undefined,
     };
   }
   return ctx;

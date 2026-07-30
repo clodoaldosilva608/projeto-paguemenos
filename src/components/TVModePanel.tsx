@@ -619,9 +619,11 @@ export default function TVModePanel({ onClose, standalone = false }: TVModePanel
       else setLoading(true);
       setErro(null);
       try {
-        // Admin vê todas as filiais; gerente/supervisor vê apenas sua filial
-        const filialId = usuario.perfil === "admin" ? undefined : usuario.filialId;
-        const r = await carregarResumoLoja(filtro, filialId);
+        // Admin usa seletor global (filialFiltro); gerente/supervisor usa sua filial
+        const filialId = usuario.perfil === "admin"
+          ? (localStorage.getItem("orion-filial-selecionada") === "todas" ? undefined : localStorage.getItem("orion-filial-selecionada") || undefined)
+          : usuario.filialId;
+        const r = await carregarResumoLoja(filtro, filialId || undefined);
         setResumo(r);
         setUltimaAtualizacao(new Date());
         setSegundosRestantes(30);

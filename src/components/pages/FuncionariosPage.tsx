@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useFilial } from "@/contexts/FilialContext";
 import { cn } from "../../utils/cn";
 import { Users2, Search, Edit, Trash2, Plus, X, Loader2, Target, Mail, Phone, MapPin } from "lucide-react";
 import { toast } from "sonner";
@@ -31,7 +32,12 @@ interface Funcionario {
 
 export default function FuncionariosPage() {
   const { usuario: gestor } = useAuth();
-  const filialId = gestor?.perfil === "admin" ? undefined : gestor?.filialId;
+  const { filialFiltro } = useFilial();
+  // Admin usa filialFiltro do contexto (undefined = todas, ou ID da filial)
+  // Gerente usa equipe_id, demais usam filial_id do usuário
+  const isGerente = gestor?.perfil === "gerente";
+  const filialId = gestor?.perfil === "admin" ? filialFiltro : (!isGerente ? gestor?.filialId : undefined);
+  const equipeId = isGerente ? gestor?.equipeId : undefined;
   const [funcionarios, setFuncionarios] = useState<Funcionario[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtro, setFiltro] = useState<FiltroStatus>("Todos");
@@ -43,9 +49,11 @@ export default function FuncionariosPage() {
   const carregar = async () => {
     setLoading(true);
     try {
-      // Filtrar profiles por filial (exceto admin que vê todos)
+      // Filtrar profiles por filial ou equipe
       let profilesQuery = (supabase as any).from("profiles").select("*").order("nome");
-      if (filialId) {
+      if (equipeId) {
+        profilesQuery = profilesQuery.eq("equipe_id", equipeId);
+      } else if (filialId) {
         profilesQuery = profilesQuery.eq("filial_id", filialId);
       }
       const [{ data: profiles }, { data: roles }] = await Promise.all([
@@ -73,7 +81,7 @@ export default function FuncionariosPage() {
     }
   };
 
-  useEffect(() => { carregar(); }, []);
+  useEffect(() => { carregar(); }, [filialId, equipeId]);
 
   const filtrados = useMemo(() => {
     let list = funcionarios; // mostra todos inclusive o gestor
