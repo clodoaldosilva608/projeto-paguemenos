@@ -26,6 +26,16 @@ export const Route = createFileRoute("/admin")({
 function AdminLayout() {
   const { usuario, carregando } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const router = useRouter();
+  const pathname = router.state.location.pathname;
+
+  // A rota /admin/login NÃO deve ter o guard do layout — ela é a página de login
+  const isLoginRoute = pathname === "/admin/login";
+
+  // Se for a rota de login, renderizar o Outlet diretamente (sem guard)
+  if (isLoginRoute) {
+    return <Outlet />;
+  }
 
   // Aguardar carregamento da sessão
   if (carregando) {
