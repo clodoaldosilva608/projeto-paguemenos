@@ -193,6 +193,7 @@ body {
 .sheet-content svg {
   max-width: 100%;
   height: auto;
+  overflow: visible;
 }
 
 /* Tabelas com scroll horizontal no mobile */
@@ -221,6 +222,34 @@ body {
   }
   .sheet-content .shadow-md {
     box-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;
+  }
+}
+
+/* Charts SVG: prevenir overflow de texto */
+.sheet-content svg text {
+  font-size: 9px !important;
+}
+
+/* Panels com overflow controlado */
+.sheet-content .bg-white,
+.sheet-content [class*="bg-"] {
+  overflow: hidden;
+}
+
+/* Garantir que containers de gráficos não quebrem */
+.sheet-content .flex.items-center.gap-4 {
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+@media (max-width: 640px) {
+  .sheet-content svg {
+    width: 100% !important;
+    height: auto !important;
+  }
+  .sheet-content svg[viewBox] {
+    width: 100% !important;
+    height: auto !important;
   }
 }
 
