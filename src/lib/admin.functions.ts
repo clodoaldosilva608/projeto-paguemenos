@@ -5,9 +5,16 @@ import { z } from "zod";
 const perfilEnum = z.enum(["admin", "gerente", "supervisor", "vendedor"]);
 
 async function ensureAdmin(supabase: any, userId: string) {
-  const { data, error } = await supabase.from("user_roles").select("role").eq("user_id", userId).eq("role", "admin").maybeSingle();
+  // Modelo: gerente tem acesso TOTAL (igual admin) — solicitado pelo usuário em 31/07/2026.
+  // Reversão do item 5 da auditoria.
+  const { data, error } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId)
+    .in("role", ["admin", "gerente"])
+    .maybeSingle();
   if (error) throw new Error(error.message);
-  if (!data) throw new Error("Acesso negado. Necessário perfil admin.");
+  if (!data) throw new Error("Acesso negado. Necessário perfil admin ou gerente.");
 }
 
 async function logAudit(admin: any, params: {

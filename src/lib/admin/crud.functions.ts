@@ -9,15 +9,17 @@ import { applyRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 // ============================================================================
 
 async function ensureAdmin(context: any): Promise<void> {
+  // Modelo: gerente tem acesso TOTAL (igual admin) — solicitado pelo usuário em 31/07/2026.
+  // Reversão do item 5 da auditoria.
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data, error } = await supabaseAdmin
     .from("user_roles")
     .select("role")
     .eq("user_id", context.userId)
-    .eq("role", "admin")
+    .in("role", ["admin", "gerente"])
     .maybeSingle();
   if (error) throw new Error(error.message);
-  if (!data) throw new Error("Acesso negado. Necessário perfil admin.");
+  if (!data) throw new Error("Acesso negado. Necessário perfil admin ou gerente.");
 }
 
 async function logAudit(admin: any, params: {
