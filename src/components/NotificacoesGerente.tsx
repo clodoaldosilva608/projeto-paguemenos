@@ -32,20 +32,18 @@ export default function NotificacoesGerente() {
     const notifs: Notificacao[] = [];
 
     try {
-      // Determinar filtro de filial
-      // Admin com filial selecionada: filtrar por filial_id
-      // Admin com "Todas": não filtrar
-      // Gerente: filtrar por equipe_id
+      // Modelo filial=loja:
+      //   - Admin: usa filialFiltro do contexto (undefined = todas)
+      //   - Gerente/Supervisor: usa filial_id do próprio usuário (sua loja)
       const isAdmin = usuario?.perfil === "admin";
       const isGerente = usuario?.perfil === "gerente";
-      const filialId = isAdmin ? filialFiltro : undefined;
-      const equipeId = isGerente ? usuario?.equipeId : undefined;
+      const isSupervisor = usuario?.perfil === "supervisor";
+      const filialId = isAdmin ? filialFiltro : (isGerente || isSupervisor ? usuario?.filialId : undefined);
+      const equipeId = undefined; // não filtramos mais por equipe — modelo filial=loja
 
       // 1. Buscar vendedores com metas abaixo de 50%
       let profilesQuery = (supabase as any).from("profiles").select("id, nome").eq("ativo", true);
-      if (equipeId) {
-        profilesQuery = profilesQuery.eq("equipe_id", equipeId);
-      } else if (filialId) {
+      if (filialId) {
         profilesQuery = profilesQuery.eq("filial_id", filialId);
       }
       const { data: profiles } = await profilesQuery;
@@ -61,9 +59,7 @@ export default function NotificacoesGerente() {
         .select("usuario_id, valor_meta, valor_realizado, categoria")
         .eq("periodo", "mensal")
         .eq("categoria", "faturamento");
-      if (equipeId) {
-        metasQuery = metasQuery.eq("equipe_id", equipeId);
-      } else if (filialId) {
+      if (filialId) {
         metasQuery = metasQuery.eq("filial_id", filialId);
       }
       const { data: metas } = await metasQuery;
@@ -104,12 +100,10 @@ export default function NotificacoesGerente() {
         });
       }
 
-      // 3. Buscar vendas diárias lançadas hoje (filtrar por filial/equipe)
+      // 3. Buscar vendas diárias lançadas hoje (filtrar por filial)
       const hoje = new Date().toISOString().slice(0, 10);
       let vendasQuery = (supabase as any).from("vendas_diarias").select("usuario_id").eq("data", hoje);
-      if (equipeId) {
-        vendasQuery = vendasQuery.eq("equipe_id", equipeId);
-      } else if (filialId) {
+      if (filialId) {
         vendasQuery = vendasQuery.eq("filial_id", filialId);
       }
       const { data: vendasHoje } = await vendasQuery;

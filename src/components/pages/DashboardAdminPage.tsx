@@ -53,18 +53,20 @@ export default function DashboardAdminPage({ onImpersonate }: { onImpersonate?: 
   const [editando, setEditando] = useState(false);
   const [expandedFilial, setExpandedFilial] = useState<string | null>(null);
 
-  // Filtro de filial: admin usa seletor global, gerente usa equipe_id, supervisor usa filial_id
+  // Modelo filial=loja: cada filial é uma loja com 1 gerente + 1 supervisor + N vendedores
+  // Gerente e Supervisor ambos filtram por filial_id (vêem toda a loja)
+  // Admin usa seletor global de filial (ou vê todas)
   const isAdmin = usuario?.perfil === "admin";
   const isGerente = usuario?.perfil === "gerente";
+  const isSupervisor = usuario?.perfil === "supervisor";
   // Admin: filialFiltro do contexto (undefined se "Todas", ou ID da filial)
-  // Gerente: equipe_id
-  // Supervisor/Vendedor: filial_id do usuário
-  const filialId = isAdmin ? filialFiltro : (!isGerente ? usuario?.filialId : undefined);
-  const equipeId = isGerente ? usuario?.equipeId : undefined;
+  // Gerente/Supervisor: filial_id do próprio usuário (sua loja)
+  const filialId = isAdmin ? filialFiltro : (isGerente || isSupervisor ? usuario?.filialId : undefined);
+  const equipeId = undefined; // não filtramos mais por equipe — modelo filial=loja
 
   useEffect(() => {
     void carregar();
-  }, [filialId, equipeId, isTodasFiliais]);
+  }, [filialId, isTodasFiliais]);
 
   async function carregar() {
     setLoading(true);
@@ -74,11 +76,8 @@ export default function DashboardAdminPage({ onImpersonate }: { onImpersonate?: 
         .from("profiles")
         .select("id, nome, email, iniciais, ativo, filial_id, cargo, equipe_id")
         .order("nome");
-      if (equipeId) {
-        // Gerente filtra por equipe_id
-        profilesQuery = (profilesQuery as any).eq("equipe_id", equipeId);
-      } else if (filialId) {
-        // Supervisor/vendedor filtra por filial_id
+      if (filialId) {
+        // Gerente/Supervisor/Admin (com filial selecionada) filtram por filial_id
         profilesQuery = profilesQuery.eq("filial_id", filialId);
       }
       const { data: profiles, error: errP } = await profilesQuery;
@@ -97,9 +96,8 @@ export default function DashboardAdminPage({ onImpersonate }: { onImpersonate?: 
         .from("metas_individuais")
         .select("usuario_id, categoria, periodo, valor_meta, valor_realizado, valor_projecao")
         .eq("data_inicio", PERIODO_INICIO);
-      if (equipeId) {
-        metasQuery = (metasQuery as any).eq("equipe_id", equipeId);
-      } else if (filialId) {
+      if (filialId) {
+        // Filtra metas por filial_id (não mais por equipe_id)
         metasQuery = metasQuery.eq("filial_id", filialId);
       }
       const { data: metas, error: errM } = await metasQuery;

@@ -33,11 +33,13 @@ interface Funcionario {
 export default function FuncionariosPage() {
   const { usuario: gestor } = useAuth();
   const { filialFiltro } = useFilial();
+  // Modelo filial=loja: gerente/supervisor filtram por filial_id (sua loja)
   // Admin usa filialFiltro do contexto (undefined = todas, ou ID da filial)
-  // Gerente usa equipe_id, demais usam filial_id do usuário
   const isGerente = gestor?.perfil === "gerente";
-  const filialId = gestor?.perfil === "admin" ? filialFiltro : (!isGerente ? gestor?.filialId : undefined);
-  const equipeId = isGerente ? gestor?.equipeId : undefined;
+  const isSupervisor = gestor?.perfil === "supervisor";
+  const filialId = gestor?.perfil === "admin"
+    ? filialFiltro
+    : (isGerente || isSupervisor ? gestor?.filialId : gestor?.filialId);
   const [funcionarios, setFuncionarios] = useState<Funcionario[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtro, setFiltro] = useState<FiltroStatus>("Todos");
@@ -49,11 +51,9 @@ export default function FuncionariosPage() {
   const carregar = async () => {
     setLoading(true);
     try {
-      // Filtrar profiles por filial ou equipe
+      // Filtrar profiles por filial (modelo filial=loja)
       let profilesQuery = (supabase as any).from("profiles").select("*").order("nome");
-      if (equipeId) {
-        profilesQuery = profilesQuery.eq("equipe_id", equipeId);
-      } else if (filialId) {
+      if (filialId) {
         profilesQuery = profilesQuery.eq("filial_id", filialId);
       }
       const [{ data: profiles }, { data: roles }] = await Promise.all([
@@ -81,7 +81,7 @@ export default function FuncionariosPage() {
     }
   };
 
-  useEffect(() => { carregar(); }, [filialId, equipeId]);
+  useEffect(() => { carregar(); }, [filialId]);
 
   const filtrados = useMemo(() => {
     let list = funcionarios; // mostra todos inclusive o gestor
