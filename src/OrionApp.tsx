@@ -19,6 +19,7 @@ import { AdminTour } from "./components/tour/AdminTour";
 import { DashboardFuncionarioPage } from "./components/pages/DashboardFuncionarioPage";
 import { CurriculoPage } from "./components/pages/CurriculoPage";
 import { DocumentosPage } from "./components/pages/DocumentosPage";
+import PlanilhaInternaPage from "./components/planilha/PlanilhaInternaPage";
 import { TourFAB } from "./components/tour/AdminTour";
 import TrialBanner from "./components/TrialBanner";
 import NotificacoesGerente from "./components/NotificacoesGerente";
@@ -183,6 +184,16 @@ export default function OrionApp() {
         return <CurriculoPage />;
       case "documentos":
         return <DocumentosPage />;
+      case "planilha-interna":
+        // Planilha Interna tem rota própria — redireciona para /planilha-interna
+        if (typeof window !== "undefined") {
+          window.location.href = "/planilha-interna";
+        }
+        return (
+          <div className="flex min-h-[400px] items-center justify-center bg-[#0a1f3d]">
+            <div className="text-sky-300 text-sm">Abrindo Planilha Interna...</div>
+          </div>
+        );
       case "funcionarios":
         return <FuncionariosPage />;
       default:

@@ -42,6 +42,7 @@ const TODOS_ITENS: Item[] = [
   { id: "curriculo", label: "Currículo", Icon: Award, perfilMinimo: "vendedor" },
   { id: "documentos", label: "Documentos", Icon: FileText, perfilMinimo: "vendedor" },
   { id: "tour", label: "Tour", Icon: HelpCircle, perfilMinimo: "vendedor" },
+  { id: "planilha-interna", label: "Planilha", Icon: BarChart3, perfilMinimo: "vendedor" },
 ];
 
 function usePermitidos(): Item[] {

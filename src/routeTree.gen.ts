@@ -13,6 +13,7 @@ import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as TvRouteImport } from './routes/tv'
 import { Route as SetupRouteImport } from './routes/setup'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as PlanilhaInternaRouteImport } from './routes/planilha-interna'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ApiCriarTabelasRouteImport } from './routes/api-criar-tabelas'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -54,6 +55,11 @@ const SetupRoute = SetupRouteImport.update({
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlanilhaInternaRoute = PlanilhaInternaRouteImport.update({
+  id: '/planilha-interna',
+  path: '/planilha-interna',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -172,6 +178,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/api-criar-tabelas': typeof ApiCriarTabelasRoute
   '/auth': typeof AuthRoute
+  '/planilha-interna': typeof PlanilhaInternaRoute
   '/reset-password': typeof ResetPasswordRoute
   '/setup': typeof SetupRoute
   '/tv': typeof TvRoute
@@ -199,6 +206,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api-criar-tabelas': typeof ApiCriarTabelasRoute
   '/auth': typeof AuthRoute
+  '/planilha-interna': typeof PlanilhaInternaRoute
   '/reset-password': typeof ResetPasswordRoute
   '/setup': typeof SetupRoute
   '/tv': typeof TvRoute
@@ -228,6 +236,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/api-criar-tabelas': typeof ApiCriarTabelasRoute
   '/auth': typeof AuthRoute
+  '/planilha-interna': typeof PlanilhaInternaRoute
   '/reset-password': typeof ResetPasswordRoute
   '/setup': typeof SetupRoute
   '/tv': typeof TvRoute
@@ -258,6 +267,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/api-criar-tabelas'
     | '/auth'
+    | '/planilha-interna'
     | '/reset-password'
     | '/setup'
     | '/tv'
@@ -285,6 +295,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api-criar-tabelas'
     | '/auth'
+    | '/planilha-interna'
     | '/reset-password'
     | '/setup'
     | '/tv'
@@ -313,6 +324,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/api-criar-tabelas'
     | '/auth'
+    | '/planilha-interna'
     | '/reset-password'
     | '/setup'
     | '/tv'
@@ -342,6 +354,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   ApiCriarTabelasRoute: typeof ApiCriarTabelasRoute
   AuthRoute: typeof AuthRoute
+  PlanilhaInternaRoute: typeof PlanilhaInternaRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SetupRoute: typeof SetupRoute
   TvRoute: typeof TvRoute
@@ -378,6 +391,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/planilha-interna': {
+      id: '/planilha-interna'
+      path: '/planilha-interna'
+      fullPath: '/planilha-interna'
+      preLoaderRoute: typeof PlanilhaInternaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -582,6 +602,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   ApiCriarTabelasRoute: ApiCriarTabelasRoute,
   AuthRoute: AuthRoute,
+  PlanilhaInternaRoute: PlanilhaInternaRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SetupRoute: SetupRoute,
   TvRoute: TvRoute,

@@ -25,7 +25,8 @@ export type Pagina =
   | "tour"
   | "dashboard-funcionario"
   | "curriculo"
-  | "documentos";
+  | "documentos"
+  | "planilha-interna";
 
 interface ItemNav {
   id: Pagina;
@@ -206,7 +207,16 @@ const ITENS: ItemNav[] = [
     icone:
       "M12 2a4 4 0 014 4v1h1a4 4 0 014 4v1h-2v-1a2 2 0 00-2-2h-3V6a2 2 0 00-4 0v1H6a2 2 0 00-2 2v1H2V8a4 4 0 014-4h1V6a2 2 0 004 0V4a4 4 0 014-4z M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2v-9a2 2 0 012-2h10a2 2 0 012 2v9a2 2 0 01-2 2z",
     perfilMinimo: "gerente",
-    perfilMinimoEscrita: "admin", // IA config: gerente VÊ; só admin edita config/chaves
+    perfilMinimoEscrita: "admin",
+  },
+  {
+    id: "planilha-interna",
+    label: "Planilha Interna",
+    icone:
+      "M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
+    perfilMinimo: "vendedor",
+    perfilMinimoEscrita: "admin",
+    badge: "Novo",
   },
 ];
 

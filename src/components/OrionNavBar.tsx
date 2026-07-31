@@ -29,6 +29,7 @@ import {
   FileText,
   BrainCircuit,
   KeyRound,
+  BarChart3,
 } from "lucide-react";
 
 interface Item {
@@ -80,6 +81,7 @@ const ITEMS: Item[] = [
   { id: "curriculo", label: "Currículo", Icon: Award, perfilMinimo: "vendedor", perfilMinimoEscrita: "vendedor" },
   { id: "documentos", label: "Documentos", Icon: FileText, perfilMinimo: "vendedor", perfilMinimoEscrita: "vendedor" },
   { id: "tour", label: "Tour", Icon: HelpCircle, perfilMinimo: "vendedor", perfilMinimoEscrita: "admin" },
+  { id: "planilha-interna", label: "Planilha", Icon: BarChart3, perfilMinimo: "vendedor", perfilMinimoEscrita: "admin" },
 ];
 
 interface Props {
