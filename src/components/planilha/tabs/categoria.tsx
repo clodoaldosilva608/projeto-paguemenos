@@ -13,7 +13,6 @@ import {
 import { LineChart, DonutChart, BarChartH } from "@/components/planilha/charts";
 import {
   OrionnLogo,
-  HeaderFilters,
   KpiCard,
   Panel,
   StatusPill,
@@ -122,7 +121,6 @@ export function CategoriaDashboard({
             <p className="text-[11px] text-sky-200">{subtitulo}</p>
           </div>
         </div>
-        <HeaderFilters filtros={d.filtros} vendedores={d.vendedoresList} comFilial />
       </div>
 
       {/* KPIs */}

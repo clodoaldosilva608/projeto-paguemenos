@@ -1,5 +1,4 @@
 import { type DashboardData } from "@/lib/planilha/data";
-import { OrionnLogo, HeaderFilters, KpiCard, Panel, DashFooter } from "@/components/planilha/kit";
 import { AuditoriaTable, type AtividadeLinha } from "@/components/planilha/tabs/auditoria-table";
 import { ImportCsvButton } from "@/components/planilha/import-csv";
 
@@ -22,7 +21,6 @@ export function Auditoria({ d }: { d: DashboardData }) {
             </p>
           </div>
         </div>
-        <HeaderFilters filtros={d.filtros} vendedores={d.vendedoresList} />
       </div>
 
       <div className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-6">

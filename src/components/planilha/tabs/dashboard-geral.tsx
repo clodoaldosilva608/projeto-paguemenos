@@ -13,12 +13,10 @@ import { Gauge, CalendarHeatmap } from "@/components/planilha/charts-extra";
 import { WaterfallChart } from "@/components/planilha/charts-radar";
 import { gerarInsights, resumoExecutivo } from "@/lib/planilha/insights";
 import { InsightsPanel, ExecutiveBanner } from "@/components/planilha/insights-panel";
-import { FilterChips } from "@/components/planilha/filter-chips";
 import { Podium } from "@/components/planilha/ui/podium";
 import { ActivityFeed, montarFeed } from "@/components/planilha/ui/activity-feed";
 import {
   OrionnLogo,
-  HeaderFilters,
   KpiCard,
   Panel,
   StatusPill,
@@ -49,13 +47,11 @@ export function DashboardGeral({ d }: { d: DashboardData }) {
       {/* Cabeçalho */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <OrionnLogo />
-        <HeaderFilters filtros={d.filtros} vendedores={d.vendedoresList} />
       </div>
 
       {/* Resumo executivo + filtros ativos */}
       <div className="flex flex-col gap-2">
         <ExecutiveBanner texto={resumo.texto} tone={resumo.tone} />
-        <FilterChips filtros={d.filtros} vendedores={d.vendedoresList} totalRegistros={d.atuais.length} />
       </div>
 
       {/* KPIs */}

@@ -12,7 +12,6 @@ import { GoalsManager, SalesEntry, EmployeeEntry } from "@/components/planilha/d
 import { VendasTable, IndicadoresTable } from "@/components/planilha/tabs/historico-tables";
 import {
   OrionnLogo,
-  HeaderFilters,
   KpiCard,
   Panel,
   StatusPill,
@@ -42,7 +41,6 @@ export function Historico({ d }: { d: DashboardData }) {
             </p>
           </div>
         </div>
-        <HeaderFilters filtros={d.filtros} vendedores={d.vendedoresList} />
       </div>
 
       {/* Lançamentos de venda com edição/exclusão e busca */}
@@ -118,7 +116,6 @@ export function VendedorSheet({ d, vendedorId }: { d: DashboardData; vendedorId:
             </p>
           </div>
         </div>
-        <HeaderFilters filtros={d.filtros} vendedores={d.vendedoresList} />
       </div>
 
       <div className="flex flex-wrap items-center gap-4 rounded-lg border border-[#28518f] bg-[#12315e] px-4 py-3 text-[11px] text-white shadow-md">

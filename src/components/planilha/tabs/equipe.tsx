@@ -1,6 +1,5 @@
 import { type DashboardData, somaPorDia, CATEGORIAS } from "@/lib/planilha/data";
 import { fmtBRL, fmtPct } from "@/lib/planilha/format";
-import { OrionnLogo, HeaderFilters, KpiCard, Panel, DashFooter } from "@/components/planilha/kit";
 import { EquipeTable, type FuncionarioLinha } from "@/components/planilha/tabs/equipe-table";
 import { BarChartH } from "@/components/planilha/charts";
 import { StackedBar } from "@/components/planilha/charts-extra";
@@ -83,7 +82,6 @@ export function Equipe({ d, filterQuery }: { d: DashboardData; filterQuery: stri
             </p>
           </div>
         </div>
-        <HeaderFilters filtros={d.filtros} vendedores={d.vendedoresList} />
       </div>
 
       <div className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-6">
