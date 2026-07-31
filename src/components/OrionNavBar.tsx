@@ -35,38 +35,51 @@ interface Item {
   id: Pagina;
   label: string;
   Icon: React.ComponentType<{ className?: string }>;
-  perfilMinimo: Perfil;
+  perfilMinimo: Perfil; // leitura/navegação — quem vê o item
+  perfilMinimoEscrita: Perfil; // CRUD — quem vê botões criar/editar/excluir dentro da página
   destaque?: boolean;
 }
 
 const H: Record<Perfil, number> = { admin: 0, gerente: 1, supervisor: 2, farmaceutica: 3, vendedor: 4 };
 
+// ITEM 5 AUDITORIA 30/07/2026:
+// perfilMinimo:       controla quem VÊ o item no menu (leitura)
+// perfilMinimoEscrita: controla quem pode CRUD dentro da página
+//   - usuarios, auditoria, configuracoes, ia, equipes, filiais: apenas admin pode CRUD
+//     (gerente VÊ no menu, mas não vê botões de criar/editar/excluir — a RLS bloquearia de qualquer forma)
+//   - relatorio-vendas, campanhas, gamificacao: gerente+admin (CRUD operacional)
+//   - dashboard, ranking, relatorios, tour: leitura para todos, sem CRUD
+//
+// Páginas devem usar useAuth().temPermissao(modulo, "criar"|"editar"|"excluir") para
+// mostrar/ocultar botões de ação. O helper gerarPermissoes() em src/data/store.ts
+// já reflete esta mesma matriz de permissões.
 const ITEMS: Item[] = [
   {
     id: "dashboard",
     label: "Início",
     Icon: LayoutDashboard,
     perfilMinimo: "vendedor",
+    perfilMinimoEscrita: "admin",
     destaque: true,
   },
-  { id: "minhas-metas", label: "Metas", Icon: Target, perfilMinimo: "vendedor" },
-  { id: "ranking", label: "Resultados", Icon: Trophy, perfilMinimo: "vendedor" },
-  { id: "relatorio-vendas", label: "Vendas", Icon: ShoppingBag, perfilMinimo: "vendedor" },
-  { id: "relatorios", label: "Relatórios", Icon: FileBarChart, perfilMinimo: "vendedor" },
-  { id: "funcionarios", label: "Funcionários", Icon: Users2, perfilMinimo: "supervisor" },
-  { id: "campanhas", label: "Campanhas", Icon: Megaphone, perfilMinimo: "vendedor" },
-  { id: "gamificacao", label: "Gamificação", Icon: Sparkles, perfilMinimo: "supervisor" },
-  { id: "ia", label: "IA", Icon: Bot, perfilMinimo: "gerente" },
-  { id: "equipes", label: "Equipes", Icon: Users2, perfilMinimo: "gerente" },
-  { id: "filiais", label: "Filiais", Icon: Building2, perfilMinimo: "gerente" },
-  { id: "usuarios", label: "Credenciais", Icon: KeyRound, perfilMinimo: "supervisor" },
-  { id: "ia-config", label: "Config IA", Icon: BrainCircuit, perfilMinimo: "gerente" },
-  { id: "configuracoes", label: "Ajustes", Icon: Settings2, perfilMinimo: "gerente" },
-  { id: "auditoria", label: "Auditoria", Icon: ClipboardList, perfilMinimo: "gerente" },
-  { id: "dashboard-funcionario", label: "Dashboard Func", Icon: Heart, perfilMinimo: "vendedor" },
-  { id: "curriculo", label: "Currículo", Icon: Award, perfilMinimo: "vendedor" },
-  { id: "documentos", label: "Documentos", Icon: FileText, perfilMinimo: "vendedor" },
-  { id: "tour", label: "Tour", Icon: HelpCircle, perfilMinimo: "vendedor" },
+  { id: "minhas-metas", label: "Metas", Icon: Target, perfilMinimo: "vendedor", perfilMinimoEscrita: "admin" },
+  { id: "ranking", label: "Resultados", Icon: Trophy, perfilMinimo: "vendedor", perfilMinimoEscrita: "admin" },
+  { id: "relatorio-vendas", label: "Vendas", Icon: ShoppingBag, perfilMinimo: "vendedor", perfilMinimoEscrita: "gerente" },
+  { id: "relatorios", label: "Relatórios", Icon: FileBarChart, perfilMinimo: "vendedor", perfilMinimoEscrita: "admin" },
+  { id: "funcionarios", label: "Funcionários", Icon: Users2, perfilMinimo: "supervisor", perfilMinimoEscrita: "admin" },
+  { id: "campanhas", label: "Campanhas", Icon: Megaphone, perfilMinimo: "vendedor", perfilMinimoEscrita: "gerente" },
+  { id: "gamificacao", label: "Gamificação", Icon: Sparkles, perfilMinimo: "supervisor", perfilMinimoEscrita: "gerente" },
+  { id: "ia", label: "IA", Icon: Bot, perfilMinimo: "gerente", perfilMinimoEscrita: "admin" },
+  { id: "equipes", label: "Equipes", Icon: Users2, perfilMinimo: "gerente", perfilMinimoEscrita: "admin" },
+  { id: "filiais", label: "Filiais", Icon: Building2, perfilMinimo: "gerente", perfilMinimoEscrita: "admin" },
+  { id: "usuarios", label: "Credenciais", Icon: KeyRound, perfilMinimo: "supervisor", perfilMinimoEscrita: "admin" },
+  { id: "ia-config", label: "Config IA", Icon: BrainCircuit, perfilMinimo: "gerente", perfilMinimoEscrita: "admin" },
+  { id: "configuracoes", label: "Ajustes", Icon: Settings2, perfilMinimo: "gerente", perfilMinimoEscrita: "admin" },
+  { id: "auditoria", label: "Auditoria", Icon: ClipboardList, perfilMinimo: "gerente", perfilMinimoEscrita: "admin" },
+  { id: "dashboard-funcionario", label: "Dashboard Func", Icon: Heart, perfilMinimo: "vendedor", perfilMinimoEscrita: "vendedor" },
+  { id: "curriculo", label: "Currículo", Icon: Award, perfilMinimo: "vendedor", perfilMinimoEscrita: "vendedor" },
+  { id: "documentos", label: "Documentos", Icon: FileText, perfilMinimo: "vendedor", perfilMinimoEscrita: "vendedor" },
+  { id: "tour", label: "Tour", Icon: HelpCircle, perfilMinimo: "vendedor", perfilMinimoEscrita: "admin" },
 ];
 
 interface Props {

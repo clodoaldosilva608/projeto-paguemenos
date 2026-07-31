@@ -4,8 +4,11 @@
 -- =====================================================================
 
 -- 0) Função auxiliar has_role (cria se não existir)
--- A coluna role em user_roles é do tipo app_role (enum), por isso precisamos do cast.
-CREATE OR REPLACE FUNCTION public.has_role(_role text, _user_id uuid)
+-- Assinatura CANÔNICA: has_role(_user_id uuid, _role text).
+-- (Item 6 auditoria 30/07/2026: unificação — esta migration antiga definia
+--  a assinatura reversed (text, uuid), que foi removida. A versão canônica
+--  final está em 20260730130000_unify_has_role.sql.)
+CREATE OR REPLACE FUNCTION public.has_role(_user_id uuid, _role text)
 RETURNS boolean
 LANGUAGE sql
 SECURITY DEFINER
@@ -17,7 +20,7 @@ AS $$
   );
 $$;
 
-CREATE OR REPLACE FUNCTION public.has_any_role(_roles text[], _user_id uuid)
+CREATE OR REPLACE FUNCTION public.has_any_role(_user_id uuid, _roles text[])
 RETURNS boolean
 LANGUAGE sql
 SECURITY DEFINER
@@ -155,22 +158,22 @@ ALTER TABLE public.ai_logs ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS ai_config_admin_all ON public.ai_config;
 CREATE POLICY ai_config_admin_all ON public.ai_config
   FOR ALL TO authenticated
-  USING (public.has_role('admin'::text, auth.uid()))
-  WITH CHECK (public.has_role('admin'::text, auth.uid()));
+  USING (public.has_role(auth.uid(), 'admin'::text))
+  WITH CHECK (public.has_role(auth.uid(), 'admin'::text));
 
 -- ai_prompt_versions: apenas admin
 DROP POLICY IF EXISTS ai_prompt_versions_admin_all ON public.ai_prompt_versions;
 CREATE POLICY ai_prompt_versions_admin_all ON public.ai_prompt_versions
   FOR ALL TO authenticated
-  USING (public.has_role('admin'::text, auth.uid()))
-  WITH CHECK (public.has_role('admin'::text, auth.uid()));
+  USING (public.has_role(auth.uid(), 'admin'::text))
+  WITH CHECK (public.has_role(auth.uid(), 'admin'::text));
 
 -- ai_logs: admin vê todos, usuário comum vê apenas os próprios
 DROP POLICY IF EXISTS ai_logs_admin_all ON public.ai_logs;
 CREATE POLICY ai_logs_admin_all ON public.ai_logs
   FOR ALL TO authenticated
-  USING (public.has_role('admin'::text, auth.uid()))
-  WITH CHECK (public.has_role('admin'::text, auth.uid()));
+  USING (public.has_role(auth.uid(), 'admin'::text))
+  WITH CHECK (public.has_role(auth.uid(), 'admin'::text));
 
 DROP POLICY IF EXISTS ai_logs_owner_select ON public.ai_logs;
 CREATE POLICY ai_logs_owner_select ON public.ai_logs

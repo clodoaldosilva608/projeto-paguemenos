@@ -8,5 +8,5 @@ DROP POLICY IF EXISTS vendas_diarias_owner_all ON public.vendas_diarias;
 
 CREATE POLICY vendas_diarias_owner_all ON public.vendas_diarias
   FOR ALL TO authenticated
-  USING (usuario_id = auth.uid() OR public.has_role('admin'::text, auth.uid()) OR public.has_role('gerente'::text, auth.uid()))
-  WITH CHECK (usuario_id = auth.uid() OR public.has_role('admin'::text, auth.uid()) OR public.has_role('gerente'::text, auth.uid()));
+  USING (usuario_id = auth.uid() OR public.has_role(auth.uid(), 'admin'::text) OR public.has_role(auth.uid(), 'gerente'::text))
+  WITH CHECK (usuario_id = auth.uid() OR public.has_role(auth.uid(), 'admin'::text) OR public.has_role(auth.uid(), 'gerente'::text));

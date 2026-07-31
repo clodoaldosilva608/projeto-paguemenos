@@ -68,18 +68,18 @@ $$ LANGUAGE sql SECURITY DEFINER STABLE;
 DROP POLICY IF EXISTS profiles_select_all ON public.profiles;
 CREATE POLICY profiles_select_all ON public.profiles
   FOR SELECT TO authenticated
-  USING (company_id = public.get_user_company_id() OR public.has_role('admin'::text, auth.uid()));
+  USING (company_id = public.get_user_company_id() OR public.has_role(auth.uid(), 'admin'::text));
 
 -- Metas individuais: filtrar por company_id
 DROP POLICY IF EXISTS metas_individuais_owner_all ON public.metas_individuais;
 CREATE POLICY metas_individuais_owner_all ON public.metas_individuais
   FOR ALL TO authenticated
   USING (
-    (usuario_id = auth.uid() OR public.has_any_role(ARRAY['admin'::text, 'gerente'::text], auth.uid()))
+    (usuario_id = auth.uid() OR public.has_any_role(auth.uid(), ARRAY['admin','gerente']::text[]))
     AND company_id = public.get_user_company_id()
   )
   WITH CHECK (
-    (usuario_id = auth.uid() OR public.has_any_role(ARRAY['admin'::text, 'gerente'::text], auth.uid()))
+    (usuario_id = auth.uid() OR public.has_any_role(auth.uid(), ARRAY['admin','gerente']::text[]))
     AND company_id = public.get_user_company_id()
   );
 
@@ -88,11 +88,11 @@ DROP POLICY IF EXISTS vendas_diarias_owner_all ON public.vendas_diarias;
 CREATE POLICY vendas_diarias_owner_all ON public.vendas_diarias
   FOR ALL TO authenticated
   USING (
-    (usuario_id = auth.uid() OR public.has_any_role(ARRAY['admin'::text, 'gerente'::text], auth.uid()))
+    (usuario_id = auth.uid() OR public.has_any_role(auth.uid(), ARRAY['admin','gerente']::text[]))
     AND company_id = public.get_user_company_id()
   )
   WITH CHECK (
-    (usuario_id = auth.uid() OR public.has_any_role(ARRAY['admin'::text, 'gerente'::text], auth.uid()))
+    (usuario_id = auth.uid() OR public.has_any_role(auth.uid(), ARRAY['admin','gerente']::text[]))
     AND company_id = public.get_user_company_id()
   );
 
@@ -106,10 +106,10 @@ DROP POLICY IF EXISTS campanhas_admin_modify ON public.campanhas;
 CREATE POLICY campanhas_admin_modify ON public.campanhas
   FOR ALL TO authenticated
   USING (
-    public.has_any_role(ARRAY['admin'::text, 'gerente'::text], auth.uid())
+    public.has_any_role(auth.uid(), ARRAY['admin','gerente']::text[])
     AND company_id = public.get_user_company_id()
   )
   WITH CHECK (
-    public.has_any_role(ARRAY['admin'::text, 'gerente'::text], auth.uid())
+    public.has_any_role(auth.uid(), ARRAY['admin','gerente']::text[])
     AND company_id = public.get_user_company_id()
   );

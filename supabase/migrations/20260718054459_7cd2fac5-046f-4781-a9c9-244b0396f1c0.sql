@@ -5,7 +5,9 @@ ALTER TABLE public.profiles
   ADD COLUMN IF NOT EXISTS onboarding_completo boolean NOT NULL DEFAULT false,
   ADD COLUMN IF NOT EXISTS navbar_variant text NOT NULL DEFAULT 'pill';
 
-CREATE OR REPLACE FUNCTION public.has_any_role(_user_id uuid, _roles app_role[])
+-- (Item 6 auditoria 30/07/2026: assinatura canônica has_any_role(uuid, text[]).
+--  Anteriormente era has_any_role(uuid, app_role[]) — sobrecarga removida.)
+CREATE OR REPLACE FUNCTION public.has_any_role(_user_id uuid, _roles text[])
 RETURNS boolean
 LANGUAGE sql
 STABLE
@@ -14,7 +16,7 @@ SET search_path = public
 AS $$
   SELECT EXISTS (
     SELECT 1 FROM public.user_roles
-    WHERE user_id = _user_id AND role = ANY(_roles)
+    WHERE user_id = _user_id AND role = ANY(_roles::app_role[])
   )
 $$;
 
@@ -81,5 +83,5 @@ CREATE TRIGGER on_auth_user_created
 DROP POLICY IF EXISTS "Gerentes manage quick_links" ON public.quick_links;
 CREATE POLICY "Gerentes manage quick_links" ON public.quick_links
   FOR ALL TO authenticated
-  USING (public.has_any_role(auth.uid(), ARRAY['admin','gerente']::app_role[]))
-  WITH CHECK (public.has_any_role(auth.uid(), ARRAY['admin','gerente']::app_role[]));
+  USING (public.has_any_role(auth.uid(), ARRAY['admin','gerente']::text[]))
+  WITH CHECK (public.has_any_role(auth.uid(), ARRAY['admin','gerente']::text[]));

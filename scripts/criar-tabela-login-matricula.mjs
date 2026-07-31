@@ -1,9 +1,19 @@
 // Cria a tabela login_matricula via conexão Postgres direta (IPv6 forçado)
+//
+// A connection string é lida de DATABASE_URL no .env (NUNCA hardcoded).
 import dns from "node:dns";
 dns.setDefaultResultOrder("ipv6first");
 import postgres from "postgres";
+import { config as loadEnv } from "dotenv";
+import { resolve } from "node:path";
 
-const CONN = "postgresql://postgres:Silva88677488@db.wfvihysxlzkwwrwobmpv.supabase.co:5432/postgres";
+loadEnv({ path: resolve(process.cwd(), ".env") });
+
+const CONN = process.env.DATABASE_URL;
+if (!CONN) {
+  console.error("[FATAL] DATABASE_URL precisa estar definida no .env (postgresql://postgres:SENHA@host:porta/postgres)");
+  process.exit(1);
+}
 
 const sql = postgres(CONN, {
   ssl: { rejectUnauthorized: false },

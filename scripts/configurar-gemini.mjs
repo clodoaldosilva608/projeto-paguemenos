@@ -10,14 +10,33 @@
 //   - Erro 400 (user location not supported) — endpoint /v1beta/openai/chat/completions
 //     é acessível globalmente, diferentemente do endpoint nativo Gemini.
 //
-// Uso:  node scripts/configurar-gemini.mjs
+// USO:  node scripts/configurar-gemini.mjs
+//
+// As credenciais são lidas de variáveis de ambiente (NUNCA hardcoded):
+//   - SUPABASE_URL               (pública)
+//   - SUPABASE_SERVICE_ROLE_KEY  (server-only; NUNCA commite em .env que vai pro git)
+//   - GEMINI_API_KEY             (chave do Google AI Studio)
+//
+// Carrega automaticamente de um arquivo .env na raiz do projeto.
 // =============================================================
 
-const SUPABASE_URL = "https://wfvihysxlzkwwrwobmpv.supabase.co";
-const SERVICE_ROLE = "sb_secret_HetybEr5FvTi8aabdMS0Lg_7ihJjxOg";
+import { config as loadEnv } from "dotenv";
+import { resolve } from "node:path";
 
-// 🔑 Chave do Google AI Studio fornecida pelo usuário.
-const GEMINI_API_KEY = "AQ.Ab8RN6IQNcdNEJvLrRJ8Kwz5NZx_ul1hI8FQhkG7Ho4pPXJ9sQ";
+loadEnv({ path: resolve(process.cwd(), ".env") });
+
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SERVICE_ROLE = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+
+if (!SUPABASE_URL || !SERVICE_ROLE || !GEMINI_API_KEY) {
+  console.error("\n[FATAL] Variáveis de ambiente ausentes no .env:");
+  if (!SUPABASE_URL) console.error("   - SUPABASE_URL");
+  if (!SERVICE_ROLE) console.error("   - SUPABASE_SERVICE_ROLE_KEY");
+  if (!GEMINI_API_KEY) console.error("   - GEMINI_API_KEY");
+  console.error("\nCrie um arquivo .env na raiz (veja .env.example). NUNCA commite o .env.\n");
+  process.exit(1);
+}
 
 // Configuração a ser aplicada na linha ativa de ai_config.
 const NOVA_CONFIG = {

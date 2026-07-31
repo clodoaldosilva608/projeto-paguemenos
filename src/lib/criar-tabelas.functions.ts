@@ -3,8 +3,18 @@ import postgres from "postgres";
 
 export const criarTabelasEquipesFiliais = createServerFn({ method: "POST" })
   .handler(async () => {
+    // Connection string lida de variável de ambiente — NUNCA hardcoded.
+    // (incidente histórico: senha do banco estava commitada aqui)
+    const connStr = process.env.DATABASE_URL;
+    if (!connStr) {
+      return {
+        ok: false,
+        error: "DATABASE_URL não configurada no servidor. Defina no painel da Vercel (Environment Variables).",
+        results: [] as string[],
+      };
+    }
     const sql = postgres(
-      "postgresql://postgres.wfvihysxlzkwwrwobmpv:Silva88677488@aws-0-wfvihysxlzkwwrwobmpv.pooler.supabase.com:6543/postgres",
+      connStr,
       { ssl: { rejectUnauthorized: false }, max: 1, idle_timeout: 20, connect_timeout: 30, fetch_types: false },
     );
 

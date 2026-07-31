@@ -12,17 +12,23 @@ Plataforma completa de gestão de metas, vendas e performance para redes de farm
 
 ### 🔐 Credenciais de acesso
 
+> ⚠️ **SECURITY:** Credenciais reais NÃO são mais listadas neste README.
+> Elas foram expostas no histórico do git (em `README.md`, `vercel.json`,
+> `src/scripts/verify-isolation.ts`, etc.) e devem ser consideradas
+> **comprometidas**. Troque imediatamente a senha de todas as contas
+> admin/gerente/supervisor/vendedor e regenere a service role key no painel
+> do Supabase (Project Settings → API → Reset service_role key).
+>
+> Para acesso de demonstração, peça as credenciais ao administrador do projeto
+> por canal seguro (não via repositório público).
+
 | Perfil | Login | Senha |
 |--------|-------|-------|
-| **Admin Master** | `clodoaldosilva608@gmail.com` | `Silva88677488` |
-| Vendedor (Adelino) | `adelino` | `700207473` |
-| Vendedor (Alicia) | `alicia` | `70211738` |
-| Vendedor (Clodoaldo) | `clodoaldo` | `71214306` |
-| Vendedor (Elielton) | `elielton` | `70213458` |
-| Vendedor (Fabio) | `fabio` | `70210130` |
-| Vendedor (Mieko) | `mieko` | `70214316` |
+| **Admin Master** | _(solicite ao admin do projeto)_ | _(trocada após incidente)_ |
+| Vendedores (Adelino, Alicia, Clodoaldo, etc.) | `<primeiro_nome>` | `<matrícula>` |
 
 > 💡 Vendedores fazem login usando **primeiro nome + matrícula** (a matrícula é a senha).
+> A matrícula de cada vendedor deve ser obtida pelo admin via painel "Credenciais".
 
 ## ✨ Funcionalidades Principais
 
@@ -161,11 +167,39 @@ npm run build
 |----------|-----------|
 | `SUPABASE_URL` | URL do projeto Supabase |
 | `SUPABASE_PUBLISHABLE_KEY` | Chave pública (anon) |
-| `SUPABASE_SERVICE_ROLE_KEY` | Chave de serviço (server only) |
+| `SUPABASE_SERVICE_ROLE_KEY` | Chave de serviço (server only, **NUNCA no vercel.json**) |
 | `VITE_SUPABASE_URL` | URL do Supabase (client) |
 | `VITE_SUPABASE_PUBLISHABLE_KEY` | Chave pública (client) |
+| `SUPABASE_ANON_KEY` | Usada pelo script de verificação de isolamento |
+| `TEST_ADMIN_EMAIL` / `TEST_ADMIN_PASSWORD` | Credenciais admin (apenas teste) |
+| `TEST_GERENTE_1001_*` / `TEST_GERENTE_2001_*` | Credenciais de gerentes de teste |
+| `TEST_SUPERVISOR_1001_*` | Credenciais de supervisor de teste |
+| `TEST_VENDEDOR_1001_*` / `TEST_VENDEDOR_2002_*` | Credenciais de vendedores de teste |
 
 > ⚠️ **NUNCA commite o arquivo `.env` real!** Use `.env.example` como template.
+> O `.env` já está no `.gitignore`. Caso credenciais reais tenham sido expostas
+> no histórico do git (incidente anterior com `src/scripts/verify-isolation.ts`),
+> considere TODAS as contas comprometidas e troque as senhas imediatamente —
+> a correção do arquivo não desfaz a exposição já ocorrida.
+
+### Script de Verificação de Isolamento
+
+`src/scripts/verify-isolation.ts` valida que o RLS está funcionando: vendedor não vê outra filial, gerente não vê outra equipe (dentro da mesma filial), supervisor vê toda a filial, admin vê tudo.
+
+**Pré-requisitos:**
+1. Arquivo `.env` na raiz com todas as variáveis `TEST_*` preenchidas (veja `.env.example`).
+2. `bun` instalado (ou `npx tsx`).
+3. As migrations de isolamento aplicadas no Supabase (incluindo a criação de uma segunda equipe `eq-1001-noite` dentro da filial 1001 — ver `20260730130001_isolamento_equipe_id.sql`).
+
+**Executar:**
+
+```bash
+bun run src/scripts/verify-isolation.ts
+# ou
+npx tsx src/scripts/verify-isolation.ts
+```
+
+O script falha com erro explícito se qualquer variável de ambiente estiver ausente — nenhuma credencial é hardcoded.
 
 ## 🚀 Deploy
 

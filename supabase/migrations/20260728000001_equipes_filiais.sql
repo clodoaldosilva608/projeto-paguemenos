@@ -52,13 +52,13 @@ DROP POLICY IF EXISTS filiais_all ON public.filiais;
 CREATE POLICY filiais_all ON public.filiais
   FOR ALL TO authenticated
   USING (true)
-  WITH CHECK (public.has_any_role(ARRAY['admin'::text, 'gerente'::text], auth.uid()));
+  WITH CHECK (public.has_any_role(auth.uid(), ARRAY['admin','gerente']::text[]));
 
 DROP POLICY IF EXISTS equipes_all ON public.equipes;
 CREATE POLICY equipes_all ON public.equipes
   FOR ALL TO authenticated
   USING (true)
-  WITH CHECK (public.has_any_role(ARRAY['admin'::text, 'gerente'::text], auth.uid()));
+  WITH CHECK (public.has_any_role(auth.uid(), ARRAY['admin','gerente']::text[]));
 
 -- Seed: Filial 7537
 INSERT INTO public.filiais (id, nome, endereco, cidade, estado, ativo)

@@ -10,8 +10,13 @@
 const fs = require('fs');
 const path = require('path');
 
-const SUPABASE_URL = process.env.SUPABASE_URL || 'https://wfvihysxlzkwwrwobmpv.supabase.co';
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'sb_secret_HetybEr5FvTi8aabdMS0Lg_7ihJjxOg';
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+if (!SUPABASE_URL || !SERVICE_KEY) {
+  console.error('[FATAL] SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY precisam estar definidos no .env');
+  console.error('       NUNCA use fallback hardcoded — isto causou incidente de segurança anterior.');
+  process.exit(1);
+}
 
 async function main() {
   const migrationFile = process.argv[2];

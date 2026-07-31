@@ -96,18 +96,101 @@ async function ensureTargetNaoEhAdmin(supabaseAdmin: any, targetUserId: string) 
     );
 }
 
+// Modelo filial=loja: gerente/supervisor só pode editar credencial de funcionário da SUA filial.
+// Admin pode editar de qualquer filial.
+// Retorna { isAdmin, minhaFilialId } para uso nas funções de mutação.
+async function getCtxFilial(context: any): Promise<{ isAdmin: boolean; minhaFilialId: string | null }> {
+  const { data: myRoles } = await context.supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", context.userId);
+  const myRole = (myRoles && myRoles[0]?.role) || "vendedor";
+  const isAdmin = myRole === "admin";
+
+  if (isAdmin) return { isAdmin: true, minhaFilialId: null };
+
+  const { data: myProfile } = await context.supabase
+    .from("profiles")
+    .select("filial_id")
+    .eq("id", context.userId)
+    .maybeSingle();
+  const minhaFilialId = myProfile?.filial_id || null;
+  if (!minhaFilialId) {
+    throw new Error("Seu perfil não tem filial atribuída. Contate o administrador.");
+  }
+  return { isAdmin: false, minhaFilialId };
+}
+
+// Verifica que o usuário alvo (targetUserId) pertence à mesma filial do gerente/supervisor logado.
+// Admin bypassa essa verificação.
+async function ensureTargetNaMinhaFilial(
+  supabaseAdmin: any,
+  targetUserId: string,
+  ctx: { isAdmin: boolean; minhaFilialId: string | null },
+) {
+  if (ctx.isAdmin) return; // admin pode editar de qualquer filial
+  const { data: targetProfile, error } = await supabaseAdmin
+    .from("profiles")
+    .select("filial_id")
+    .eq("id", targetUserId)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!targetProfile) throw new Error("Usuário alvo não encontrado.");
+  if (targetProfile.filial_id !== ctx.minhaFilialId) {
+    throw new Error(
+      "Acesso negado: você só pode gerenciar credenciais de funcionários da sua filial.",
+    );
+  }
+}
+
 // Lista TODOS os usuários (profiles + roles + credencial se houver)
-// Retorna admin, gerente, supervisor e vendedores — todos visíveis para admin/gerente/supervisor
+// Modelo filial=loja:
+//   - admin vê TODOS os usuários de TODAS as filiais
+//   - gerente/supervisor vê APENAS os usuários da SUA filial (loja)
 export const listarUsuariosComCredenciais = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await ensureGestao(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
+    // Descobrir o perfil e filial do usuário logado
+    const { data: myRoles } = await context.supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", context.userId);
+    const myRole = (myRoles && myRoles[0]?.role) || "vendedor";
+    const isAdmin = myRole === "admin";
+
+    // Buscar o filial_id do usuário logado (para gerente/supervisor filtrarem)
+    let minhaFilialId: string | null = null;
+    if (!isAdmin) {
+      const { data: myProfile } = await context.supabase
+        .from("profiles")
+        .select("filial_id")
+        .eq("id", context.userId)
+        .maybeSingle();
+      minhaFilialId = myProfile?.filial_id || null;
+      if (!minhaFilialId) {
+        // Gerente/supervisor sem filial_id atribuída → não vê ninguém
+        return { usuarios: [] };
+      }
+    }
+
     // Buscar profiles, user_roles e login_matricula em paralelo
-    const [profRes, rolesRes, credsRes] = await Promise.all([
-      supabaseAdmin.from("profiles").select("id, nome, email").order("nome"),
+    // Para gerente/supervisor: filtrar por filial_id da SUA filial
+    // Para admin: sem filtro (vê todos)
+    const [
+      profRes,
+      rolesRes,
+      credsRes,
+    ] = await Promise.all([
+      isAdmin
+        ? supabaseAdmin.from("profiles").select("id, nome, email, filial_id").order("nome")
+        : supabaseAdmin.from("profiles").select("id, nome, email, filial_id").eq("filial_id", minhaFilialId).order("nome"),
       supabaseAdmin.from("user_roles").select("user_id, role"),
+      // Para login_matricula, precisamos filtrar pelos user_ids da filial —
+      // mas como fazemos o join no código abaixo, trazemos todos e filtramos depois
+      // (em produção com muitos usuários, otimizar para trazer só os relevantes)
       supabaseAdmin.from("login_matricula").select("*"),
     ]);
 
@@ -119,8 +202,16 @@ export const listarUsuariosComCredenciais = createServerFn({ method: "GET" })
     const roles = rolesRes.data || [];
     const creds = credsRes.data || [];
 
+    // Mapa de user_id -> filial_id (para filtrar credenciais quando não-admin)
+    const filialByUserId = new Map(profiles.map((p: any) => [p.id, p.filial_id]));
+
+    // Se gerente/supervisor, filtra credenciais para só as da sua filial
+    const credsFiltradas = isAdmin
+      ? creds
+      : creds.filter((c: any) => filialByUserId.get(c.user_id) === minhaFilialId);
+
     const roleMap = new Map(roles.map((r: any) => [r.user_id, r.role]));
-    const credMap = new Map(creds.map((c: any) => [c.user_id, c]));
+    const credMap = new Map(credsFiltradas.map((c: any) => [c.user_id, c]));
 
     // Monta lista combinada: profile + role + credencial (se houver)
     const usuarios = profiles.map((p: any) => {
@@ -130,6 +221,7 @@ export const listarUsuariosComCredenciais = createServerFn({ method: "GET" })
         nome: p.nome || "",
         email: p.email || "",
         role: roleMap.get(p.id) || "vendedor",
+        filial_id: p.filial_id || null,
         // Campos de credencial (se existir)
         credencial_id: cred?.id || null,
         primeiro_nome: cred?.primeiro_nome || null,
@@ -202,6 +294,10 @@ export const salvarCredencial = createServerFn({ method: "POST" })
     await ensureAdminOuGerente(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
+    // Modelo filial=loja: gerente só edita credencial de funcionário da SUA filial
+    const ctx = await getCtxFilial(context);
+    await ensureTargetNaMinhaFilial(supabaseAdmin, data.user_id, ctx);
+
     // BLOQUEIO: ninguém pode editar/criar credencial para um admin
     await ensureTargetNaoEhAdmin(supabaseAdmin, data.user_id);
 
@@ -249,6 +345,10 @@ export const excluirCredencial = createServerFn({ method: "POST" })
       .maybeSingle();
     if (credErr) throw new Error(credErr.message);
     if (!cred) throw new Error("Credencial não encontrada.");
+
+    // Modelo filial=loja: gerente só exclui credencial de funcionário da SUA filial
+    const ctx = await getCtxFilial(context);
+    await ensureTargetNaMinhaFilial(supabaseAdmin, cred.user_id, ctx);
 
     // BLOQUEIO: ninguém pode excluir credencial de um admin
     await ensureTargetNaoEhAdmin(supabaseAdmin, cred.user_id);

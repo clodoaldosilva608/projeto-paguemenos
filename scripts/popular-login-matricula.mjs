@@ -1,6 +1,20 @@
-// Popula a tabela login_matricula com os 6 vendedores e suas matrículas
-const SUPABASE_URL = "https://wfvihysxlzkwwrwobmpv.supabase.co";
-const SERVICE_ROLE = "sb_secret_HetybEr5FvTi8aabdMS0Lg_7ihJjxOg";
+// Popula a tabela login_matricula com os 6 vendedores e suas matrículas.
+//
+// As credenciais são lidas de variáveis de ambiente (NUNCA hardcoded):
+//   - SUPABASE_URL
+//   - SUPABASE_SERVICE_ROLE_KEY  (server-only)
+//
+// Carrega de .env automaticamente.
+import { config as loadEnv } from "dotenv";
+import { resolve } from "node:path";
+loadEnv({ path: resolve(process.cwd(), ".env") });
+
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SERVICE_ROLE = process.env.SUPABASE_SERVICE_ROLE_KEY;
+if (!SUPABASE_URL || !SERVICE_ROLE) {
+  console.error("[FATAL] SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY precisam estar no .env");
+  process.exit(1);
+}
 
 const credenciais = [
   // Adelino — já inserido no teste

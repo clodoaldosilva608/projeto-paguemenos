@@ -44,5 +44,5 @@ CREATE POLICY campanhas_select_all ON public.campanhas
 DROP POLICY IF EXISTS campanhas_admin_modify ON public.campanhas;
 CREATE POLICY campanhas_admin_modify ON public.campanhas
   FOR ALL TO authenticated
-  USING (public.has_any_role(ARRAY['admin'::text, 'gerente'::text], auth.uid()))
-  WITH CHECK (public.has_any_role(ARRAY['admin'::text, 'gerente'::text], auth.uid()));
+  USING (public.has_any_role(auth.uid(), ARRAY['admin','gerente']::text[]))
+  WITH CHECK (public.has_any_role(auth.uid(), ARRAY['admin','gerente']::text[]));

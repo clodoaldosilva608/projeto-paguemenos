@@ -75,11 +75,12 @@ supabase start
 supabase db reset
 
 # 4. Configure o .env para apontar para o Supabase local
+#    As chaves abaixo são as chaves padrão do Supabase local (demo) — públicas.
 cat > .env << 'EOF'
 SUPABASE_URL="http://127.0.0.1:54321"
-SUPABASE_PUBLISHABLE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WeoamQnxnb2cZcZcZcZcZcZcZcZcZcZcZcZ"
+SUPABASE_PUBLISHABLE_KEY="<cole-a-anon-key-do-seu-supabase-local-aqui>"
 VITE_SUPABASE_URL="http://127.0.0.1:54321"
-VITE_SUPABASE_PUBLISHABLE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WneoamQnxn4cZcZcZcZcZcZcZcZcZcZcZcZ"
+VITE_SUPABASE_PUBLISHABLE_KEY="<cole-a-anon-key-do-seu-supabase-local-aqui>"
 EOF
 
 # 5. Rode o frontend

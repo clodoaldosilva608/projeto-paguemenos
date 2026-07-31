@@ -35,8 +35,8 @@ ALTER TABLE public.login_matricula ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS login_matricula_admin_all ON public.login_matricula;
 CREATE POLICY login_matricula_admin_all ON public.login_matricula
   FOR ALL TO authenticated
-  USING (public.has_any_role(ARRAY['admin'::text, 'gerente'::text], auth.uid()))
-  WITH CHECK (public.has_any_role(ARRAY['admin'::text, 'gerente'::text], auth.uid()));
+  USING (public.has_any_role(auth.uid(), ARRAY['admin','gerente']::text[]))
+  WITH CHECK (public.has_any_role(auth.uid(), ARRAY['admin','gerente']::text[]));
 
 DROP POLICY IF EXISTS login_matricula_owner_select ON public.login_matricula;
 CREATE POLICY login_matricula_owner_select ON public.login_matricula

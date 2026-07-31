@@ -50,5 +50,5 @@ ALTER TABLE public.metas_individuais ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS metas_individuais_owner_all ON public.metas_individuais;
 CREATE POLICY metas_individuais_owner_all ON public.metas_individuais
   FOR ALL TO authenticated
-  USING (usuario_id = auth.uid() OR public.has_any_role(ARRAY['admin'::text, 'gerente'::text], auth.uid()))
-  WITH CHECK (usuario_id = auth.uid() OR public.has_any_role(ARRAY['admin'::text, 'gerente'::text], auth.uid()));
+  USING (usuario_id = auth.uid() OR public.has_any_role(auth.uid(), ARRAY['admin','gerente']::text[]))
+  WITH CHECK (usuario_id = auth.uid() OR public.has_any_role(auth.uid(), ARRAY['admin','gerente']::text[]));

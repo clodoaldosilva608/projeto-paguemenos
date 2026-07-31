@@ -19,7 +19,7 @@ ALTER TABLE public.audit_log ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Admins read audit_log"
   ON public.audit_log FOR SELECT TO authenticated
-  USING (public.has_role(auth.uid(), 'admin'::app_role));
+  USING (public.has_role(auth.uid(), 'admin'::text));
 
 CREATE INDEX idx_audit_log_criado_em ON public.audit_log (criado_em DESC);
 CREATE INDEX idx_audit_log_action ON public.audit_log (action);
