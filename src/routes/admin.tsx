@@ -74,8 +74,10 @@ function AdminLayout() {
     );
   }
 
-  // Se não for admin, mostrar bloqueio
-  if (usuario.perfil !== "admin") {
+  // Modelo: gerente tem acesso TOTAL ao painel admin (igual admin)
+  // Reversão do item 5 da auditoria — solicitado pelo usuário em 31/07/2026.
+  // Se não for admin nem gerente, mostrar bloqueio
+  if (usuario.perfil !== "admin" && usuario.perfil !== "gerente") {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4 dark:bg-slate-950">
         <motion.div
@@ -91,7 +93,7 @@ function AdminLayout() {
             permissão para acessar o painel administrativo.
           </p>
           <p className="mt-2 text-xs text-slate-400">
-            Apenas administradores podem gerenciar dados via este painel.
+            Apenas administradores ou gerentes podem gerenciar dados via este painel.
           </p>
           <a
             href="/"

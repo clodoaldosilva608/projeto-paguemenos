@@ -25,8 +25,9 @@ function AdminLogin() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    // Se já logado e for admin, redirecionar para /admin
-    if (usuario && usuario.perfil === "admin") {
+    // Modelo: gerente tem acesso TOTAL ao painel admin (igual admin)
+    // Se já logado e for admin ou gerente, redirecionar para /admin
+    if (usuario && (usuario.perfil === "admin" || usuario.perfil === "gerente")) {
       navigate({ to: "/admin" });
     }
   }, [usuario, navigate]);
@@ -57,8 +58,8 @@ function AdminLogin() {
     }
   };
 
-  // Se logou mas não é admin, mostrar bloqueio
-  if (usuario && usuario.perfil !== "admin") {
+  // Se logou mas não é admin nem gerente, mostrar bloqueio
+  if (usuario && usuario.perfil !== "admin" && usuario.perfil !== "gerente") {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-950 p-4">
         <motion.div
@@ -74,7 +75,7 @@ function AdminLogin() {
             permissão para acessar o painel administrativo.
           </p>
           <p className="mt-2 text-xs text-slate-400">
-            Apenas contas com perfil <strong>Admin Master</strong> podem acessar este painel.
+            Apenas contas com perfil <strong>Admin Master</strong> ou <strong>Gerente</strong> podem acessar este painel.
           </p>
           <button
             onClick={() => navigate({ to: "/" })}
