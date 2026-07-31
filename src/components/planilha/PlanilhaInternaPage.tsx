@@ -102,37 +102,47 @@ export default function PlanilhaInternaPage() {
 
   return (
     <div className="sheet-content min-h-[100dvh] bg-[#0a1f3d] text-slate-100">
-      {/* Header sticky com TabBar responsiva */}
-      <div className="sticky top-0 z-30 bg-[#0d2640] border-b border-white/5">
-        {/* Linha 1: aba ativa + botões */}
-        <div className="flex items-center gap-2 px-3 py-2">
+      {/* Header sticky compacto */}
+      <div className="sticky top-0 z-30 border-b border-white/5 bg-[#0d2640]">
+        {/* Linha única: menu + título + filtros + contador */}
+        <div className="flex items-center gap-1.5 px-2 py-1.5">
+          {/* Botão menu tabs — só ícone, compacto */}
           <button
             onClick={() => setMenuTabsAberto(!menuTabsAberto)}
-            className="flex items-center gap-1.5 rounded-lg bg-white/5 px-2.5 py-1.5 text-[11px] font-semibold text-sky-300 hover:bg-white/10"
+            className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md bg-white/5 text-sky-300 hover:bg-white/10"
+            title={activeTab?.label || "Dashboard"}
           >
             {menuTabsAberto ? <X className="h-3.5 w-3.5" /> : <Menu className="h-3.5 w-3.5" />}
-            <span className="truncate max-w-[120px] sm:max-w-none">{activeTab?.label || "Dashboard"}</span>
           </button>
+
+          {/* Título da aba ativa — flex-1 para ocupar espaço restante */}
+          <span className="flex-1 truncate text-[12px] font-semibold text-slate-200">
+            {activeTab?.label || "Dashboard"}
+          </span>
+
+          {/* Botão filtros — compacto */}
           <button
             onClick={() => setMenuFiltrosAberto(!menuFiltrosAberto)}
-            className="flex items-center gap-1.5 rounded-lg bg-white/5 px-2.5 py-1.5 text-[11px] font-semibold text-slate-300 hover:bg-white/10"
+            className="flex h-7 items-center gap-1 flex-shrink-0 rounded-md bg-white/5 px-2 text-[10px] font-medium text-slate-300 hover:bg-white/10"
           >
-            <span>🗂️</span>
+            <span className="text-[11px]">🗂️</span>
             <span className="hidden sm:inline">Filtros</span>
           </button>
-          <span className="ml-auto text-[10px] text-slate-500">
-            {data.atuais.length} lançamentos
+
+          {/* Contador — compacto */}
+          <span className="flex-shrink-0 text-[9px] text-slate-500 tabular-nums">
+            {data.atuais.length} reg.
           </span>
         </div>
 
-        {/* Linha 2: tabs scrolláveis (mobile) / todas visíveis (desktop) */}
-        <div className={`px-2 pb-2 ${menuTabsAberto ? "block" : "hidden lg:block"}`}>
+        {/* Linha 2: tabs (colapsável no mobile) */}
+        <div className={`px-2 pb-1.5 ${menuTabsAberto ? "block" : "hidden lg:block"}`}>
           <div className="flex flex-wrap gap-0.5 max-h-[200px] overflow-y-auto">
             {allTabs.map((t) => (
               <button
                 key={t.slug}
                 onClick={() => { setActive(t.slug); setMenuTabsAberto(false); }}
-                className={`whitespace-nowrap rounded-md px-2.5 py-1 text-[10px] font-medium transition-colors ${
+                className={`whitespace-nowrap rounded px-2 py-0.5 text-[10px] font-medium transition-colors ${
                   active === t.slug
                     ? "bg-sky-500/20 text-sky-300"
                     : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
@@ -144,7 +154,7 @@ export default function PlanilhaInternaPage() {
           </div>
         </div>
 
-        {/* Linha 3: filtros */}
+        {/* Linha 3: filtros (colapsável) */}
         <div className={`px-3 pb-2 ${menuFiltrosAberto ? "block" : "hidden lg:block"}`}>
           <FilterControls
             filtros={filtros}
