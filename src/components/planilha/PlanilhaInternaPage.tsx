@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle, Menu, X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFilial } from "@/contexts/FilialContext";
 import { getDashboardData, type DashboardData } from "@/lib/planilha/data";
@@ -10,7 +10,7 @@ import { Historico, VendedorSheet } from "./tabs/historico";
 import { Equipe } from "./tabs/equipe";
 import { Auditoria } from "./tabs/auditoria";
 import { Formulas, Manual } from "./tabs/documentacao";
-import { TabBar } from "./kit";
+import { FilterControls } from "./interactive-controls";
 
 const TABS_FIXAS = [
   { slug: "dashboard", label: "01 - Dashboard" },
@@ -38,6 +38,8 @@ export default function PlanilhaInternaPage() {
   const [erro, setErro] = useState<string | null>(null);
   const [active, setActive] = useState<TabSlug>("dashboard");
   const [filtros, setFiltros] = useState<DashboardFilters | null>(null);
+  const [menuTabsAberto, setMenuTabsAberto] = useState(false);
+  const [menuFiltrosAberto, setMenuFiltrosAberto] = useState(false);
 
   useEffect(() => {
     if (!usuario) return;
@@ -67,7 +69,7 @@ export default function PlanilhaInternaPage() {
   if (erro) return <div className="flex min-h-[100dvh] items-center justify-center bg-[#0a1f3d]"><AlertCircle className="h-8 w-8 text-red-400" /><p className="ml-2 text-red-300">{erro}</p></div>;
   if (!data || !filtros) return null;
 
-  // Construir tabs (fixas + vendedores + finais)
+  // Construir tabs
   const vendedorTabs = data.vendedoresList.slice(0, 6).map((v, i) => ({
     slug: `vendedor-${v.id}` as string,
     label: `${String(TABS_FIXAS.length + 1 + i).padStart(2, "0")} - ${v.nome.split(" ")[0]}`,
@@ -80,6 +82,9 @@ export default function PlanilhaInternaPage() {
       label: `${String(TABS_FIXAS.length + vendedorTabs.length + 1 + i).padStart(2, "0")} - ${t.label}`,
     })),
   ];
+
+  // Tab ativa label
+  const activeTab = allTabs.find(t => t.slug === active);
 
   let content: React.ReactNode;
   if (active === "dashboard") content = <DashboardGeral d={data} />;
@@ -96,16 +101,63 @@ export default function PlanilhaInternaPage() {
   else content = <DashboardGeral d={data} />;
 
   return (
-    <div className="sheet-content min-h-[100dvh] bg-[#0a1f3d]">
-      <TabBar
-        active={active}
-        filtros={filtros}
-        tabs={allTabs}
-        onTabChange={setActive}
-        onFiltroChange={handleFiltroChange}
-        vendedores={data.vendedoresList.map(v => ({ id: v.id, nome: v.nome, cargo: v.cargo }))}
-      />
-      <div className="p-4">{content}</div>
+    <div className="sheet-content min-h-[100dvh] bg-[#0a1f3d] text-slate-100">
+      {/* Header sticky com TabBar responsiva */}
+      <div className="sticky top-0 z-30 bg-[#0d2640] border-b border-white/5">
+        {/* Linha 1: aba ativa + botões */}
+        <div className="flex items-center gap-2 px-3 py-2">
+          <button
+            onClick={() => setMenuTabsAberto(!menuTabsAberto)}
+            className="flex items-center gap-1.5 rounded-lg bg-white/5 px-2.5 py-1.5 text-[11px] font-semibold text-sky-300 hover:bg-white/10"
+          >
+            {menuTabsAberto ? <X className="h-3.5 w-3.5" /> : <Menu className="h-3.5 w-3.5" />}
+            <span className="truncate max-w-[120px] sm:max-w-none">{activeTab?.label || "Dashboard"}</span>
+          </button>
+          <button
+            onClick={() => setMenuFiltrosAberto(!menuFiltrosAberto)}
+            className="flex items-center gap-1.5 rounded-lg bg-white/5 px-2.5 py-1.5 text-[11px] font-semibold text-slate-300 hover:bg-white/10"
+          >
+            <span>🗂️</span>
+            <span className="hidden sm:inline">Filtros</span>
+          </button>
+          <span className="ml-auto text-[10px] text-slate-500">
+            {data.atuais.length} lançamentos
+          </span>
+        </div>
+
+        {/* Linha 2: tabs scrolláveis (mobile) / todas visíveis (desktop) */}
+        <div className={`px-2 pb-2 ${menuTabsAberto ? "block" : "hidden lg:block"}`}>
+          <div className="flex flex-wrap gap-0.5 max-h-[200px] overflow-y-auto">
+            {allTabs.map((t) => (
+              <button
+                key={t.slug}
+                onClick={() => { setActive(t.slug); setMenuTabsAberto(false); }}
+                className={`whitespace-nowrap rounded-md px-2.5 py-1 text-[10px] font-medium transition-colors ${
+                  active === t.slug
+                    ? "bg-sky-500/20 text-sky-300"
+                    : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Linha 3: filtros */}
+        <div className={`px-3 pb-2 ${menuFiltrosAberto ? "block" : "hidden lg:block"}`}>
+          <FilterControls
+            filtros={filtros}
+            vendedores={data.vendedoresList.map(v => ({ id: v.id, nome: v.nome, cargo: v.cargo }))}
+            onChange={handleFiltroChange}
+          />
+        </div>
+      </div>
+
+      {/* Conteúdo */}
+      <div className="p-2 sm:p-3 lg:p-4">
+        {content}
+      </div>
     </div>
   );
 }
