@@ -165,8 +165,27 @@ body {
   color: #1a1a2e;
   color: #0f172a;
   -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
 }
 .dark body { background: #0a0f1c; color: #e2e8f0; }
+
+/* === Suporte a rotação de tela em mobile === */
+@media (orientation: landscape) and (max-height: 500px) {
+  html, body, #root {
+    height: 100vh;
+    height: 100dvh;
+  }
+  .sheet-content { padding: 0.5rem !important; }
+}
+
+@supports (-webkit-touch-callout: none) {
+  input, select, textarea { font-size: 16px; }
+}
+
+@media screen and (orientation: landscape) {
+  .min-h-full, .min-h-screen { min-height: 100dvh; }
+  .grid { width: 100%; }
+}
 
 .font-display { font-family: "Archivo Black", "Archivo", ui-sans-serif, system-ui, sans-serif; letter-spacing: -0.01em; }
 .font-cond { font-family: "Archivo", ui-sans-serif, system-ui, sans-serif; font-weight: 800; letter-spacing: 0.02em; }
