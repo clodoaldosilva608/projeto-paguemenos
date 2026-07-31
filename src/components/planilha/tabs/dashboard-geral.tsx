@@ -155,10 +155,10 @@ export function DashboardGeral({ d }: { d: DashboardData }) {
 
         <Panel title="Decomposição Meta × Realizado" icon="🧱" delay={180}>
           <WaterfallChart
-            categorias={CATEGORIAS.map((c) => ({
-              nome: c.split(" ")[0],
-              meta: d.porCategoria[c].meta,
-              realizado: d.porCategoria[c].realizado,
+            meta={t.meta}
+            parcelas={CATEGORIAS.map((c) => ({
+              label: c.split(" ")[0],
+              valor: d.porCategoria[c].realizado,
               cor: CAT_COLORS[c],
             }))}
           />
