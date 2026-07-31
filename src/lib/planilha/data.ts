@@ -2,7 +2,12 @@
 // Usa Supabase em vez de Drizzle. Mantém IDs numéricos para compatibilidade com componentes visuais.
 
 import { supabase } from "@/integrations/supabase/client";
-import { CATEGORIAS, SLUG_PARA_CATEGORIA, type Categoria } from "./format";
+import { CATEGORIAS, CATEGORIA_PARA_SLUG, SLUG_PARA_CATEGORIA, type Categoria } from "./format";
+
+// Re-exports para compatibilidade com componentes do zip (que importam de data.ts)
+export { fmtBRL, fmtPct, fmtData, statusDe } from "./format";
+export { CATEGORIAS, CATEGORIA_PARA_SLUG, SLUG_PARA_CATEGORIA };
+export type { Categoria };
 
 // ── Período ──────────────────────────────────────────────────────────────────
 export const PERIODO_INICIO = new Date(Date.now() - 6 * 86400000).toISOString().slice(0, 10);
