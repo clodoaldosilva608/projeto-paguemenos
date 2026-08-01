@@ -10,6 +10,7 @@ import { Historico, VendedorSheet } from "./tabs/historico";
 import { Equipe } from "./tabs/equipe";
 import { Auditoria } from "./tabs/auditoria";
 import { Formulas, Manual } from "./tabs/documentacao";
+import { GestaoMetas } from "./tabs/gestao-metas";
 import { FilterControls } from "./interactive-controls";
 
 const TABS_FIXAS = [
@@ -19,6 +20,7 @@ const TABS_FIXAS = [
   { slug: "genericos", label: "04 - Genéricos" },
   { slug: "super-desconto", label: "05 - Super Desconto" },
   { slug: "historico", label: "06 - Histórico" },
+  { slug: "gestao-metas", label: "07 - Gestão de Metas" },
 ] as const;
 
 const TABS_FINAIS = [
@@ -93,6 +95,7 @@ export default function PlanilhaInternaPage() {
   else if (active === "genericos") content = <CategoriaDashboard d={data} categoria="Genéricos" subtitulo="Análise de Genéricos" />;
   else if (active === "super-desconto") content = <CategoriaDashboard d={data} categoria="Super Desconto" subtitulo="Análise de Super Desconto" />;
   else if (active === "historico") content = <Historico d={data} />;
+  else if (active === "gestao-metas") content = <GestaoMetas d={data} />;
   else if (active.startsWith("vendedor-")) content = <VendedorSheet d={data} vendedorId={Number(active.replace("vendedor-", ""))} />;
   else if (active === "equipe") content = <Equipe d={data} filterQuery="" />;
   else if (active === "auditoria") content = <Auditoria d={data} />;
