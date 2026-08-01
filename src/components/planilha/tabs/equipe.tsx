@@ -6,6 +6,7 @@ import { StackedBar } from "@/components/planilha/charts-extra";
 import { RadarChart } from "@/components/planilha/charts-radar";
 import { GoalSimulator } from "@/components/planilha/goal-simulator";
 import { ImportCsvButton } from "@/components/planilha/import-csv";
+import { KpiCard, Panel, DashFooter } from "@/components/planilha/kit";
 
 const ABA_POR_ID: Record<number, string> = {
   1: "adelino", 2: "alicia", 3: "clodoaldo", 5: "elielton", 6: "fabio", 7: "mieko",
