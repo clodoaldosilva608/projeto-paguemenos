@@ -476,7 +476,7 @@ function TVLoginGate({ onSucesso, onVoltar }: { onSucesso: () => void; onVoltar:
   };
 
   return (
-    <div className="relative z-10 flex min-h-screen items-center justify-center p-6">
+    <div className="relative z-10 flex [min-height:100dvh] items-center justify-center p-6">
       <motion.div
         initial={{ opacity: 0, y: 20, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -719,11 +719,11 @@ export default function TVModePanel({ onClose, standalone = false }: TVModePanel
   };
 
   // Classes wrapper: overlay (fixed) ou página standalone
-  // Usa h-screen + overflow-hidden para garantir que NUNCA precise scroll na página
-  // Apenas a tabela interna pode scrollar se necessário (mas idealmente cabe sem scroll)
+  // Usa 100dvh (dynamic viewport) para se adaptar à rotação em mobile
+  // overflow-hidden na página, apenas conteúdo interno pode scrollar
   const wrapperClass = standalone
-    ? "relative flex h-screen flex-col overflow-hidden"
-    : "fixed inset-0 z-[90] flex h-screen flex-col overflow-hidden";
+    ? "orion-tv-panel relative flex flex-col overflow-hidden [height:100dvh]"
+    : "orion-tv-panel fixed inset-0 z-[90] flex flex-col overflow-hidden [height:100dvh]";
 
   // ============ ESTADOS DE ACESSO ============
 
@@ -735,7 +735,7 @@ export default function TVModePanel({ onClose, standalone = false }: TVModePanel
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className={standalone ? "flex min-h-screen items-center justify-center" : "fixed inset-0 z-[90] flex items-center justify-center"}
+          className={standalone ? "flex [min-height:100dvh] items-center justify-center" : "fixed inset-0 z-[90] flex items-center justify-center"}
           style={{ background: "#06101f" }}
         >
           <div className="flex flex-col items-center gap-3">
@@ -758,7 +758,7 @@ export default function TVModePanel({ onClose, standalone = false }: TVModePanel
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className={standalone ? "relative min-h-screen overflow-y-auto orion-tv-scroll" : "fixed inset-0 z-[90] overflow-y-auto orion-tv-scroll"}
+          className={standalone ? "relative [min-height:100dvh] overflow-y-auto orion-tv-scroll" : "fixed inset-0 z-[90] overflow-y-auto orion-tv-scroll"}
           style={{ background: "#06101f" }}
         >
           <div className="pointer-events-none absolute inset-0 orion-aurora-bg opacity-30" />
@@ -777,7 +777,7 @@ export default function TVModePanel({ onClose, standalone = false }: TVModePanel
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className={standalone ? "relative flex min-h-screen items-center justify-center overflow-y-auto p-6 orion-tv-scroll" : "fixed inset-0 z-[90] flex items-center justify-center overflow-y-auto p-6 orion-tv-scroll"}
+          className={standalone ? "relative flex [min-height:100dvh] items-center justify-center overflow-y-auto p-6 orion-tv-scroll" : "fixed inset-0 z-[90] flex items-center justify-center overflow-y-auto p-6 orion-tv-scroll"}
           style={{ background: "#06101f" }}
         >
           <div className="pointer-events-none absolute inset-0 orion-aurora-bg opacity-30" />

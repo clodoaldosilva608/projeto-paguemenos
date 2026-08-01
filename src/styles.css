@@ -283,6 +283,37 @@ a:focus-visible, button:focus-visible {
   }
 }
 
+/* === TV Mode — responsividade em landscape mobile === */
+@media (orientation: landscape) and (max-height: 500px) {
+  /* TV Mode: compactar header e KPIs em landscape */
+  .orion-tv-panel header {
+    padding: 4px 8px !important;
+  }
+  .orion-tv-panel .text-2xl,
+  .orion-tv-panel .text-3xl {
+    font-size: 1rem !important;
+  }
+  .orion-tv-panel .text-xl {
+    font-size: 0.875rem !important;
+  }
+  .orion-tv-panel .text-lg {
+    font-size: 0.75rem !important;
+  }
+  .orion-tv-panel .gap-2,
+  .orion-tv-panel .gap-3 {
+    gap: 4px !important;
+  }
+  .orion-tv-panel .p-3,
+  .orion-tv-panel .p-4 {
+    padding: 4px 6px !important;
+  }
+  .orion-tv-panel .py-2,
+  .orion-tv-panel .py-3 {
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+  }
+}
+
 .font-display { font-family: "Archivo Black", "Archivo", ui-sans-serif, system-ui, sans-serif; letter-spacing: -0.01em; }
 .font-cond { font-family: "Archivo", ui-sans-serif, system-ui, sans-serif; font-weight: 800; letter-spacing: 0.02em; }
 .font-num { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
