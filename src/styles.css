@@ -3,6 +3,9 @@
 @import "tw-animate-css";
 @import "./lib/planilha/sheet-animations.css";
 
+/* Fontes tecnológicas (Inter + Fira Code) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&family=Fira+Code:wght@300;400;500;600;700&display=swap');
+
 @custom-variant dark (&:is(.dark *));
 
 /*
@@ -161,7 +164,7 @@
 html, body, #root { height: 100%; }
 
 body {
-  font-family: "DM Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-family: "Inter", "DM Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
   background: #eef1f7;
   color: #1a1a2e;
   color: #0f172a;
@@ -169,6 +172,33 @@ body {
   overscroll-behavior: none;
 }
 .dark body { background: #0a0f1c; color: #e2e8f0; }
+
+/* === Paleta tecnológica ORION === */
+:root {
+  --orion-dark-bg: #0A192F;
+  --orion-dark-card: #1A2B42;
+  --orion-accent-cyan: #00FFFF;
+  --orion-accent-blue: #00BFFF;
+}
+
+/* Efeito de brilho para elementos interativos */
+.glow-effect {
+  box-shadow: 0 0 5px #00FFFF, 0 0 10px #00FFFF, 0 0 15px #00FFFF;
+}
+
+/* Focus ring tecnológico */
+a, button {
+  outline: none;
+}
+a:focus-visible, button:focus-visible {
+  box-shadow: 0 0 0 2px rgba(0, 255, 255, 0.5);
+}
+
+/* Font monospace para números/código */
+.font-mono-tech {
+  font-family: "Fira Code", ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
 
 /* === Suporte a rotação de tela em mobile === */
 @media (orientation: landscape) and (max-height: 500px) {

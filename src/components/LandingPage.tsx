@@ -1,8 +1,7 @@
 import { useMemo, useRef } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { useNavigate } from "@tanstack/react-router";
-import { CosmicOrb } from "./CosmicOrb";
-import { MagneticButton } from "./MagneticButton";
+import HeroSection from "./HeroSection";
 import {
   LogIn,
   Tv,
@@ -396,62 +395,8 @@ export default function LandingPage() {
         </nav>
       </header>
 
-      {/* HERO */}
-      <CosmicOrb />
-      <section className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col justify-center px-6 pb-16 pt-10 sm:pt-16">
-        <motion.div
-          initial={{ opacity: 0, y: 28 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="max-w-3xl"
-        >
-          <span className="inline-flex items-center gap-2 rounded-full border border-blue-400/20 bg-blue-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-blue-300">
-            <Activity className="h-3.5 w-3.5" /> Plataforma multi-empresa
-          </span>
-
-          <div className="mt-6">
-            <SpotlightText>ORION</SpotlightText>
-            <p className="orion-spotlight-text font-display mt-2 text-2xl font-bold sm:text-4xl">
-              Sistema de Gestão Multi-Empresa e Performance
-            </p>
-          </div>
-
-          <p className="mt-6 max-w-2xl text-base text-slate-300 sm:text-lg">
-            Centralize vendas, metas, campanhas, equipes e relatórios com IA em uma única plataforma.
-            Acompanhe o desempenho do seu time em tempo real, em qualquer dispositivo.
-          </p>
-
-          <div className="mt-8 flex flex-wrap gap-3">
-            <MagneticButton
-              onClick={irParaAuth}
-              className="orion-glow-pulse inline-flex items-center gap-2 rounded-xl px-6 py-3.5 text-sm font-bold text-white"
-              >
-              <LogIn className="h-4 w-4" /> Entrar no Sistema
-            </MagneticButton>
-            <MagneticButton
-              onClick={irParaTV}
-              className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/5 px-6 py-3.5 text-sm font-bold text-white backdrop-blur hover:bg-white/10"
-            >
-              <Tv className="h-4 w-4" /> Painel em Tempo Real
-            </MagneticButton>
-          </div>
-
-          <p className="mt-3 text-xs text-slate-400 dark:text-slate-500">
-            Acesso para admin · gerente · supervisor · vendedor
-          </p>
-          <p className="mt-1 text-xs text-slate-500">
-            💡 Dica: acesse{" "}
-            <button onClick={irParaTV} className="font-semibold text-blue-300 underline hover:text-blue-200">
-              /tv
-            </button>{" "}
-            diretamente para abrir o painel TV em tela cheia (favorito para monitor na parede).
-          </p>
-        </motion.div>
-
-        <div className="mt-16">
-          <ScrollIndicator onClick={rolarParaFeatures} />
-        </div>
-      </section>
+      {/* HERO — nova seção com partículas 3D */}
+      <HeroSection />
 
       {/* FEATURES */}
       <div ref={featuresRef as React.RefObject<HTMLDivElement>}>

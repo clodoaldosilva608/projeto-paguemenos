@@ -284,10 +284,9 @@ export default function OrionApp() {
         <AnimatePresence mode="wait">
           <motion.div
             key={paginaEfetiva}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.2 }}
+            initial={{ opacity: 0, clipPath: "polygon(0 0, 100% 0, 100% 100%, 0% 100%)" }}
+            animate={{ opacity: 1, clipPath: "polygon(0 0, 100% 0, 100% 100%, 0% 100%)", transition: { duration: 0.4, ease: [0.33, 1, 0.68, 1] } }}
+            exit={{ opacity: 0, clipPath: "polygon(50% 0, 50% 0, 50% 100%, 50% 100%)", transition: { duration: 0.3, ease: [0.65, 0, 0.35, 1] } }}
           >
             {renderPagina()}
           </motion.div>
