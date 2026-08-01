@@ -586,6 +586,21 @@ export default function TVModePanel({ onClose, standalone = false }: TVModePanel
   const [segundosRestantes, setSegundosRestantes] = useState(30);
   const [filtro, setFiltro] = useState<FiltroPeriodo>({ modo: "atual" });
   const [showCalendario, setShowCalendario] = useState(false);
+  const [isMobileLandscape, setIsMobileLandscape] = useState(false);
+
+  // Detecta mudança de orientação para ajustar overflow
+  useEffect(() => {
+    const check = () => setIsMobileLandscape(
+      window.matchMedia("(orientation: landscape) and (max-height: 500px)").matches
+    );
+    check();
+    window.addEventListener("resize", check);
+    window.addEventListener("orientationchange", check);
+    return () => {
+      window.removeEventListener("resize", check);
+      window.removeEventListener("orientationchange", check);
+    };
+  }, []);
 
   const acessoLiberado = usuario ? podeAcessarTV(usuario.perfil) : false;
 
@@ -720,10 +735,10 @@ export default function TVModePanel({ onClose, standalone = false }: TVModePanel
 
   // Classes wrapper: overlay (fixed) ou página standalone
   // Usa 100dvh (dynamic viewport) para se adaptar à rotação em mobile
-  // overflow-hidden na página, apenas conteúdo interno pode scrollar
+  // Em landscape mobile, permite scroll vertical para não cortar conteúdo
   const wrapperClass = standalone
-    ? "orion-tv-panel relative flex flex-col overflow-hidden [height:100dvh]"
-    : "orion-tv-panel fixed inset-0 z-[90] flex flex-col overflow-hidden [height:100dvh]";
+    ? `orion-tv-panel relative flex flex-col [height:100dvh] ${isMobileLandscape ? "overflow-y-auto orion-tv-scroll" : "overflow-hidden"}`
+    : `orion-tv-panel fixed inset-0 z-[90] flex flex-col [height:100dvh] ${isMobileLandscape ? "overflow-y-auto orion-tv-scroll" : "overflow-hidden"}`;
 
   // ============ ESTADOS DE ACESSO ============
 
