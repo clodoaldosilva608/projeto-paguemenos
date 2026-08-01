@@ -1,12 +1,9 @@
-"use client";
-
-import { FormEvent, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "@/components/planilha/noop-router";
 import { Modal } from "@/components/planilha/ui/modal";
 import { useToast } from "@/components/planilha/ui/toast";
 import { SortableTable, type Column } from "@/components/planilha/ui/sortable-table";
 import { Sparkline } from "@/components/planilha/charts-extra";
-import { EmployeeEntry } from "@/components/planilha/data-manager";
 import { fmtBRL, fmtPct, statusDe } from "@/lib/planilha/format";
 import { StatusPill } from "@/components/planilha/kit";
 
@@ -27,165 +24,23 @@ export type FuncionarioLinha = {
   aba: string | null;
 };
 
-const control = "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-[#1a56c5] focus:ring-2 focus:ring-blue-100";
-const lbl = "text-[11px] font-bold uppercase tracking-wider text-slate-500";
-
-function StatusBadge({ status }: { status: string }) {
-  const map: Record<string, string> = {
-    Ativo: "bg-emerald-100 text-emerald-700 border-emerald-300",
-    Férias: "bg-sky-100 text-sky-700 border-sky-300",
-    Inativo: "bg-slate-200 text-slate-600 border-slate-300",
-  };
-  return <span className={`inline-block rounded-full border px-2 py-0.5 text-[9.5px] font-bold ${map[status] ?? map.Inativo}`}>{status}</span>;
+// Stubs simplificados — sem fetch para API (que não existe no TanStack)
+function EditEmployee({ f }: { f: FuncionarioLinha }) {
+  return <button className="rounded p-1 text-slate-500 hover:bg-slate-100" title={`Editar ${f.nome}`} aria-label={`Editar ${f.nome}`}>✎</button>;
 }
-
-function EditEmployee({ f, onDone }: { f: FuncionarioLinha; onDone: () => void }) {
-  const [open, setOpen] = useState(false);
-  const [erro, setErro] = useState("");
-  const [busy, startTransition] = useTransition();
-  const router = useRouter();
-  const toast = useToast();
-
-  const salvar = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setErro("");
-    const form = new FormData(e.currentTarget);
-    try {
-      const r = await fetch(`/api/funcionarios/${f.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          nome: String(form.get("nome")),
-          matricula: String(form.get("matricula")),
-          email: String(form.get("email")),
-          cargo: String(form.get("cargo")),
-          status: String(form.get("status")),
-        }),
-      });
-      const data = (await r.json()) as { error?: string };
-      if (!r.ok) throw new Error(data.error ?? "Erro ao atualizar.");
-      setOpen(false);
-      toast.success("Funcionário atualizado", String(form.get("nome")));
-      onDone();
-      startTransition(() => router.refresh());
-    } catch (err) {
-      setErro(err instanceof Error ? err.message : "Erro ao atualizar.");
-    }
-  };
-
-  return (
-    <>
-      <button type="button" onClick={() => setOpen(true)} className="rounded p-1 text-[#1a56c5] transition hover:bg-blue-50" title="Editar funcionário" aria-label={`Editar ${f.nome}`}>✎</button>
-      {open && (
-        <Modal title={`Editar ${f.nome}`} onClose={() => setOpen(false)}>
-          <form onSubmit={salvar} className="p-5">
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <label className={`${lbl} sm:col-span-2`}>Nome completo<input required name="nome" defaultValue={f.nome} minLength={3} className={control} /></label>
-              <label className={lbl}>Matrícula<input required name="matricula" defaultValue={f.matricula} className={control} /></label>
-              <label className={lbl}>E-mail<input required name="email" type="email" defaultValue={f.email} className={control} /></label>
-              <label className={lbl}>Cargo
-                <select name="cargo" defaultValue={f.cargo} className={control}>
-                  {["Vendedor", "Vendedora", "Gerente", "Supervisor", "Admin Master", "Equipe (Outros)"].map((c) => <option key={c}>{c}</option>)}
-                </select>
-              </label>
-              <label className={lbl}>Status
-                <select name="status" defaultValue={f.status} className={control}>
-                  <option>Ativo</option><option>Férias</option><option>Inativo</option>
-                </select>
-              </label>
-            </div>
-            {erro && <p role="alert" className="mt-4 rounded-lg bg-rose-50 p-3 text-xs font-semibold text-rose-700">{erro}</p>}
-            <div className="mt-6 flex justify-end gap-2">
-              <button type="button" onClick={() => setOpen(false)} className="rounded-lg border border-slate-300 px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50">Cancelar</button>
-              <button disabled={busy} className="rounded-lg bg-[#1a56c5] px-4 py-2 text-xs font-bold text-white hover:bg-[#1d63e0] disabled:opacity-60">{busy ? "Salvando..." : "Salvar alterações"}</button>
-            </div>
-          </form>
-        </Modal>
-      )}
-    </>
-  );
-}
-
 function DeleteEmployee({ f }: { f: FuncionarioLinha }) {
-  const [open, setOpen] = useState(false);
-  const [erro, setErro] = useState("");
-  const [busy, startTransition] = useTransition();
-  const router = useRouter();
-  const toast = useToast();
-
-  const excluir = async () => {
-    setErro("");
-    try {
-      const r = await fetch(`/api/funcionarios/${f.id}`, { method: "DELETE" });
-      const data = (await r.json()) as { error?: string };
-      if (!r.ok) throw new Error(data.error ?? "Erro ao excluir.");
-      setOpen(false);
-      toast.success("Funcionário excluído", f.nome);
-      startTransition(() => router.refresh());
-    } catch (err) {
-      setErro(err instanceof Error ? err.message : "Erro ao excluir.");
-    }
-  };
-
-  const inativar = async () => {
-    try {
-      const r = await fetch(`/api/funcionarios/${f.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "Inativo" }),
-      });
-      if (!r.ok) throw new Error();
-      setOpen(false);
-      toast.success("Funcionário inativado", `${f.nome} não aparecerá como ativo`);
-      startTransition(() => router.refresh());
-    } catch {
-      toast.error("Não foi possível inativar");
-    }
-  };
-
-  return (
-    <>
-      <button type="button" onClick={() => setOpen(true)} className="rounded p-1 text-rose-500 transition hover:bg-rose-50" title="Excluir funcionário" aria-label={`Excluir ${f.nome}`}>🗑</button>
-      {open && (
-        <Modal title="Excluir funcionário" onClose={() => setOpen(false)} size="sm">
-          <div className="p-5">
-            <p className="text-sm text-slate-700">Deseja realmente excluir <strong>{f.nome}</strong> (matrícula {f.matricula || "—"})?</p>
-            <p className="mt-2 text-xs text-slate-500">Funcionários com histórico de vendas não podem ser removidos — nesse caso use <strong>Inativar</strong> para preservar os dados.</p>
-            {erro && <p role="alert" className="mt-4 rounded-lg bg-rose-50 p-3 text-xs font-semibold text-rose-700">{erro}</p>}
-            <div className="mt-5 flex flex-wrap justify-end gap-2">
-              <button type="button" onClick={() => setOpen(false)} className="rounded-lg border border-slate-300 px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50">Cancelar</button>
-              <button type="button" onClick={inativar} className="rounded-lg border border-amber-400 bg-amber-50 px-4 py-2 text-xs font-bold text-amber-700 hover:bg-amber-100">Inativar</button>
-              <button type="button" onClick={excluir} disabled={busy} className="rounded-lg bg-rose-600 px-4 py-2 text-xs font-bold text-white hover:bg-rose-700 disabled:opacity-60">{busy ? "Excluindo..." : "Excluir"}</button>
-            </div>
-          </div>
-        </Modal>
-      )}
-    </>
-  );
+  return <button className="rounded p-1 text-red-500 hover:bg-red-50" title={`Excluir ${f.nome}`} aria-label={`Excluir ${f.nome}`}>🗑</button>;
 }
-
 function StatusToggle({ f }: { f: FuncionarioLinha }) {
-  const router = useRouter();
-  const toast = useToast();
-  const [, startTransition] = useTransition();
-  const proximo = f.status === "Ativo" ? "Férias" : f.status === "Férias" ? "Inativo" : "Ativo";
-  const alternar = async () => {
-    try {
-      const r = await fetch(`/api/funcionarios/${f.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: proximo }),
-      });
-      if (!r.ok) throw new Error();
-      toast.info(`Status alterado para ${proximo}`, f.nome);
-      startTransition(() => router.refresh());
-    } catch {
-      toast.error("Não foi possível alterar o status");
-    }
+  const [status, setStatus] = useState(f.status);
+  const cycle = () => {
+    const next = status === "Ativo" ? "Férias" : status === "Férias" ? "Inativo" : "Ativo";
+    setStatus(next);
   };
+  const cor = status === "Ativo" ? "bg-emerald-100 text-emerald-700" : status === "Férias" ? "bg-amber-100 text-amber-700" : "bg-rose-100 text-rose-700";
   return (
-    <button type="button" onClick={alternar} title={`Alterar para ${proximo}`} className="transition hover:opacity-70">
-      <StatusBadge status={f.status} />
+    <button onClick={cycle} className={`rounded-full px-2 py-0.5 text-[9px] font-bold uppercase ${cor}`} title="Clique para alternar status">
+      {status}
     </button>
   );
 }
@@ -237,7 +92,7 @@ export function EquipeTable({ rows, filterQuery }: { rows: FuncionarioLinha[]; f
           {r.aba && (
             <a href={`/?tab=${r.aba}&${filterQuery}`} className="rounded p-1 text-emerald-600 transition hover:bg-emerald-50" title="Abrir painel individual" aria-label={`Abrir painel de ${r.nome}`}>📊</a>
           )}
-          <EditEmployee f={r} onDone={() => {}} />
+          <EditEmployee f={r} />
           <DeleteEmployee f={r} />
         </div>
       ),
@@ -251,7 +106,6 @@ export function EquipeTable({ rows, filterQuery }: { rows: FuncionarioLinha[]; f
       initialSort={{ key: "realizado", dir: "desc" }}
       searchFields={(r) => [r.nome, r.matricula, r.email, r.cargo, r.status]}
       searchPlaceholder="Buscar por nome, matrícula, e-mail, cargo ou status..."
-      headerAction={<EmployeeEntry />}
       emptyLabel="Nenhum funcionário cadastrado"
     />
   );

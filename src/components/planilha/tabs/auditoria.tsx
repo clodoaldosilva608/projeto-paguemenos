@@ -1,6 +1,7 @@
 import { type DashboardData } from "@/lib/planilha/data";
 import { AuditoriaTable, type AtividadeLinha } from "@/components/planilha/tabs/auditoria-table";
 import { ImportCsvButton } from "@/components/planilha/import-csv";
+import { KpiCard, Panel } from "@/components/planilha/kit";
 
 export function Auditoria({ d }: { d: DashboardData }) {
   const linhas: AtividadeLinha[] = d.auditoria;
