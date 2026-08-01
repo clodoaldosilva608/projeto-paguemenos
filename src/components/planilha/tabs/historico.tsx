@@ -11,7 +11,7 @@ import { LineChart, DonutChart } from "@/components/planilha/charts";
 import { GoalsManager, SalesEntry, EmployeeEntry } from "@/components/planilha/data-manager";
 import { VendasTable, IndicadoresTable } from "@/components/planilha/tabs/historico-tables";
 import {
-  OrionnLogo,
+  
   KpiCard,
   Panel,
   StatusPill,
@@ -33,7 +33,6 @@ export function Historico({ d }: { d: DashboardData }) {
     <div className="min-h-full bg-[#0a1f3d] p-4 flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-5">
-          <OrionnLogo />
           <div className="border-l border-[#28518f] pl-5">
             <h1 className="text-xl font-extrabold text-white uppercase">Histórico de Vendas</h1>
             <p className="text-[11px] text-sky-200">
@@ -108,7 +107,6 @@ export function VendedorSheet({ d, vendedorId }: { d: DashboardData; vendedorId:
     <div className="min-h-full bg-[#0a1f3d] p-4 flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-5">
-          <OrionnLogo />
           <div className="border-l border-[#28518f] pl-5">
             <h1 className="text-xl font-extrabold text-white">{v.nome}</h1>
             <p className="text-[11px] text-sky-200">

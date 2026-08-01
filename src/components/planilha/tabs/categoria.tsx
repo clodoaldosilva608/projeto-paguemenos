@@ -12,7 +12,7 @@ import {
 } from "@/lib/planilha/data";
 import { LineChart, DonutChart, BarChartH } from "@/components/planilha/charts";
 import {
-  OrionnLogo,
+  
   KpiCard,
   Panel,
   StatusPill,
@@ -115,7 +115,6 @@ export function CategoriaDashboard({
       {/* Cabeçalho */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-5">
-          <OrionnLogo />
           <div className="border-l border-[#28518f] pl-5">
             <h1 className="text-xl font-extrabold text-white uppercase">{categoria}</h1>
             <p className="text-[11px] text-sky-200">{subtitulo}</p>

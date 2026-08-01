@@ -74,7 +74,6 @@ export function Equipe({ d, filterQuery }: { d: DashboardData; filterQuery: stri
     <div className="min-h-full bg-[#0a1f3d] p-4 flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-5">
-          <OrionnLogo />
           <div className="border-l border-[#28518f] pl-5">
             <h1 className="text-xl font-extrabold uppercase text-white">Gestão de Equipe</h1>
             <p className="text-[11px] text-sky-200">

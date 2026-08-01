@@ -16,7 +16,6 @@ import { InsightsPanel, ExecutiveBanner } from "@/components/planilha/insights-p
 import { Podium } from "@/components/planilha/ui/podium";
 import { ActivityFeed, montarFeed } from "@/components/planilha/ui/activity-feed";
 import {
-  OrionnLogo,
   KpiCard,
   Panel,
   StatusPill,
@@ -43,11 +42,6 @@ export function DashboardGeral({ d }: { d: DashboardData }) {
 
   return (
     <div className="flex flex-col gap-3">
-      {/* Logo */}
-      <div className="flex items-center justify-center py-1">
-        <OrionnLogo small />
-      </div>
-
       {/* Resumo executivo */}
       <ExecutiveBanner texto={resumo.texto} tone={resumo.tone} />
 

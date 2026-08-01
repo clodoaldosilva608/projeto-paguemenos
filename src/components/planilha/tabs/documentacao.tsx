@@ -1,4 +1,4 @@
-import { OrionnLogo, DashFooter } from "@/components/planilha/kit";
+import {  DashFooter } from "@/components/planilha/kit";
 
 // ── 13 - Fórmulas ────────────────────────────────────────────────────────────
 export const FORMULAS: { grupo: string; itens: { nome: string; formula: string; desc: string }[] }[] = [
@@ -127,7 +127,6 @@ export function Formulas() {
     <div className="min-h-full bg-[#0a1f3d] p-4 flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-5">
-          <OrionnLogo />
           <div className="border-l border-[#28518f] pl-5">
             <h1 className="text-xl font-extrabold text-white uppercase">Fórmulas de Uso</h1>
             <p className="text-[11px] text-sky-200">
@@ -263,7 +262,6 @@ export function Manual() {
     <div className="min-h-full bg-[#0a1f3d] p-4 flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-5">
-          <OrionnLogo />
           <div className="border-l border-[#28518f] pl-5">
             <h1 className="text-xl font-extrabold text-white uppercase">Manual de Uso</h1>
             <p className="text-[11px] text-sky-200">
