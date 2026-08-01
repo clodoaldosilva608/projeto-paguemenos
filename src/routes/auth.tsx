@@ -81,10 +81,12 @@ function AuthPage() {
 
       <motion.div initial={{ opacity: 0, y: 24, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.5 }} className="relative z-10 w-full max-w-md">
         <div className="mb-8 text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-2xl shadow-blue-500/30">
-            <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={1.5} className="h-8 w-8"><circle cx="12" cy="12" r="3" /><path d="M12 2v4M12 18v4M4.9 4.9l2.9 2.9M16.2 16.2l2.9 2.9M2 12h4M18 12h4M4.9 19.1l2.9-2.9M16.2 7.8l2.9-2.9" strokeLinecap="round" /></svg>
-          </div>
-          <h1 className="mt-4 font-display text-3xl text-white">ORION — Gestão Multi-Empresa e Performance</h1>
+          <img
+            src="/assets/images/orion_logo.png"
+            alt="ORION Logo"
+            className="mx-auto h-20 w-auto drop-shadow-[0_0_20px_rgba(0,255,255,0.2)]"
+          />
+          <h1 className="mt-4 font-display text-2xl text-white sm:text-3xl">ORION — Gestão Multi-Empresa e Performance</h1>
           <p className="mt-1 text-sm text-slate-400 dark:text-slate-500">
             {modo === "signin" && "Faça login para acessar sua conta"}
             {modo === "signup" && "Crie sua conta com o e-mail cadastrado pelo gestor"}
