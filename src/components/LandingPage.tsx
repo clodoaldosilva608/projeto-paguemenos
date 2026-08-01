@@ -295,32 +295,81 @@ function Footer() {
   const navigate = useNavigate();
   return (
     <footer className="relative z-10 mt-auto border-t border-white/10 bg-black/40 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 py-8 text-xs text-slate-400 dark:text-slate-500 sm:flex-row">
-        <div className="flex items-center gap-2">
-          <img
-            src="/assets/images/orion_logo.png"
-            alt="ORION Logo"
-            className="h-7 w-auto"
-          />
+      <div className="mx-auto max-w-7xl px-6 py-10">
+        {/* Grid de seções */}
+        <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-6">
+          {/* Logo + descrição */}
+          <div className="col-span-2 sm:col-span-3 lg:col-span-2">
+            <img
+              src="/assets/images/orion_logo.png"
+              alt="ORION Logo"
+              className="h-8 w-auto"
+            />
+            <p className="mt-3 max-w-xs text-[11px] leading-relaxed text-slate-500">
+              Plataforma de gestão de vendas, metas e performance em tempo real para redes de farmácia e varejo.
+            </p>
+          </div>
+
+          {/* Institucional */}
+          <div>
+            <h4 className="mb-3 text-[11px] font-bold uppercase tracking-wider text-slate-300">Institucional</h4>
+            <ul className="space-y-2 text-[11px] text-slate-500">
+              <li><a href="#" className="hover:text-sky-400 transition-colors">Sobre o Orion</a></li>
+              <li><a href="#" className="hover:text-sky-400 transition-colors">Quem Somos</a></li>
+              <li><a href="#" className="hover:text-sky-400 transition-colors">Blog</a></li>
+              <li><a href="#" className="hover:text-sky-400 transition-colors">Carreiras</a></li>
+            </ul>
+          </div>
+
+          {/* Suporte */}
+          <div>
+            <h4 className="mb-3 text-[11px] font-bold uppercase tracking-wider text-slate-300">Suporte</h4>
+            <ul className="space-y-2 text-[11px] text-slate-500">
+              <li><a href="#" className="hover:text-sky-400 transition-colors">FAQ</a></li>
+              <li><a href="#" className="hover:text-sky-400 transition-colors">Central de Ajuda</a></li>
+              <li><a href="#" className="hover:text-sky-400 transition-colors">Contato</a></li>
+              <li><a href="#" className="hover:text-sky-400 transition-colors">Status do Sistema</a></li>
+            </ul>
+          </div>
+
+          {/* Legal */}
+          <div>
+            <h4 className="mb-3 text-[11px] font-bold uppercase tracking-wider text-slate-300">Legal</h4>
+            <ul className="space-y-2 text-[11px] text-slate-500">
+              <li><a href="#" className="hover:text-sky-400 transition-colors">Termos de Serviço</a></li>
+              <li><a href="#" className="hover:text-sky-400 transition-colors">Política de Privacidade</a></li>
+              <li><a href="#" className="hover:text-sky-400 transition-colors">LGPD</a></li>
+              <li><a href="#" className="hover:text-sky-400 transition-colors">Cookies</a></li>
+            </ul>
+          </div>
+
+          {/* Admin */}
+          <div>
+            <h4 className="mb-3 text-[11px] font-bold uppercase tracking-wider text-slate-300">Acesso</h4>
+            <ul className="space-y-2 text-[11px] text-slate-500">
+              <li>
+                <button
+                  onClick={() => navigate({ to: "/admin/login" })}
+                  className="inline-flex items-center gap-1.5 text-slate-500 hover:text-sky-400 transition-colors"
+                >
+                  <ShieldCheck className="h-3 w-3" /> Painel Admin
+                </button>
+              </li>
+              <li><a href="#" className="hover:text-sky-400 transition-colors">Entrar no Sistema</a></li>
+              <li><a href="#" className="hover:text-sky-400 transition-colors">TV Mode</a></li>
+            </ul>
+          </div>
         </div>
-        <p className="text-center">© 2026 Orion · Sistema de Gestão Multi-Empresa</p>
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => navigate({ to: "/admin/login" })}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-white/10 hover:text-white"
-            title="Acesso restrito ao painel administrativo"
-          >
-            <ShieldCheck className="h-3.5 w-3.5" />
-            Painel Admin
-          </button>
-          <span>·</span>
-          <a href="https://supabase.com" target="_blank" rel="noreferrer" className="hover:text-white">
-            Supabase
-          </a>
-          <span>·</span>
-          <a href="https://vercel.com" target="_blank" rel="noreferrer" className="hover:text-white">
-            Vercel
-          </a>
+
+        {/* Linha inferior */}
+        <div className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-white/5 pt-6 sm:flex-row">
+          <p className="text-[10px] text-slate-600">© 2026 Orion · Plataforma de Gestão de Vendas e Performance</p>
+          <div className="flex items-center gap-4 text-[10px] text-slate-600">
+            <span>Powered by</span>
+            <a href="https://supabase.com" target="_blank" rel="noreferrer" className="hover:text-slate-400">Supabase</a>
+            <span>·</span>
+            <a href="https://vercel.com" target="_blank" rel="noreferrer" className="hover:text-slate-400">Vercel</a>
+          </div>
         </div>
       </div>
     </footer>
