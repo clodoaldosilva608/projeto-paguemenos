@@ -115,7 +115,9 @@ export interface AuditoriaRow {
 
 export interface DashboardData {
   filtros: DashboardFilters;
+  periodoAnterior: { inicio: string; fim: string };
   vendedoresList: { id: number; nome: string; cargo: string; matricula: string; email: string; status: string }[];
+  todas: VendaRow[];
   atuais: VendaRow[];
   anteriores: VendaRow[];
   indicadores: IndicadorRow[];
@@ -123,6 +125,7 @@ export interface DashboardData {
   porCategoria: Record<Categoria, Agregado>;
   total: Agregado;
   porVendedor: Record<number, Agregado>;
+  metaMap: Map<string, number>;
   auditoria: AuditoriaRow[];
 }
 
@@ -243,15 +246,25 @@ export async function getDashboardData(
     );
   }
 
+  const metaMap = new Map<string, number>();
+  for (const r of indicadoresTodos) {
+    const chaveVend = `${r.categoria}|${r.vendedorId}`;
+    metaMap.set(chaveVend, (metaMap.get(chaveVend) ?? 0) + r.meta);
+    const chaveLoja = `${r.categoria}|loja`;
+    metaMap.set(chaveLoja, (metaMap.get(chaveLoja) ?? 0) + r.meta);
+  }
+
   return {
     filtros,
+    periodoAnterior: antFiltro,
     vendedoresList: profiles.map((p, i) => ({
       id: i + 1, nome: p.nome, cargo: p.cargo || "Vendedor",
       matricula: String(p.id).slice(0, 8), email: p.email,
       status: p.ativo ? "Ativo" : "Inativo",
     })),
+    todas,
     atuais, anteriores, indicadores, indicadoresTodos,
-    porCategoria, total, porVendedor, auditoria,
+    porCategoria, total, porVendedor, metaMap, auditoria,
   };
 }
 
