@@ -14,7 +14,6 @@ import {
   ClipboardList,
   ShieldCheck,
   Activity,
-  MousePointer2,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import IAAssistantFAB from "./IAAssistantFAB";
@@ -195,77 +194,13 @@ function ScrollIndicator({ onClick }: { onClick: () => void }) {
 }
 
 // ============================================================================
-// KINETIC GRID SECTION (Originkit)
+// KINETIC GRID — agora usado como plano de fundo fixo de tela cheia
+// (declarado no componente LandingPage, não mais como seção dedicada).
 // ============================================================================
 
-function KineticGridSection() {
-  return (
-    <section
-      id="kinetic-grid"
-      className="relative z-10 mx-auto w-full max-w-7xl px-6 py-12 sm:py-16"
-      aria-label="Demonstração interativa"
-    >
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-80px" }}
-        transition={{ duration: 0.6 }}
-        className="mx-auto mb-6 max-w-2xl text-center"
-      >
-        <span className="inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-cyan-300">
-          <MousePointer2 className="h-3.5 w-3.5" /> Interativo
-        </span>
-        <h2 className="font-display mt-4 text-2xl font-black tracking-tight text-white sm:text-4xl">
-          Uma grade que <span className="text-cyan-400">reage</span> ao seu toque
-        </h2>
-        <p className="mt-3 text-sm text-slate-400 sm:text-base">
-          Mova o cursor sobre a área abaixo — os nós da grade são atraídos pela
-          sua posição, com um rastro luminoso que segue cada movimento.
-        </p>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, scale: 0.97 }}
-        whileInView={{ opacity: 1, scale: 1 }}
-        viewport={{ once: true, margin: "-40px" }}
-        transition={{ duration: 0.7, ease: [0.33, 1, 0.68, 1] as const }}
-        className="relative h-[360px] w-full overflow-hidden rounded-3xl border border-white/10 shadow-2xl shadow-cyan-900/20 sm:h-[460px]"
-      >
-        <KineticGrid
-          background="transparent"
-          dotColor="#7DD3FC"
-          lineColor="#22D3EE"
-          trailColor="#06B6D4"
-          spacing={28}
-          radius={420}
-          strength={5}
-          trail={true}
-          style={{
-            background:
-              "radial-gradient(circle at 50% 50%, rgba(8,47,73,0.85) 0%, rgba(2,8,23,0.95) 100%)",
-          }}
-        />
-
-        {/* Overlay com texto de instrução (não bloqueia pointer events no canvas) */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-center p-4 sm:p-6">
-          <div className="rounded-full border border-white/10 bg-black/40 px-4 py-1.5 text-[11px] font-medium text-slate-300 backdrop-blur-sm">
-            <span className="hidden sm:inline">Mova o mouse ou toque na tela</span>
-            <span className="sm:hidden">Toque e arraste</span>
-          </div>
-        </div>
-
-        {/* Vinheta superior para reforçar profundidade */}
-        <div
-          className="pointer-events-none absolute inset-x-0 top-0 h-24"
-          style={{
-            background:
-              "linear-gradient(to bottom, rgba(2,8,23,0.6) 0%, transparent 100%)",
-          }}
-        />
-      </motion.div>
-    </section>
-  );
-}
+// (Seção dedicada removida — o KineticGrid agora é renderizado como camada
+// de fundo fixa em <LandingPage />, com globalMouse=true para capturar
+// eventos em window sem bloquear cliques no conteúdo.)
 
 // ============================================================================
 // FEATURES
@@ -467,22 +402,46 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="relative flex min-h-screen flex-col overflow-hidden text-slate-100">
+    <div className="relative z-10 flex min-h-screen flex-col overflow-hidden text-slate-100">
       <style>{LANDING_STYLES}</style>
 
-      {/* Background layers */}
-      <div className="orion-aurora-bg pointer-events-none absolute inset-0" />
-      <GridMesh />
-      <FloatingParticles count={26} />
+      {/* ============================================================
+          PLANO DE FUNDO — Kinetic Grid (tela cheia, fixo, interativo)
+          - position: fixed; inset: 0 → cobre toda a viewport
+          - globalMouse → escuta mouse/touch em window
+          - pointer-events: none → não bloqueia cliques no conteúdo
+          - z-index: 0 → fica atrás de todo o conteúdo (z-10+)
+         ============================================================ */}
+      <div className="pointer-events-none fixed inset-0 z-0">
+        <KineticGrid
+          background="#0a192f"
+          dotColor="#7DD3FC"
+          lineColor="#22D3EE"
+          trailColor="#06B6D4"
+          spacing={36}
+          radius={420}
+          strength={4}
+          trail={true}
+          globalMouse={true}
+        />
+        {/* Camada de gradiente sutil para dar profundidade sobre o grid */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(circle at 50% 30%, rgba(8,47,73,0.35) 0%, rgba(10,25,47,0.55) 60%, rgba(2,8,23,0.75) 100%)",
+          }}
+        />
+      </div>
 
-      {/* Glows decorativos */}
+      {/* Glows decorativos (acima do grid, abaixo do conteúdo) */}
       <div
-        className="pointer-events-none absolute left-1/4 top-0 h-96 w-96 rounded-full blur-[140px]"
-        style={{ background: "rgba(21,101,192,0.35)" }}
+        className="pointer-events-none fixed left-1/4 top-0 z-0 h-96 w-96 rounded-full blur-[140px]"
+        style={{ background: "rgba(21,101,192,0.18)" }}
       />
       <div
-        className="pointer-events-none absolute bottom-0 right-1/4 h-96 w-96 rounded-full blur-[140px]"
-        style={{ background: "rgba(66,165,245,0.25)" }}
+        className="pointer-events-none fixed bottom-0 right-1/4 z-0 h-96 w-96 rounded-full blur-[140px]"
+        style={{ background: "rgba(66,165,245,0.14)" }}
       />
 
       {/* HEADER */}
@@ -521,9 +480,6 @@ export default function LandingPage() {
 
       {/* HERO — nova seção com partículas 3D */}
       <HeroSection />
-
-      {/* KINETIC GRID — seção interativa do Originkit */}
-      <KineticGridSection />
 
       {/* FEATURES */}
       <div ref={featuresRef as React.RefObject<HTMLDivElement>}>

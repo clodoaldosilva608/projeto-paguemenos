@@ -30,9 +30,10 @@ export default function HeroSection() {
   const navigate = useNavigate();
 
   return (
-    <section className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-[#0A192F] to-[#0d1b2a] text-white">
-      {/* Fundo 3D de partículas */}
-      <ParticleBackground />
+    <section className="relative flex min-h-screen items-center justify-center overflow-hidden bg-transparent text-white">
+      {/* Fundo 3D de partículas — desativado; o KineticGrid agora é o fundo
+          global da landing page (declarado em LandingPage.tsx). */}
+      {/* <ParticleBackground /> */}
 
       {/* Glow radial de fundo */}
       <div

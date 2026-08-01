@@ -20,6 +20,12 @@ interface KineticGridProps {
   radius?: number; // cursor attraction radius in px
   strength?: number; // 1-10 attraction strength
   trail?: boolean; // show cursor trail line
+  /**
+   * Quando true, escuta eventos de mouse/touch em `window` em vez do host,
+   * e desabilita pointer-events no host. Use para usar o KineticGrid como
+   * plano de fundo de tela cheia sem bloquear cliques no conteúdo acima.
+   */
+  globalMouse?: boolean;
   style?: CSSProperties;
 }
 
@@ -45,6 +51,7 @@ export default function KineticGrid(props: KineticGridProps) {
     radius = 200,
     strength = 4,
     trail = true,
+    globalMouse = false,
   } = props;
 
   const hostRef = useRef<HTMLDivElement>(null);
@@ -192,10 +199,16 @@ export default function KineticGrid(props: KineticGridProps) {
       if (t) setMouse(t.clientX, t.clientY);
     };
 
-    host.addEventListener("mousemove", onMove);
-    host.addEventListener("mouseleave", onLeave);
-    host.addEventListener("touchmove", onTouch, { passive: true });
-    host.addEventListener("touchend", onLeave);
+    // Em modo globalMouse, escutamos em `window` (e o host fica com
+    // pointer-events: none) para que o componente possa atuar como um
+    // plano de fundo de tela cheia sem bloquear cliques no conteúdo.
+    const eventTarget: EventTarget = globalMouse ? window : host;
+    eventTarget.addEventListener("mousemove", onMove as EventListener);
+    eventTarget.addEventListener("mouseleave", onLeave as EventListener);
+    eventTarget.addEventListener("touchmove", onTouch as EventListener, {
+      passive: true,
+    });
+    eventTarget.addEventListener("touchend", onLeave as EventListener);
 
     let raf = 0;
     const frame = () => {
@@ -299,10 +312,10 @@ export default function KineticGrid(props: KineticGridProps) {
     return () => {
       cancelAnimationFrame(raf);
       ro?.disconnect();
-      host.removeEventListener("mousemove", onMove);
-      host.removeEventListener("mouseleave", onLeave);
-      host.removeEventListener("touchmove", onTouch);
-      host.removeEventListener("touchend", onLeave);
+      eventTarget.removeEventListener("mousemove", onMove as EventListener);
+      eventTarget.removeEventListener("mouseleave", onLeave as EventListener);
+      eventTarget.removeEventListener("touchmove", onTouch as EventListener);
+      eventTarget.removeEventListener("touchend", onLeave as EventListener);
     };
   }, [
     background,
@@ -313,6 +326,7 @@ export default function KineticGrid(props: KineticGridProps) {
     radius,
     strength,
     trail,
+    globalMouse,
     isStatic,
   ]);
 
@@ -325,7 +339,8 @@ export default function KineticGrid(props: KineticGridProps) {
         height: "100%",
         overflow: "hidden",
         background,
-        cursor: "crosshair",
+        cursor: globalMouse ? "default" : "crosshair",
+        pointerEvents: globalMouse ? "none" : "auto",
         ...(props.style || {}),
       }}
     >
