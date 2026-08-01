@@ -1,7 +1,7 @@
 import { cn } from "../utils/cn";
 import { useAuth } from "../contexts/AuthContext";
 import { useTema, useBranding } from "../contexts/ThemeContext";
-import { DynamicLogo } from "./DynamicBranding";
+import { OrionLogo } from "./OrionLogo";
 import type { Perfil } from "../types/core";
 
 export type Pagina =
@@ -272,7 +272,7 @@ export default function Sidebar({ paginaAtual, onNavegar, aberto, onFechar }: Si
       >
         <div className="flex items-center gap-3 border-b border-white/[0.06] px-5 py-5">
           <div className="relative">
-            <DynamicLogo size="md" />
+            <OrionLogo size="sm" />
             <span className="absolute -right-0.5 -top-0.5 h-2 w-2 animate-pulse rounded-full bg-emerald-400 ring-2 ring-slate-950" />
           </div>
           <div>

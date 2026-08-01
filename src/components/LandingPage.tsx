@@ -1,6 +1,8 @@
 import { useMemo, useRef } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { useNavigate } from "@tanstack/react-router";
+import { CosmicOrb } from "./CosmicOrb";
+import { MagneticButton } from "./MagneticButton";
 import {
   LogIn,
   Tv,
@@ -296,25 +298,11 @@ function Footer() {
     <footer className="relative z-10 mt-auto border-t border-white/10 bg-black/40 backdrop-blur">
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 py-8 text-xs text-slate-400 dark:text-slate-500 sm:flex-row">
         <div className="flex items-center gap-2">
-          <div
-            className="flex h-7 w-7 items-center justify-center rounded-lg"
-            style={{ background: COLORS.blueOrion }}
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="white"
-              strokeWidth={1.5}
-              className="h-4 w-4"
-            >
-              <circle cx="12" cy="12" r="3" />
-              <path
-                d="M12 2v4M12 18v4M4.9 4.9l2.9 2.9M16.2 16.2l2.9 2.9M2 12h4M18 12h4M4.9 19.1l2.9-2.9M16.2 7.8l2.9-2.9"
-                strokeLinecap="round"
-              />
-            </svg>
-          </div>
-          <span className="font-display text-sm tracking-wide text-white">ORION</span>
+          <img
+            src="/assets/images/orion_logo_3.png"
+            alt="ORION Logo"
+            className="h-7 w-auto"
+          />
         </div>
         <p className="text-center">© 2026 Orion · Sistema de Gestão Multi-Empresa</p>
         <div className="flex items-center gap-4">
@@ -377,22 +365,12 @@ export default function LandingPage() {
       {/* HEADER */}
       <header className="relative z-20 mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-5">
         <div className="flex items-center gap-2">
-          <div
-            className="flex h-9 w-9 items-center justify-center rounded-xl shadow-lg"
-            style={{
-              background: `linear-gradient(135deg, ${COLORS.blueLight}, ${COLORS.blueOrion})`,
-              boxShadow: `0 8px 24px -8px ${COLORS.blueOrion}`,
-            }}
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={1.5} className="h-5 w-5">
-              <circle cx="12" cy="12" r="3" />
-              <path
-                d="M12 2v4M12 18v4M4.9 4.9l2.9 2.9M16.2 16.2l2.9 2.9M2 12h4M18 12h4M4.9 19.1l2.9-2.9M16.2 7.8l2.9-2.9"
-                strokeLinecap="round"
-              />
-            </svg>
-          </div>
-          <span className="font-display text-xl font-black tracking-wide text-white">ORION</span>
+          <img
+            src="/assets/images/orion_logo_3.png"
+            alt="ORION Logo"
+            className="h-9 w-auto"
+            loading="eager"
+          />
         </div>
 
         <nav className="flex items-center gap-2">
@@ -419,6 +397,7 @@ export default function LandingPage() {
       </header>
 
       {/* HERO */}
+      <CosmicOrb />
       <section className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col justify-center px-6 pb-16 pt-10 sm:pt-16">
         <motion.div
           initial={{ opacity: 0, y: 28 }}
@@ -443,21 +422,18 @@ export default function LandingPage() {
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
-            <button
+            <MagneticButton
               onClick={irParaAuth}
-              className="orion-glow-pulse inline-flex items-center gap-2 rounded-xl px-6 py-3.5 text-sm font-bold text-white transition-transform hover:scale-[1.03]"
-              style={{
-                background: `linear-gradient(135deg, ${COLORS.blueOrion}, ${COLORS.blueLight})`,
-              }}
-            >
+              className="orion-glow-pulse inline-flex items-center gap-2 rounded-xl px-6 py-3.5 text-sm font-bold text-white"
+              >
               <LogIn className="h-4 w-4" /> Entrar no Sistema
-            </button>
-            <button
+            </MagneticButton>
+            <MagneticButton
               onClick={irParaTV}
-              className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/5 px-6 py-3.5 text-sm font-bold text-white backdrop-blur transition-colors hover:bg-white/10"
+              className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/5 px-6 py-3.5 text-sm font-bold text-white backdrop-blur hover:bg-white/10"
             >
               <Tv className="h-4 w-4" /> Painel em Tempo Real
-            </button>
+            </MagneticButton>
           </div>
 
           <p className="mt-3 text-xs text-slate-400 dark:text-slate-500">
