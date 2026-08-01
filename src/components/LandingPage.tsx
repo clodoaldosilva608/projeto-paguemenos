@@ -314,10 +314,10 @@ function Footer() {
           <div>
             <h4 className="mb-3 text-[11px] font-bold uppercase tracking-wider text-slate-300">Institucional</h4>
             <ul className="space-y-2 text-[11px] text-slate-500">
-              <li><a href="#" className="hover:text-sky-400 transition-colors">Sobre o Orion</a></li>
-              <li><a href="#" className="hover:text-sky-400 transition-colors">Quem Somos</a></li>
-              <li><a href="#" className="hover:text-sky-400 transition-colors">Blog</a></li>
-              <li><a href="#" className="hover:text-sky-400 transition-colors">Carreiras</a></li>
+              <li><a href="/sobre" className="hover:text-sky-400 transition-colors">Sobre o Orion</a></li>
+              <li><a href="/quem-somos" className="hover:text-sky-400 transition-colors">Quem Somos</a></li>
+              <li><a href="/blog" className="hover:text-sky-400 transition-colors">Blog</a></li>
+              <li><a href="/carreiras" className="hover:text-sky-400 transition-colors">Carreiras</a></li>
             </ul>
           </div>
 
@@ -325,10 +325,10 @@ function Footer() {
           <div>
             <h4 className="mb-3 text-[11px] font-bold uppercase tracking-wider text-slate-300">Suporte</h4>
             <ul className="space-y-2 text-[11px] text-slate-500">
-              <li><a href="#" className="hover:text-sky-400 transition-colors">FAQ</a></li>
-              <li><a href="#" className="hover:text-sky-400 transition-colors">Central de Ajuda</a></li>
-              <li><a href="#" className="hover:text-sky-400 transition-colors">Contato</a></li>
-              <li><a href="#" className="hover:text-sky-400 transition-colors">Status do Sistema</a></li>
+              <li><a href="/faq" className="hover:text-sky-400 transition-colors">FAQ</a></li>
+              <li><a href="/central-ajuda" className="hover:text-sky-400 transition-colors">Central de Ajuda</a></li>
+              <li><a href="/contato" className="hover:text-sky-400 transition-colors">Contato</a></li>
+              <li><a href="/status" className="hover:text-sky-400 transition-colors">Status do Sistema</a></li>
             </ul>
           </div>
 
@@ -336,10 +336,10 @@ function Footer() {
           <div>
             <h4 className="mb-3 text-[11px] font-bold uppercase tracking-wider text-slate-300">Legal</h4>
             <ul className="space-y-2 text-[11px] text-slate-500">
-              <li><a href="#" className="hover:text-sky-400 transition-colors">Termos de Serviço</a></li>
-              <li><a href="#" className="hover:text-sky-400 transition-colors">Política de Privacidade</a></li>
-              <li><a href="#" className="hover:text-sky-400 transition-colors">LGPD</a></li>
-              <li><a href="#" className="hover:text-sky-400 transition-colors">Cookies</a></li>
+              <li><a href="/legal/termos" className="hover:text-sky-400 transition-colors">Termos de Serviço</a></li>
+              <li><a href="/legal/privacidade" className="hover:text-sky-400 transition-colors">Política de Privacidade</a></li>
+              <li><a href="/legal/lgpd" className="hover:text-sky-400 transition-colors">LGPD</a></li>
+              <li><a href="/legal/cookies" className="hover:text-sky-400 transition-colors">Cookies</a></li>
             </ul>
           </div>
 
@@ -355,8 +355,8 @@ function Footer() {
                   <ShieldCheck className="h-3 w-3" /> Painel Admin
                 </button>
               </li>
-              <li><a href="#" className="hover:text-sky-400 transition-colors">Entrar no Sistema</a></li>
-              <li><a href="#" className="hover:text-sky-400 transition-colors">TV Mode</a></li>
+              <li><button onClick={() => navigate({ to: "/auth" })} className="hover:text-sky-400 transition-colors">Entrar no Sistema</button></li>
+              <li><button onClick={() => navigate({ to: "/tv" })} className="hover:text-sky-400 transition-colors">TV Mode</button></li>
             </ul>
           </div>
         </div>
