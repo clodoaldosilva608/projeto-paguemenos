@@ -2,6 +2,7 @@ import { useMemo, useRef } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { useNavigate } from "@tanstack/react-router";
 import HeroSection from "./HeroSection";
+import KineticGrid from "./KineticGrid";
 import {
   LogIn,
   Tv,
@@ -13,6 +14,7 @@ import {
   ClipboardList,
   ShieldCheck,
   Activity,
+  MousePointer2,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import IAAssistantFAB from "./IAAssistantFAB";
@@ -189,6 +191,79 @@ function ScrollIndicator({ onClick }: { onClick: () => void }) {
       <span className="text-[11px] uppercase tracking-[0.25em]">Explorar</span>
       <ChevronDown className="h-5 w-5" />
     </button>
+  );
+}
+
+// ============================================================================
+// KINETIC GRID SECTION (Originkit)
+// ============================================================================
+
+function KineticGridSection() {
+  return (
+    <section
+      id="kinetic-grid"
+      className="relative z-10 mx-auto w-full max-w-7xl px-6 py-12 sm:py-16"
+      aria-label="Demonstração interativa"
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-80px" }}
+        transition={{ duration: 0.6 }}
+        className="mx-auto mb-6 max-w-2xl text-center"
+      >
+        <span className="inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-cyan-300">
+          <MousePointer2 className="h-3.5 w-3.5" /> Interativo
+        </span>
+        <h2 className="font-display mt-4 text-2xl font-black tracking-tight text-white sm:text-4xl">
+          Uma grade que <span className="text-cyan-400">reage</span> ao seu toque
+        </h2>
+        <p className="mt-3 text-sm text-slate-400 sm:text-base">
+          Mova o cursor sobre a área abaixo — os nós da grade são atraídos pela
+          sua posição, com um rastro luminoso que segue cada movimento.
+        </p>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, scale: 0.97 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true, margin: "-40px" }}
+        transition={{ duration: 0.7, ease: [0.33, 1, 0.68, 1] as const }}
+        className="relative h-[360px] w-full overflow-hidden rounded-3xl border border-white/10 shadow-2xl shadow-cyan-900/20 sm:h-[460px]"
+      >
+        <KineticGrid
+          background="transparent"
+          dotColor="#7DD3FC"
+          lineColor="#22D3EE"
+          trailColor="#06B6D4"
+          spacing={28}
+          radius={420}
+          strength={5}
+          trail={true}
+          style={{
+            background:
+              "radial-gradient(circle at 50% 50%, rgba(8,47,73,0.85) 0%, rgba(2,8,23,0.95) 100%)",
+          }}
+        />
+
+        {/* Overlay com texto de instrução (não bloqueia pointer events no canvas) */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-center p-4 sm:p-6">
+          <div className="rounded-full border border-white/10 bg-black/40 px-4 py-1.5 text-[11px] font-medium text-slate-300 backdrop-blur-sm">
+            <span className="hidden sm:inline">Mova o mouse ou toque na tela</span>
+            <span className="sm:hidden">Toque e arraste</span>
+          </div>
+        </div>
+
+        {/* Vinheta superior para reforçar profundidade */}
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 h-24"
+          style={{
+            background:
+              "linear-gradient(to bottom, rgba(2,8,23,0.6) 0%, transparent 100%)",
+          }}
+        />
+      </motion.div>
+    </section>
   );
 }
 
@@ -446,6 +521,9 @@ export default function LandingPage() {
 
       {/* HERO — nova seção com partículas 3D */}
       <HeroSection />
+
+      {/* KINETIC GRID — seção interativa do Originkit */}
+      <KineticGridSection />
 
       {/* FEATURES */}
       <div ref={featuresRef as React.RefObject<HTMLDivElement>}>
