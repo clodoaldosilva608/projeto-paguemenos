@@ -299,7 +299,7 @@ function Footer() {
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 py-8 text-xs text-slate-400 dark:text-slate-500 sm:flex-row">
         <div className="flex items-center gap-2">
           <img
-            src="/assets/images/orion_logo_3.png"
+            src="/assets/images/orion_logo.png"
             alt="ORION Logo"
             className="h-7 w-auto"
           />
@@ -366,7 +366,7 @@ export default function LandingPage() {
       <header className="relative z-20 mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-5">
         <div className="flex items-center gap-2">
           <img
-            src="/assets/images/orion_logo_3.png"
+            src="/assets/images/orion_logo.png"
             alt="ORION Logo"
             className="h-9 w-auto"
             loading="eager"

@@ -20,7 +20,7 @@ export function OrionLogo({ size = "md", className = "", showText = true }: Orio
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       <img
-        src="/assets/images/orion_logo_3.png"
+        src="/assets/images/orion_logo.png"
         alt="ORION Logo"
         className={`${SIZES[size]} w-auto`}
         loading="eager"
