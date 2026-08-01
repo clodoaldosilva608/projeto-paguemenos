@@ -378,41 +378,41 @@ function LinhaVendedorTV({ v, rank }: { v: VendedorTV; rank: number }) {
       transition={{ duration: 0.2, delay: rank * 0.03 }}
       className="border-b border-white/5 hover:bg-white/[0.03]"
     >
-      <td className="px-3 py-2 sm:px-4 sm:py-2.5">
-        <div className="flex items-center gap-2 sm:gap-3">
-          <span className="w-5 text-center text-xs sm:text-sm">{medalha ?? `#${rank + 1}`}</span>
+      <td className="px-2 py-1 sm:px-4 sm:py-2.5">
+        <div className="flex items-center gap-1.5 sm:gap-3">
+          <span className="w-4 text-center text-[10px] sm:w-5 sm:text-sm">{medalha ?? `#${rank + 1}`}</span>
           <div
-            className="flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-bold sm:h-9 sm:w-9 sm:text-xs"
+            className="flex h-5 w-5 items-center justify-center rounded-full text-[8px] font-bold sm:h-9 sm:w-9 sm:text-xs"
             style={{ background: `${st.color}22`, color: st.color }}
           >
             {iniciais}
           </div>
-          <span className="font-display truncate text-xs text-white sm:text-sm lg:text-base">{v.nome}</span>
+          <span className="font-display truncate text-[10px] text-white sm:text-sm lg:text-base">{v.nome}</span>
         </div>
       </td>
-      <td className="px-3 py-2 font-num text-xs text-slate-300 sm:px-4 sm:py-2.5 sm:text-sm lg:text-base">
+      <td className="px-2 py-1 font-num text-[10px] text-slate-300 sm:px-4 sm:py-2.5 sm:text-sm lg:text-base">
         {brlMoeda(v.meta, 0)}
       </td>
-      <td className="px-3 py-2 font-num text-xs font-semibold text-white sm:px-4 sm:py-2.5 sm:text-sm lg:text-base">
+      <td className="px-2 py-1 font-num text-[10px] font-semibold text-white sm:px-4 sm:py-2.5 sm:text-sm lg:text-base">
         {brlMoeda(v.realizado, 0)}
       </td>
-      <td className="px-3 py-2 sm:px-4 sm:py-2.5">
-        <div className="flex items-center gap-2 sm:gap-3">
+      <td className="px-2 py-1 sm:px-4 sm:py-2.5">
+        <div className="flex items-center gap-1.5 sm:gap-3">
           <div className="min-w-0 flex-1">
-            <BarraProgressoTV pctValor={pctVal} cor={st.color} altura="h-2 sm:h-2.5" />
+            <BarraProgressoTV pctValor={pctVal} cor={st.color} altura="h-1.5 sm:h-2.5" />
           </div>
           <span
-            className="font-num w-12 text-right text-xs font-bold sm:w-14 sm:text-sm lg:text-base"
+            className="font-num w-8 text-right text-[10px] font-bold sm:w-14 sm:text-sm lg:text-base"
             style={{ color: st.color }}
           >
             {fmtPct(pctVal, 1)}
           </span>
         </div>
       </td>
-      <td className="hidden px-3 py-2 font-num text-xs text-slate-400 dark:text-slate-500 sm:table-cell sm:px-4 sm:py-2.5 sm:text-sm lg:text-base">
+      <td className="hidden px-2 py-1 font-num text-[10px] text-slate-400 dark:text-slate-500 sm:table-cell sm:px-4 sm:py-2.5 sm:text-sm lg:text-base">
         {brlMoeda(falta, 0)}
       </td>
-      <td className="px-3 py-2 sm:px-4 sm:py-2.5">
+      <td className="px-2 py-1 sm:px-4 sm:py-2.5">
         <span
           className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider sm:px-2.5 sm:py-1 sm:text-[10px]"
           style={{ background: st.bg, color: st.color }}
@@ -1012,7 +1012,7 @@ export default function TVModePanel({ onClose, standalone = false }: TVModePanel
         </div>
 
         {/* CONTEÚDO — flex-1 para ocupar espaço restante, min-h-0 para permitir shrink */}
-        <main className="relative z-10 mx-auto flex min-h-0 w-full max-w-[1800px] flex-1 flex-col gap-2 px-3 py-2 sm:gap-3 sm:px-4 sm:py-3 lg:gap-4">
+        <main className="relative z-10 mx-auto flex min-h-0 w-full max-w-[1800px] flex-1 flex-col gap-1.5 px-2 py-1.5 sm:gap-3 sm:px-4 sm:py-3 lg:gap-4">
           {loading ? (
             <div className="flex flex-1 flex-col items-center justify-center gap-2">
               <div
@@ -1104,18 +1104,18 @@ export default function TVModePanel({ onClose, standalone = false }: TVModePanel
               </section>
 
               {/* Tabela de vendedores — flex-1 min-h-0 para ocupar espaço restante sem overflow de página */}
-              <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-white/10 bg-white/[0.02] backdrop-blur">
-                <div className="flex items-center justify-between border-b border-white/10 px-3 py-2 sm:px-4 sm:py-2.5">
-                  <h3 className="font-display text-sm font-bold text-white sm:text-base lg:text-lg">
+              <section className="flex min-h-[120px] flex-1 flex-col overflow-hidden rounded-xl border border-white/10 bg-white/[0.02] backdrop-blur sm:min-h-0">
+                <div className="flex items-center justify-between border-b border-white/10 px-3 py-1.5 sm:px-4 sm:py-2.5">
+                  <h3 className="font-display text-xs font-bold text-white sm:text-base lg:text-lg">
                     Desempenho por Vendedor
                   </h3>
-                  <span className="text-[10px] text-slate-400 dark:text-slate-500 sm:text-xs">
+                  <span className="text-[9px] text-slate-400 dark:text-slate-500 sm:text-xs">
                     {resumo.vendedores.length} vendedores · {periodoRotulo}
                   </span>
                 </div>
-                {/* Container da tabela: flex-1 min-h-0 + overflow auto permite scroll só na tabela se necessário */}
+                {/* Container da tabela: flex-1 min-h-0 + overflow auto permite scroll só na tabela */}
                 <div className="min-h-0 flex-1 overflow-auto orion-tv-scroll">
-                  <table className="w-full min-w-[640px] table-fixed">
+                  <table className="w-full min-w-[480px] table-fixed sm:min-w-[640px]">
                     <colgroup>
                       <col className="w-[30%]" />
                       <col className="w-[14%]" />
@@ -1125,13 +1125,13 @@ export default function TVModePanel({ onClose, standalone = false }: TVModePanel
                       <col className="w-[8%]" />
                     </colgroup>
                     <thead className="sticky top-0 z-10 bg-[#0a192f]">
-                      <tr className="border-b border-white/10 text-left text-[10px] uppercase tracking-wider text-slate-400 dark:text-slate-500 sm:text-xs">
-                        <th className="px-3 py-2 font-semibold sm:px-4 sm:py-2.5">Vendedor</th>
-                        <th className="px-3 py-2 font-semibold sm:px-4 sm:py-2.5">Meta</th>
-                        <th className="px-3 py-2 font-semibold sm:px-4 sm:py-2.5">Realizado</th>
-                        <th className="px-3 py-2 font-semibold sm:px-4 sm:py-2.5">Progresso</th>
-                        <th className="hidden px-3 py-2 font-semibold sm:table-cell sm:px-4 sm:py-2.5">Falta</th>
-                        <th className="px-3 py-2 font-semibold sm:px-4 sm:py-2.5">Status</th>
+                      <tr className="border-b border-white/10 text-left text-[9px] uppercase tracking-wider text-slate-400 dark:text-slate-500 sm:text-xs">
+                        <th className="px-2 py-1 font-semibold sm:px-4 sm:py-2.5">Vendedor</th>
+                        <th className="px-2 py-1 font-semibold sm:px-4 sm:py-2.5">Meta</th>
+                        <th className="px-2 py-1 font-semibold sm:px-4 sm:py-2.5">Realizado</th>
+                        <th className="px-2 py-1 font-semibold sm:px-4 sm:py-2.5">Progresso</th>
+                        <th className="hidden px-2 py-1 font-semibold sm:table-cell sm:px-4 sm:py-2.5">Falta</th>
+                        <th className="px-2 py-1 font-semibold sm:px-4 sm:py-2.5">Status</th>
                       </tr>
                     </thead>
                     <tbody>
