@@ -73,6 +73,7 @@ export default function CredenciaisMatriculaTab() {
   const [busca, setBusca] = useState("");
   const [modalAberto, setModalAberto] = useState(false);
   const [editando, setEditando] = useState<UsuarioCred | null>(null);
+  const [pagination, setPagination] = useState({ page: 1, pageSize: 50, total: 0, totalPages: 0 });
 
   const fnListar = useServerFn(listarUsuariosComCredenciais);
   const fnSalvar = useServerFn(salvarCredencial);
@@ -93,14 +94,16 @@ export default function CredenciaisMatriculaTab() {
   const podeEditar = usuario?.perfil === "admin" || usuario?.perfil === "gerente";
 
   useEffect(() => {
-    if (podeVisualizar) void carregar();
+    if (podeVisualizar) void carregar(1);
   }, [podeVisualizar]);
 
-  async function carregar() {
+  async function carregar(page: number = 1) {
     setLoading(true);
     try {
-      const r = await fnListar({ data: {} } as any);
+      // 🔒 Fase 6.5: agora usa paginação server-side
+      const r = await fnListar({ data: { page, pageSize: 50, search: busca || undefined } } as any);
       setUsuarios(r.usuarios || []);
+      setPagination(r.pagination || { page, pageSize: 50, total: 0, totalPages: 0 });
     } catch (e: any) {
       toast.error("Erro ao carregar usuários: " + e.message);
     } finally {

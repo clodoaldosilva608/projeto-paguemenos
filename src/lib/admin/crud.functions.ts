@@ -458,6 +458,8 @@ export const crudBulkDelete = createServerFn({ method: "POST" })
 
 // ============================================================================
 // Dashboard — contadores para a página inicial do admin
+// Fase 6.4 (2026-08-04): usa RPC get_dashboard_stats() que faz agregação
+// no banco. Antes carregava 500k rows em memória (OOM em 100k usuários).
 // ============================================================================
 export const getDashboardStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -466,74 +468,31 @@ export const getDashboardStats = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const admin = supabaseAdmin as any;
 
-    const hoje = new Date().toISOString().slice(0, 10);
-    const inicioMes = new Date();
-    inicioMes.setDate(1);
-    const inicioMesStr = inicioMes.toISOString().slice(0, 10);
+    // 🔒 Fase 6.4: usar RPC que faz SUM() no banco em vez de carregar rows
+    const { data: stats, error } = await admin.rpc("get_dashboard_stats");
 
-    // Buscar contagens em paralelo
-    const [
-      profilesRes, rolesRes, filiaisRes, equipesRes,
-      vendasHojeRes, vendasMesRes, metasRes, campanhasRes,
-      invitesPendentesRes, treinamentosRes, auditHojeRes, aiLogsRes,
-    ] = await Promise.all([
-      admin.from("profiles").select("id", { count: "exact", head: true }),
-      admin.from("user_roles").select("role"),
-      admin.from("filiais").select("id", { count: "exact", head: true }),
-      admin.from("equipes").select("id", { count: "exact", head: true }),
-      admin.from("vendas_diarias").select("valor_venda").eq("data", hoje),
-      admin.from("vendas_diarias").select("valor_venda").gte("data", inicioMesStr),
-      admin.from("metas_individuais").select("id", { count: "exact", head: true }),
-      admin.from("campanhas").select("status"),
-      admin.from("invites").select("id", { count: "exact", head: true }).eq("status", "pendente"),
-      admin.from("treinamentos").select("id", { count: "exact", head: true }),
-      admin.from("audit_log").select("id", { count: "exact", head: true }).gte("created_at", hoje),
-      admin.from("ai_logs").select("id", { count: "exact", head: true }),
-    ]);
+    if (error) {
+      console.error("[dashboard] erro na RPC get_dashboard_stats:", error);
+      throw new Error("Falha ao carregar estatísticas do dashboard");
+    }
 
-    // Processar roles
-    const roles = rolesRes.data || [];
-    const porPerfil = {
-      admin: roles.filter((r: any) => r.role === "admin").length,
-      gerente: roles.filter((r: any) => r.role === "gerente").length,
-      supervisor: roles.filter((r: any) => r.role === "supervisor").length,
-      vendedor: roles.filter((r: any) => r.role === "vendedor").length,
-    };
-
-    // Processar vendas
-    const vendasHoje = (vendasHojeRes.data || []).reduce(
-      (sum: number, v: any) => sum + Number(v.valor_venda || 0), 0
-    );
-    const vendasMes = (vendasMesRes.data || []).reduce(
-      (sum: number, v: any) => sum + Number(v.valor_venda || 0), 0
-    );
-
-    // Processar campanhas
-    const campanhas = campanhasRes.data || [];
-    const campanhasAtivas = campanhas.filter((c: any) => c.status === "ativa").length;
-    const campanhasRascunho = campanhas.filter((c: any) => c.status === "rascunho").length;
-
-    return {
-      usuarios: {
-        total: profilesRes.count || 0,
-        porPerfil,
-      },
-      filiais: filiaisRes.count || 0,
-      equipes: equipesRes.count || 0,
+    // stats já vem como JSON pronto do banco
+    return stats as {
+      usuarios: { total: number; porPerfil: Record<string, number> };
+      filiais: number;
+      equipes: number;
       vendas: {
-        hoje: vendasHoje,
-        mes: vendasMes,
-        totalRegistrosMes: vendasMesRes.data?.length || 0,
-      },
-      metas: metasRes.count || 0,
-      campanhas: {
-        total: campanhas.length,
-        ativas: campanhasAtivas,
-        rascunho: campanhasRascunho,
-      },
-      invitesPendentes: invitesPendentesRes.count || 0,
-      treinamentos: treinamentosRes.count || 0,
-      auditoriaHoje: auditHojeRes.count || 0,
-      aiLogs: aiLogsRes.count || 0,
+        hoje: number;
+        mes: number;
+        totalRegistrosMes: number;
+        ticketMedioHoje?: number;
+      };
+      metas: number;
+      campanhas: { total: number; ativas: number; rascunho: number };
+      invitesPendentes: number;
+      treinamentos: number;
+      auditoriaHoje: number;
+      aiLogs: number;
+      gerado_em?: string;
     };
   });
