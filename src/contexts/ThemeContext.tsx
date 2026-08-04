@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, useMemo, ReactNode } from "react";
 
 type Tema = "claro" | "escuro";
 
@@ -170,20 +170,28 @@ export function TemaProvider({ children }: { children: ReactNode }) {
     root.style.setProperty("--brand-app-name", `"${branding.appName}"`);
   }, [branding]);
 
-  const alternar = () => setTema((t) => (t === "claro" ? "escuro" : "claro"));
+  const alternar = useCallback(() => setTema((t) => (t === "claro" ? "escuro" : "claro")), []);
 
-  const atualizarBranding = (config: Partial<BrandingConfig>) => {
-    const novo = { ...branding, ...config };
-    setBranding(novo);
-    try {
-      localStorage.setItem("orion-branding", JSON.stringify(novo));
-    } catch {}
-  };
+  const atualizarBranding = useCallback((config: Partial<BrandingConfig>) => {
+    setBranding((prev) => {
+      const novo = { ...prev, ...config };
+      try {
+        localStorage.setItem("orion-branding", JSON.stringify(novo));
+      } catch {}
+      return novo;
+    });
+  }, []);
 
   const isWhiteLabel = branding.tenantSlug !== "paguemenos" || !!branding.companyId || !!getBrandingFromStorage();
 
+  // 🔒 Fase 7.2 (2026-08-04): memoizar value para evitar re-render em cascata.
+  const value = useMemo(
+    () => ({ tema, alternar, branding, atualizarBranding, isWhiteLabel, isLoadingTenant }),
+    [tema, alternar, branding, atualizarBranding, isWhiteLabel, isLoadingTenant],
+  );
+
   return (
-    <TemaCtx.Provider value={{ tema, alternar, branding, atualizarBranding, isWhiteLabel, isLoadingTenant }}>
+    <TemaCtx.Provider value={value}>
       {children}
     </TemaCtx.Provider>
   );

@@ -183,7 +183,12 @@ export const puxarVendasDoSheet = createServerFn({ method: "POST" })
 
     let text: string;
     try {
-      const res = await fetch(cfg.sheet_name as string, { headers: { Accept: "text/csv" } });
+      // 🔒 Fase 8.3 (2026-08-04): fetch com timeout de 15s (sem retry — se Sheets
+      // estiver down, melhor falhar rápido e logar do que pendurar).
+      const { fetchWithTimeout } = await import("@/lib/fetch-with-timeout");
+      const res = await fetchWithTimeout(cfg.sheet_name as string, {
+        headers: { Accept: "text/csv" },
+      }, 15_000);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       text = await res.text();
     } catch (e: any) {

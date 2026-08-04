@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import FilialHeader from "./FilialHeader";
@@ -8,6 +8,19 @@ import CountUp from "./CountUp";
 import ModalLancarVendas from "./ModalLancarVendas";
 import { brlMoeda, pct } from "../utils/format";
 import { Target, TrendingUp, Award, Loader2, AlertCircle, DollarSign } from "lucide-react";
+
+// 🔒 Fase 7.3 (2026-08-04): KpiCard movido para fora do corpo de DashboardView.
+// ANTES: era definido inline, fazendo React desmontar/remontar 4 motion.div a cada render.
+// DEPOIS: componente top-level memoizado — só re-renderiza se props mudam.
+const KpiCard = memo(function KpiCard({ label, value, icon: Icon }: { label: string; value: React.ReactNode; icon?: any }) {
+  return (
+    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+      {Icon && <Icon className="mb-1 h-4 w-4 text-slate-400 dark:text-slate-500" />}
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{label}</p>
+      <p className="mt-1 text-xl font-extrabold text-slate-800">{value}</p>
+    </motion.div>
+  );
+});
 
 export default function DashboardView() {
   const { usuario } = useAuth();
@@ -52,13 +65,8 @@ export default function DashboardView() {
   const totalRealizado = metaFat?.valor_realizado || 0;
   const percentual = totalMeta > 0 ? (totalRealizado / totalMeta) * 100 : 0;
 
-  const KpiCard = ({ label, value, icon: Icon }: { label: string; value: React.ReactNode; icon?: any }) => (
-    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      {Icon && <Icon className="mb-1 h-4 w-4 text-slate-400 dark:text-slate-500" />}
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{label}</p>
-      <p className="mt-1 text-xl font-extrabold text-slate-800">{value}</p>
-    </motion.div>
-  );
+  // 🔒 Fase 7.3: KpiCard movido para fora do corpo (top-level, memoizado).
+  // Veja definição no topo do arquivo.
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">

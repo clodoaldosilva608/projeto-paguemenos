@@ -8,6 +8,7 @@ import {
   somaPorVendedor,
   indicadoresPorVendedor,
 } from "@/lib/planilha/data";
+import { useMemo } from "react";
 import { LineChart, DonutChart, BarChartV } from "@/components/planilha/charts";
 import { Gauge, CalendarHeatmap } from "@/components/planilha/charts-extra";
 import { WaterfallChart } from "@/components/planilha/charts-radar";
@@ -33,12 +34,14 @@ const CAT_COLORS: Record<string, string> = {
 
 export function DashboardGeral({ d }: { d: DashboardData }) {
   const t = d.total;
-  const dias = somaPorDia(d.atuais);
-  const ranking = somaPorVendedor(d.atuais);
-  const insights = gerarInsights(d);
-  const resumo = resumoExecutivo(d);
-  const rankingIndicadores = indicadoresPorVendedor(d.indicadores);
-  const feed = montarFeed(d.atuais, d.auditoria);
+  // 🔒 Fase 7.4 (2026-08-04): memoizar cálculos pesados que eram reexecutados
+  // a cada render (ex: hover em botão que abre state).
+  const dias = useMemo(() => somaPorDia(d.atuais), [d.atuais]);
+  const ranking = useMemo(() => somaPorVendedor(d.atuais), [d.atuais]);
+  const insights = useMemo(() => gerarInsights(d), [d]);
+  const resumo = useMemo(() => resumoExecutivo(d), [d]);
+  const rankingIndicadores = useMemo(() => indicadoresPorVendedor(d.indicadores), [d.indicadores]);
+  const feed = useMemo(() => montarFeed(d.atuais, d.auditoria), [d.atuais, d.auditoria]);
 
   return (
     <div className="flex flex-col gap-3">

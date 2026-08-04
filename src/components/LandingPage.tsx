@@ -1,4 +1,4 @@
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { useNavigate } from "@tanstack/react-router";
 import HeroSection from "./HeroSection";
@@ -153,15 +153,38 @@ function SpotlightText({ children }: { children: React.ReactNode }) {
       `radial-gradient(circle at ${x}% ${y}%, rgba(66,165,245,0.95) 0%, rgba(255,255,255,0.9) 35%, rgba(148,163,184,0.7) 70%)`,
   );
 
-  const onMove = (e: React.MouseEvent<HTMLHeadingElement>) => {
-    const el = ref.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    mx.set(Math.max(0, Math.min(100, x)));
-    my.set(Math.max(0, Math.min(100, y)));
-  };
+  // 🔒 Fase 7.5 (2026-08-04): throttle do onMouseMove via requestAnimationFrame.
+  // ANTES: cada pixel de mousemove disparava getBoundingClientRect + 2 useMotionValue.set.
+  // DEPOIS: no máximo 1 update por frame (60fps), eliminando jank em mousemove rápido.
+  const rafRef = useRef<number | null>(null);
+  const latestEventRef = useRef<React.MouseEvent<HTMLHeadingElement> | null>(null);
+
+  const onMove = useMemo(() => {
+    const processFrame = () => {
+      const e = latestEventRef.current;
+      const el = ref.current;
+      rafRef.current = null;
+      if (!e || !el) return;
+      const rect = el.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      mx.set(Math.max(0, Math.min(100, x)));
+      my.set(Math.max(0, Math.min(100, y)));
+    };
+
+    return (e: React.MouseEvent<HTMLHeadingElement>) => {
+      latestEventRef.current = e;
+      if (rafRef.current === null) {
+        rafRef.current = requestAnimationFrame(processFrame);
+      }
+    };
+  }, [mx, my]);
+
+  useEffect(() => {
+    return () => {
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
 
   return (
     <motion.h1
@@ -421,7 +444,9 @@ export default function LandingPage() {
           spacing={36}
           radius={420}
           strength={4}
-          trail={true}
+          // 🔒 Fase 7.6 (2026-08-04): respeitar prefers-reduced-motion.
+          // Usuários com vestibular recebem trail=false (sem rastro do cursor).
+          trail={typeof window !== "undefined" && !window.matchMedia("(prefers-reduced-motion: reduce)").matches}
           globalMouse={true}
         />
         {/* Camada de gradiente sutil para dar profundidade sobre o grid */}
