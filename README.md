@@ -5,10 +5,11 @@ Plataforma completa de gestão de metas, vendas e performance para redes de farm
 ![Status](https://img.shields.io/badge/status-produção-success)
 ![License](https://img.shields.io/badge/license-proprietary-red)
 ![Stack](https://img.shields.io/badge/stack-TanStack%20Start%20%2B%20Supabase-blue)
+![Audit](https://img.shields.io/badge/auditoria-2026--08--04-orange)
 
 ## 🚀 Demo
 
-**URL de produção:** https://projeto-paguemenos.vercel.app
+**URL de produção:** https://orion-vendas.vercel.app
 
 ### 🔐 Credenciais de acesso
 
@@ -266,6 +267,68 @@ As migrations estão em `supabase/migrations/` e devem ser aplicadas no Supabase
 - ✅ Login por matrícula para vendedores
 - ✅ Auditoria de ações administrativas
 - ⚠️ **Rotacionar service role key** se exposta no histórico git
+
+---
+
+## 🔍 Auditoria de Engenharia
+
+O projeto passou por uma **auditoria técnica completa** em **2026-08-04**,
+avaliando prontidão para 100.000 usuários ativos. O relatório completo está
+em [`docs/audit-2026-08-04-baseline.md`](docs/audit-2026-08-04-baseline.md).
+
+### Nota geral: 2.6 / 10 (antes das correções)
+
+| Dimensão | Nota |
+|---|---|
+| Arquitetura | 4/10 |
+| Segurança | 2/10 |
+| Banco de dados | 3/10 |
+| Escalabilidade | 3/10 |
+| Performance | 4/10 |
+| Resiliência | 2/10 |
+| Observabilidade | 1/10 |
+| Testes | 0/10 |
+| Manutenibilidade | 4/10 |
+| DevOps/Deploy | 3/10 |
+
+### 9 riscos CRÍTICOS (P0) identificados
+
+1. `gerarPlanilhaExecutiva` sem auth — vazamento de PII + matrículas
+2. Token hardcoded `"orion-public-demo"` no endpoint PowerBI
+3. `extractVendasFromImage` sem auth — custo ilimitado de IA
+4. `criarTabelasEquipesFiliais` sem auth — DDL não autorizado
+5. Senha admin `54321` hardcoded em migration SQL
+6. `buscarEmailPorMatricula` retorna senha ao client
+7. Escalonamento de privilégio: gerente vira admin via CRUD genérico
+8. Trigger aceita `role` do `user_metadata` controlável pelo atacante
+9. Usuário pode alterar `filial_id`, `equipe_id`, `plano` no próprio profile
+
+### Plano de correção
+
+**10 fases** (~16 dias úteis) para resolver P0+P1+P2:
+
+- 📋 Plano completo: [`docs/CORRECTION-PLAN.md`](docs/CORRECTION-PLAN.md)
+- 🎯 Prompt-mestre (reutilizável): [`docs/AUDIT-PROMPT.md`](docs/AUDIT-PROMPT.md)
+- 📊 Baseline da auditoria: [`docs/audit-2026-08-04-baseline.md`](docs/audit-2026-08-04-baseline.md)
+
+### Progresso das correções
+
+| Fase | Severidade | Status |
+|---|---|---|
+| 0 — Preparação | — | 🔄 Em andamento |
+| 1 — Fechar endpoints sem auth | P0 | ⏳ Pendente |
+| 2 — Remover hardcoded secrets | P0 | ⏳ Pendente |
+| 3 — RLS + multi-tenancy | P0 | ⏳ Pendente |
+| 4 — Migrations quebradas | P0 | ⏳ Pendente |
+| 5 — Rate limit Redis + Sentry | P1 | ⏳ Pendente |
+| 6 — Performance DB + cache | P1 | ⏳ Pendente |
+| 7 — Frontend: code splitting | P1 | ⏳ Pendente |
+| 8 — Resiliência + circuit breaker | P2 | ⏳ Pendente |
+| 9 — Testes + CI/CD | P2 | ⏳ Pendente |
+
+> **Reauditar** a cada 3 meses usando o prompt-mestre em `docs/AUDIT-PROMPT.md`.
+
+---
 
 ## 📝 Licença
 
