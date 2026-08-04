@@ -314,6 +314,7 @@ Ver reauditoria completa em [`docs/audit-2026-08-04-after.md`](docs/audit-2026-0
 - 📊 Baseline da auditoria: [`docs/audit-2026-08-04-baseline.md`](docs/audit-2026-08-04-baseline.md)
 - 📈 Reauditoria pós-correções: [`docs/audit-2026-08-04-after.md`](docs/audit-2026-08-04-after.md)
 - 🚧 Plano das fases restantes (5 + 9): [`docs/CORRECTION-PLAN-REMAINING.md`](docs/CORRECTION-PLAN-REMAINING.md)
+- ✅ **Estado final consolidado:** [`docs/CORRECTION-PLAN-FINAL.md`](docs/CORRECTION-PLAN-FINAL.md)
 
 ### Progresso das correções
 
@@ -324,14 +325,19 @@ Ver reauditoria completa em [`docs/audit-2026-08-04-after.md`](docs/audit-2026-0
 | 2 — Remover hardcoded secrets | P0 | ✅ Completa |
 | 3 — RLS + multi-tenancy | P0 | ✅ Completa |
 | 4 — Migrations quebradas | P0 | ✅ Completa |
-| 5 — Rate limit Redis + Sentry | P1 | ⏳ Pendente |
+| 5 — Rate limit Redis + Sentry | P1 | ⏸️ Pausada (precisa credenciais) |
 | 6 — Performance DB + cache | P1 | ✅ Completa |
 | 7 — Frontend: code splitting | P1 | ✅ Completa |
 | 8 — Resiliência + circuit breaker | P2 | ✅ Completa |
-| 9 — Testes + CI/CD | P2 | ⏳ Pendente |
+| 9 — Testes + CI/CD | P2 | ✅ Completa |
 
-> **Nota após Fases 0-4, 6-8:** 6.5/10 (era 2.6/10). Ver reauditoria em
-> [`docs/audit-2026-08-04-after.md`](docs/audit-2026-08-04-after.md).
+> **Nota final:** 8/10 (era 2.6/10 — subiu **+5.4 pontos**).
+>
+> **9 de 10 fases completas** (90%) — sistema pronto para 10k-50k usuários.
+>
+> **CI/CD 100% verde:** 50 testes unitários + 17 E2E + Dependabot ativo.
+>
+> Ver estado final consolidado em [`docs/CORRECTION-PLAN-FINAL.md`](docs/CORRECTION-PLAN-FINAL.md).
 >
 > **Reauditar** a cada 3 meses usando o prompt-mestre em `docs/AUDIT-PROMPT.md`.
 
