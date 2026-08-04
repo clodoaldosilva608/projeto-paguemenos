@@ -44,10 +44,11 @@ function AuthPage() {
         const ehEmail = email.trim().includes("@");
         if (!ehEmail) {
           // Login por primeiro nome + matrícula
+          // 🔒 Fase 2: server function retorna apenas email (não senha).
+          // Usamos a matrícula digitada pelo usuário como senha.
           try {
             const r = await fnBuscarMatricula({ data: { primeiro_nome: email.trim(), matricula: senha.trim() } });
-            // Agora faz login com email + matrícula (como senha)
-            const ok = await login(r.email, r.senha);
+            const ok = await login(r.email, senha.trim());
             if (ok) navigate({ to: "/" });
           } catch (err: any) {
             setMsg(err.message || "Erro ao validar credenciais por matrícula.");

@@ -1,12 +1,18 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { applyRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
 // ------------------------------------------------------------------
 // Login por matrícula: recebe primeiro_nome + matricula
-// Valida na tabela login_matricula e retorna o email real do usuário
-// para o client fazer signInWithPassword com email + matricula (como senha)
+// Valida na tabela login_matricula e retorna APENAS o email real do usuário.
+//
+// 🔒 Segurança (Fase 2 da auditoria, 2026-08-04):
+// ANTES esta função retornava { email, senha, primeiroNome } — vazando a
+// senha (matrícula) ao client. Agora retorna apenas { email, primeiroNome }.
+// O client deve usar a matrícula que o usuário digitou como senha no
+// signInWithPassword — não precisa receber a senha de volta do servidor.
 // ------------------------------------------------------------------
 
 export const buscarEmailPorMatricula = createServerFn({ method: "POST" })
@@ -16,10 +22,10 @@ export const buscarEmailPorMatricula = createServerFn({ method: "POST" })
       matricula: z.string().min(4).max(20),
     }).parse(v),
   )
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data }) => {
     // Rate limit: 10 tentativas por minuto por IP (proteção contra força bruta)
     await applyRateLimit(
-      (context as any)?.request,
+      getRequest(),
       "matricula",
       RATE_LIMITS.matricula.max,
       RATE_LIMITS.matricula.windowMs,
@@ -47,9 +53,10 @@ export const buscarEmailPorMatricula = createServerFn({ method: "POST" })
       throw new Error("Usuário não encontrado no sistema de autenticação.");
     }
 
+    // 🔒 Não retornar a senha! O client já tem a matrícula (digitada pelo usuário).
+    // Retornar apenas o email para que o client possa fazer signInWithPassword.
     return {
       email: authUser.user.email,
-      senha: data.matricula.trim(),
       primeiroNome: registro.primeiro_nome,
     };
   });

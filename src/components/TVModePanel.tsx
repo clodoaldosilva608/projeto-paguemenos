@@ -455,7 +455,9 @@ function TVLoginGate({ onSucesso, onVoltar }: { onSucesso: () => void; onVoltar:
           const r = await fnBuscarMatricula({
             data: { primeiro_nome: identificador.trim(), matricula: senha.trim() },
           });
-          ok = await login(r.email, r.senha);
+          // 🔒 Fase 2: server function retorna apenas email (não senha).
+          // Usamos a matrícula digitada pelo usuário como senha.
+          ok = await login(r.email, senha.trim());
         } catch (err: any) {
           setErro(err.message || "Credenciais inválidas.");
           setBusy(false);
