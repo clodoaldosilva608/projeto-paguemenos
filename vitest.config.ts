@@ -10,6 +10,10 @@ export default defineConfig({
     setupFiles: ["./src/test/setup.ts"],
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
     exclude: ["node_modules", "dist", ".vercel"],
+    // Vitest 4: pool config é top-level
+    pool: "threads",
+    isolate: false,
+    singleThread: true,
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html"],
@@ -27,3 +31,5 @@ export default defineConfig({
     "process.env.NODE_ENV": JSON.stringify("test"),
   },
 });
+
+
