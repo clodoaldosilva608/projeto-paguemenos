@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, useMemo, type ReactNode } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
@@ -243,31 +243,60 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Mas isso só funciona se tivermos como saber quem é o admin — usamos session.user.id
   // Para simplicidade, não restauramos automaticamente (admin precisa clicar em "Voltar" antes de reload)
 
-  return (
-    <AuthCtx.Provider
-      value={{
-        usuario,
-        usuarioOriginal,
-        session,
-        autenticado: !!usuario,
-        carregando,
-        erro,
-        login,
-        cadastrar,
-        loginGoogle,
-        logout,
-        temPermissao,
-        refresh,
-        trocarPerfil: (perfil: Perfil) => { if (usuario) { const u = { ...usuario, perfil, permissoes: gerarPermissoes(perfil) }; setUsuario(u); } },
-        perfisDisponiveis: (usuario?.perfil === "admin" ? ["admin", "vendedor"] : [usuario?.perfil || "vendedor"]) as Perfil[],
-        impersonarVendedor,
-        voltarParaAdmin,
-        estaImpersonando: !!usuarioOriginal,
-      }}
-    >
-      {children}
-    </AuthCtx.Provider>
+  // 🔒 Fase 7.3 (2026-08-04): memoizar value para evitar re-render em cascata
+  // em todos os 50+ componentes que consomem useAuth().
+  const trocarPerfil = useCallback((perfil: Perfil) => {
+    setUsuario((u) => (u ? { ...u, perfil, permissoes: gerarPermissoes(perfil) } : u));
+  }, []);
+
+  const perfisDisponiveis = useMemo(
+    () =>
+      (usuario?.perfil === "admin"
+        ? ["admin", "vendedor"]
+        : [usuario?.perfil || "vendedor"]) as Perfil[],
+    [usuario?.perfil],
   );
+
+  const value = useMemo(
+    () => ({
+      usuario,
+      usuarioOriginal,
+      session,
+      autenticado: !!usuario,
+      carregando,
+      erro,
+      login,
+      cadastrar,
+      loginGoogle,
+      logout,
+      temPermissao,
+      refresh,
+      trocarPerfil,
+      perfisDisponiveis,
+      impersonarVendedor,
+      voltarParaAdmin,
+      estaImpersonando: !!usuarioOriginal,
+    }),
+    [
+      usuario,
+      usuarioOriginal,
+      session,
+      carregando,
+      erro,
+      login,
+      cadastrar,
+      loginGoogle,
+      logout,
+      temPermissao,
+      refresh,
+      trocarPerfil,
+      perfisDisponiveis,
+      impersonarVendedor,
+      voltarParaAdmin,
+    ],
+  );
+
+  return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;
 }
 
 export function useAuth() {
