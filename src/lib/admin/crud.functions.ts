@@ -76,11 +76,64 @@ const BULK_DELETABLE = [
   "quick_links", "login_matricula",
 ];
 
+// 🔒 Whitelist de colunas permitidas por tabela (Fase 3 da auditoria, 2026-08-04)
+// Previne mass assignment e injeção de coluna via searchColumns/filters/data.
+const ALLOWED_COLUMNS: Record<string, string[]> = {
+  profiles: ["id", "nome", "email", "filial_id", "equipe_id", "company_id", "aprovado", "aprovado_por", "aprovado_em", "cargo", "telefone", "criado_em", "atualizado_em", "credencial_atualizada", "plano", "trial_expires_at", "onboarding_completo"],
+  user_roles: ["id", "user_id", "role", "criado_em"],
+  companies: ["id", "slug", "name", "custom_domain", "metadata", "active", "created_at", "updated_at"],
+  members: ["id", "company_id", "user_uuid", "role", "created_at", "updated_at"],
+  filiais: ["id", "nome", "endereco", "cidade", "estado", "telefone", "ativo", "company_id", "criado_em", "atualizado_em"],
+  equipes: ["id", "nome", "filial_id", "company_id", "turno", "lider_id", "ativo", "criado_em", "atualizado_em"],
+  vendas_diarias: ["id", "usuario_id", "filial_id", "equipe_id", "data", "categoria", "valor_venda", "qtd_clientes", "ticket_medio", "observacao", "criado_em", "atualizado_em"],
+  metas_individuais: ["id", "usuario_id", "filial_id", "equipe_id", "periodo", "categoria", "valor_meta", "valor_realizado", "valor_projecao", "data_inicio", "status", "criado_em", "atualizado_em"],
+  campanhas: ["id", "nome", "descricao", "data_inicio", "data_fim", "filial_id", "company_id", "premio", "regras", "status", "criado_em", "atualizado_em"],
+  invites: ["id", "email", "token", "perfil", "filial_id", "company_id", "status", "expira_em", "criado_por", "criado_em", "aceito_por", "aceito_em"],
+  treinamentos: ["id", "titulo", "descricao", "conteudo", "duracao_minutos", "categoria", "ativo", "ordem", "criado_por", "criado_em", "atualizado_em"],
+  treinamentos_concluidos: ["id", "treinamento_id", "usuario_id", "concluido_em", "pontuacao"],
+  quick_links: ["id", "titulo", "url", "icone", "descricao", "perfis_visiveis", "ativo", "ordem", "criado_por", "criado_em", "atualizado_em"],
+  login_matricula: ["id", "user_id", "primeiro_nome", "matricula", "ativo", "criado_em", "atualizado_em"],
+  ai_config: ["id", "provider", "model", "api_key_ciphertext", "base_url", "system_prompt", "temperature", "max_tokens", "ativo", "criado_em", "atualizado_em"],
+  ai_prompt_versions: ["id", "config_id", "version", "prompt", "created_at", "created_by"],
+  ai_logs: ["id", "user_id", "provider", "model", "input_tokens", "output_tokens", "cost", "created_at"],
+  audit_log: ["id", "actor_user_id", "actor_email", "action", "entity", "entity_id", "before", "after", "metadata", "criado_em"],
+  integrations: ["id", "name", "provider", "config", "ativo", "criado_em"],
+};
+
+// Tabelas que apenas admin (não gerente) pode mutar
+const ADMIN_ONLY_TABLES = ["user_roles", "members", "companies", "ai_config", "ai_prompt_versions"];
+
 function validateTable(table: string, mutable: boolean = false) {
   const list = mutable ? MUTABLE_TABLES : ALLOWED_TABLES;
   if (!list.includes(table)) {
     throw new Error(`Tabela '${table}' não permitida no admin CRUD.`);
   }
+}
+
+// 🔒 Validar que colunas informadas pelo client estão na whitelist
+function validateColumns(table: string, columns: string[]) {
+  const allowed = ALLOWED_COLUMNS[table];
+  if (!allowed) {
+    throw new Error(`Tabela '${table}' não tem whitelist de colunas definida`);
+  }
+  for (const col of columns) {
+    if (!allowed.includes(col)) {
+      throw new Error(`Coluna '${col}' não é permitida na tabela '${table}'`);
+    }
+  }
+}
+
+// 🔒 Verificar se o caller é admin strict (não gerente) para tabelas críticas
+async function ensureAdminOnlyForTable(supabase: any, userId: string, table: string) {
+  if (!ADMIN_ONLY_TABLES.includes(table)) return;
+  const { data, error } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId)
+    .eq("role", "admin")
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!data) throw new Error(`Acesso negado. Tabela '${table}' requer perfil admin (não gerente).`);
 }
 
 // Schema para listagem paginada
@@ -106,6 +159,18 @@ export const crudList = createServerFn({ method: "POST" })
 
     const { table, page, pageSize, search, searchColumns, orderBy, orderDesc, filters } = data;
     validateTable(table, false);
+
+    // 🔒 Validar colunas de search e filters contra whitelist
+    if (searchColumns && searchColumns.length > 0) {
+      validateColumns(table, searchColumns);
+    }
+    if (filters) {
+      validateColumns(table, Object.keys(filters));
+    }
+    if (orderBy) {
+      validateColumns(table, [orderBy]);
+    }
+
     const offset = (page - 1) * pageSize;
 
     let query = admin.from(table).select("*");
@@ -196,11 +261,15 @@ export const crudCreate = createServerFn({ method: "POST" })
   .validator((v: unknown) => createSchema.parse(v))
   .handler(async ({ data, context }) => {
     await ensureAdmin(context);
+    // 🔒 Tabelas críticas (user_roles, members, companies, ai_config) exigem admin strict
+    await ensureAdminOnlyForTable(context.supabase, context.userId, data.table);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const admin = supabaseAdmin as any;
 
     const { table, data: record } = data;
     validateTable(table, true);
+    // 🔒 Validar colunas do payload contra whitelist
+    validateColumns(table, Object.keys(record || {}));
 
     const { data: created, error } = await admin
       .from(table)
@@ -241,11 +310,15 @@ export const crudUpdate = createServerFn({ method: "POST" })
   .validator((v: unknown) => updateSchema.parse(v))
   .handler(async ({ data, context }) => {
     await ensureAdmin(context);
+    // 🔒 Tabelas críticas exigem admin strict
+    await ensureAdminOnlyForTable(context.supabase, context.userId, data.table);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const admin = supabaseAdmin as any;
 
     const { table, id, data: updates } = data;
     validateTable(table, true);
+    // 🔒 Validar colunas do payload contra whitelist
+    validateColumns(table, Object.keys(updates || {}));
 
     const { data: before } = await admin
       .from(table)
@@ -292,6 +365,8 @@ export const crudDelete = createServerFn({ method: "POST" })
   .validator((v: unknown) => deleteSchema.parse(v))
   .handler(async ({ data, context }) => {
     await ensureAdmin(context);
+    // 🔒 Tabelas críticas exigem admin strict
+    await ensureAdminOnlyForTable(context.supabase, context.userId, data.table);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const admin = supabaseAdmin as any;
 

@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { lookup } from "node:dns/promises";
 
 async function ensureGestor(supabase: any, userId: string) {
   const { data, error } = await supabase
@@ -10,6 +11,58 @@ async function ensureGestor(supabase: any, userId: string) {
     .in("role", ["admin", "gerente"]);
   if (error) throw new Error(error.message);
   if (!data || data.length === 0) throw new Error("Acesso restrito a admin/gerente.");
+}
+
+// 🔒 Segurança (Fase 3 da auditoria, 2026-08-04): valida URL para prevenir SSRF.
+// Bloqueia IPs privados, loopback, link-local e domínios não whitelisteados.
+async function validateSheetUrl(urlStr: string): Promise<void> {
+  let url: URL;
+  try {
+    url = new URL(urlStr);
+  } catch {
+    throw new Error("URL inválida");
+  }
+
+  // Apenas HTTPS
+  if (url.protocol !== "https:") {
+    throw new Error("Apenas URLs HTTPS são permitidas");
+  }
+
+  // Whitelist de domínios confiáveis (Google Sheets, etc.)
+  const allowedDomains = [
+    "docs.google.com",
+    "spreadsheets.google.com",
+    "drive.google.com",
+  ];
+  if (!allowedDomains.includes(url.hostname)) {
+    throw new Error(`Domínio '${url.hostname}' não é permitido. Apenas: ${allowedDomains.join(", ")}`);
+  }
+
+  // Verificação extra de IPs privados (defesa em profundidade — mesmo com whitelist)
+  const privatePatterns = [
+    /^127\./,
+    /^10\./,
+    /^192\.168\./,
+    /^172\.(1[6-9]|2\d|3[01])\./,
+    /^169\.254\./, // AWS metadata
+    /^::1$/,
+    /^fc00:/i,
+    /^fe80:/i,
+  ];
+
+  try {
+    const addresses = await lookup(url.hostname, { all: true });
+    for (const addr of addresses) {
+      if (privatePatterns.some(p => p.test(addr.address))) {
+        throw new Error(`Domínio '${url.hostname}' resolve para IP privado (${addr.address})`);
+      }
+    }
+  } catch (e: any) {
+    // Se for erro de "IP privado", propagar
+    if (e instanceof Error && e.message.includes("privado")) throw e;
+    // DNS falhou — logar mas não bloquear (pode ser config de rede)
+    console.warn(`[sheets] DNS lookup falhou para ${url.hostname}:`, e.message);
+  }
 }
 
 const configSchema = z.object({
@@ -116,6 +169,18 @@ export const puxarVendasDoSheet = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!cfg) return { rows: [], linhas: 0, erro: "Nenhuma planilha configurada" };
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // 🔒 Segurança (Fase 3): validar URL para prevenir SSRF
+    // (acesso a localhost, AWS metadata, rede interna)
+    try {
+      await validateSheetUrl(cfg.sheet_name as string);
+    } catch (e: any) {
+      await supabaseAdmin
+        .from("sheet_sync_log")
+        .insert({ direcao: "pull", linhas: 0, erro: `URL rejeitada: ${e.message}` });
+      return { rows: [], linhas: 0, erro: `URL rejeitada: ${e.message}` };
+    }
+
     let text: string;
     try {
       const res = await fetch(cfg.sheet_name as string, { headers: { Accept: "text/csv" } });
