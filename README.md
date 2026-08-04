@@ -276,32 +276,34 @@ O projeto passou por uma **auditoria técnica completa** em **2026-08-04**,
 avaliando prontidão para 100.000 usuários ativos. O relatório completo está
 em [`docs/audit-2026-08-04-baseline.md`](docs/audit-2026-08-04-baseline.md).
 
-### Nota geral: 2.6 / 10 (antes das correções)
+### Nota geral: 6.5 / 10 (após Fases 0-4, 6-8 — era 2.6/10)
 
-| Dimensão | Nota |
-|---|---|
-| Arquitetura | 4/10 |
-| Segurança | 2/10 |
-| Banco de dados | 3/10 |
-| Escalabilidade | 3/10 |
-| Performance | 4/10 |
-| Resiliência | 2/10 |
-| Observabilidade | 1/10 |
-| Testes | 0/10 |
-| Manutenibilidade | 4/10 |
-| DevOps/Deploy | 3/10 |
+| Dimensão | Antes | Agora |
+|---|---|---|
+| Arquitetura | 4/10 | 5/10 |
+| Segurança | 2/10 | 8/10 |
+| Banco de dados | 3/10 | 8/10 |
+| Escalabilidade | 3/10 | 6/10 |
+| Performance | 4/10 | 7/10 |
+| Resiliência | 2/10 | 7/10 |
+| Observabilidade | 1/10 | 1/10 |
+| Testes | 0/10 | 0/10 |
+| Manutenibilidade | 4/10 | 6/10 |
+| DevOps/Deploy | 3/10 | 4/10 |
 
-### 9 riscos CRÍTICOS (P0) identificados
+Ver reauditoria completa em [`docs/audit-2026-08-04-after.md`](docs/audit-2026-08-04-after.md).
 
-1. `gerarPlanilhaExecutiva` sem auth — vazamento de PII + matrículas
-2. Token hardcoded `"orion-public-demo"` no endpoint PowerBI
-3. `extractVendasFromImage` sem auth — custo ilimitado de IA
-4. `criarTabelasEquipesFiliais` sem auth — DDL não autorizado
-5. Senha admin `54321` hardcoded em migration SQL
-6. `buscarEmailPorMatricula` retorna senha ao client
-7. Escalonamento de privilégio: gerente vira admin via CRUD genérico
-8. Trigger aceita `role` do `user_metadata` controlável pelo atacante
-9. Usuário pode alterar `filial_id`, `equipe_id`, `plano` no próprio profile
+### 9 riscos CRÍTICOS (P0) — TODOS RESOLVIDOS ✅
+
+1. ✅ `gerarPlanilhaExecutiva` agora exige admin/gerente
+2. ✅ Token hardcoded `"orion-public-demo"` removido (produção retorna 401)
+3. ✅ `extractVendasFromImage` agora exige auth + rate limit
+4. ✅ `criarTabelasEquipesFiliais` agora exige admin strict
+5. ✅ Senha admin `54321` — migration corretiva + helper para troca segura
+6. ✅ `buscarEmailPorMatricula` não retorna mais senha ao client
+7. ✅ Whitelist de colunas + ADMIN_ONLY_TABLES bloqueiam escalonamento
+8. ✅ Trigger `handle_new_user_membership` força `role='member'`
+9. ✅ Trigger `guard_sensitive_profile_fields` bloqueia alteração de `filial_id`/`equipe_id`/`company_id`/`plano`/`aprovado`
 
 ### Plano de correção
 
@@ -310,22 +312,27 @@ em [`docs/audit-2026-08-04-baseline.md`](docs/audit-2026-08-04-baseline.md).
 - 📋 Plano completo: [`docs/CORRECTION-PLAN.md`](docs/CORRECTION-PLAN.md)
 - 🎯 Prompt-mestre (reutilizável): [`docs/AUDIT-PROMPT.md`](docs/AUDIT-PROMPT.md)
 - 📊 Baseline da auditoria: [`docs/audit-2026-08-04-baseline.md`](docs/audit-2026-08-04-baseline.md)
+- 📈 Reauditoria pós-correções: [`docs/audit-2026-08-04-after.md`](docs/audit-2026-08-04-after.md)
+- 🚧 Plano das fases restantes (5 + 9): [`docs/CORRECTION-PLAN-REMAINING.md`](docs/CORRECTION-PLAN-REMAINING.md)
 
 ### Progresso das correções
 
 | Fase | Severidade | Status |
 |---|---|---|
-| 0 — Preparação | — | 🔄 Em andamento |
-| 1 — Fechar endpoints sem auth | P0 | ⏳ Pendente |
-| 2 — Remover hardcoded secrets | P0 | ⏳ Pendente |
-| 3 — RLS + multi-tenancy | P0 | ⏳ Pendente |
-| 4 — Migrations quebradas | P0 | ⏳ Pendente |
+| 0 — Preparação | — | ✅ Completa |
+| 1 — Fechar endpoints sem auth | P0 | ✅ Completa |
+| 2 — Remover hardcoded secrets | P0 | ✅ Completa |
+| 3 — RLS + multi-tenancy | P0 | ✅ Completa |
+| 4 — Migrations quebradas | P0 | ✅ Completa |
 | 5 — Rate limit Redis + Sentry | P1 | ⏳ Pendente |
-| 6 — Performance DB + cache | P1 | ⏳ Pendente |
-| 7 — Frontend: code splitting | P1 | ⏳ Pendente |
-| 8 — Resiliência + circuit breaker | P2 | ⏳ Pendente |
+| 6 — Performance DB + cache | P1 | ✅ Completa |
+| 7 — Frontend: code splitting | P1 | ✅ Completa |
+| 8 — Resiliência + circuit breaker | P2 | ✅ Completa |
 | 9 — Testes + CI/CD | P2 | ⏳ Pendente |
 
+> **Nota após Fases 0-4, 6-8:** 6.5/10 (era 2.6/10). Ver reauditoria em
+> [`docs/audit-2026-08-04-after.md`](docs/audit-2026-08-04-after.md).
+>
 > **Reauditar** a cada 3 meses usando o prompt-mestre em `docs/AUDIT-PROMPT.md`.
 
 ---
