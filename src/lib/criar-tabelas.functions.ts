@@ -1,10 +1,28 @@
 import { createServerFn } from "@tanstack/react-start";
-import postgres from "postgres";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { ensureAdminOnly } from "@/lib/admin.functions";
 
+/**
+ * 🔒 CRÍTICO: Esta server function executa DDL (CREATE TABLE, CREATE POLICY)
+ * diretamente no banco via DATABASE_URL com privilégios de superuser.
+ *
+ * Antes da Fase 1 da auditoria (2026-08-04), esta função era PÚBLICA — qualquer
+ * pessoa anônima podia invocá-la. Agora exige auth + admin.
+ *
+ * Nota: esta função existe apenas para setup inicial em ambientes novos.
+ * Em produção, as tabelas já foram criadas via migrations SQL. Considerar
+ * remover esta função inteiramente em uma futura fase de limpeza.
+ */
 export const criarTabelasEquipesFiliais = createServerFn({ method: "POST" })
-  .handler(async () => {
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    // 🔒 Segurança: apenas admin (não gerente) pode executar DDL no banco
+    await ensureAdminOnly(context.supabase, context.userId);
+
+    // Import dinâmico para evitar carregar `postgres` no bundle client
+    const postgres = (await import("postgres")).default;
+
     // Connection string lida de variável de ambiente — NUNCA hardcoded.
-    // (incidente histórico: senha do banco estava commitada aqui)
     const connStr = process.env.DATABASE_URL;
     if (!connStr) {
       return {

@@ -4,9 +4,10 @@ import { z } from "zod";
 
 const perfilEnum = z.enum(["admin", "gerente", "supervisor", "vendedor"]);
 
-async function ensureAdmin(supabase: any, userId: string) {
-  // Modelo: gerente tem acesso TOTAL (igual admin) — solicitado pelo usuário em 31/07/2026.
-  // Reversão do item 5 da auditoria.
+// Exportado para reutilização por outras server functions.
+// Nota: atualmente aceita admin OU gerente (decisão de negócio de 31/07/2026).
+// A Fase 3 do plano de correção vai reverter para apenas admin.
+export async function ensureAdmin(supabase: any, userId: string) {
   const { data, error } = await supabase
     .from("user_roles")
     .select("role")
@@ -15,6 +16,19 @@ async function ensureAdmin(supabase: any, userId: string) {
     .maybeSingle();
   if (error) throw new Error(error.message);
   if (!data) throw new Error("Acesso negado. Necessário perfil admin ou gerente.");
+}
+
+// Helper para exigir especificamente admin (não gerente).
+// Usar em operações críticas como mutar user_roles, members, companies.
+export async function ensureAdminOnly(supabase: any, userId: string) {
+  const { data, error } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId)
+    .eq("role", "admin")
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!data) throw new Error("Acesso negado. Necessário perfil admin.");
 }
 
 async function logAudit(admin: any, params: {

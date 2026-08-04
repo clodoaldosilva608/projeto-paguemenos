@@ -2,7 +2,10 @@
 // ORION · OCR de relatório de vendas via Lovable AI Gateway
 // =============================================================
 import { createServerFn } from "@tanstack/react-start";
+import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { applyRateLimit } from "@/lib/rate-limit";
 
 export interface LinhaExtraida {
   data: string; // YYYY-MM-DD
@@ -59,8 +62,12 @@ const ocrInputSchema = z.object({
 });
 
 export const extractVendasFromImage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((v: unknown) => ocrInputSchema.parse(v))
   .handler(async ({ data }): Promise<OCRResult> => {
+    // 🔒 Segurança: rate limit para prevenir abuso de quota de IA (10 imagens/min)
+    await applyRateLimit(getRequest(), "ocr", 10, 60_000);
+
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("LOVABLE_API_KEY não configurada.");
 
