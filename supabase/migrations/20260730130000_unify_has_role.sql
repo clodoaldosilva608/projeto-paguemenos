@@ -112,7 +112,10 @@ DROP POLICY IF EXISTS "Users read own concluidos" ON public.treinamentos_conclui
 
 -- ---- white_label (migração 20260728000003) ----
 DROP POLICY IF EXISTS companies_owner_all ON public.companies;
-DROP POLICY IF EXISTS companies_members_owner_all ON public.companies_members;
+-- 🔒 Fase 4 (2026-08-04): corrigido 'companies_members' → 'members'
+-- (a tabela se chama 'members', não 'companies_members' — ver migration 20260729000001)
+DROP POLICY IF EXISTS companies_members_owner_all ON public.members;
+DROP POLICY IF EXISTS members_owner_all ON public.members;
 
 -- ---- ai_config / ai_logs / ai_prompt_versions (migração 20260723100000) ----
 DROP POLICY IF EXISTS ai_config_admin_all ON public.ai_config;
