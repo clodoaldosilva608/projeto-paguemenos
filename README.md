@@ -339,12 +339,12 @@ Ver reauditoria completa em [`docs/audit-2026-08-04-after.md`](docs/audit-2026-0
 
 ## 📝 Licença
 
-Proprietary — © 2026 Pague Menos. Todos os direitos reservados.
+Proprietary — © 2026 Clodoaldo C Silva. Todos os direitos reservados.
 
 ## 👥 Equipe
 
-- **Desenvolvimento:** Clodoaldo Silva
-- **Gestão:** Equipe Pague Menos
+- **Desenvolvimento:** Clodoaldo C Silva
+- **Gestão:** Clodoaldo C Silva
 
 ## 📞 Suporte
 
