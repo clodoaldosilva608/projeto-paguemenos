@@ -5,7 +5,9 @@ import tsconfigPaths from "vite-tsconfig-paths";
 export default defineConfig({
   plugins: [react(), tsconfigPaths()],
   test: {
-    environment: "jsdom",
+    // Default environment: node (mais estável que jsdom)
+    // Testes que precisam de DOM devem usar `// @vitest-environment jsdom` no topo
+    environment: "node",
     globals: true,
     setupFiles: ["./src/test/setup.ts"],
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
@@ -31,5 +33,6 @@ export default defineConfig({
     "process.env.NODE_ENV": JSON.stringify("test"),
   },
 });
+
 
 
