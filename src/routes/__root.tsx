@@ -143,6 +143,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { httpEquiv: "X-XSS-Protection", content: "1; mode=block" },
       // X-DNS-Prefetch-Control: não fazer prefetch cross-origin (evita vazamento)
       { httpEquiv: "X-DNS-Prefetch-Control", content: "off" },
+      // 🔒 Cache control: evitar cache de HTML em browsers (forçar revalidação)
+      { httpEquiv: "Cache-Control", content: "no-cache, no-store, must-revalidate" },
+      { httpEquiv: "Pragma", content: "no-cache" },
+      { httpEquiv: "Expires", content: "0" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
