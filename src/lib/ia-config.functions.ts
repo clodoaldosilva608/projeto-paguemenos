@@ -185,6 +185,16 @@ export const obterIAConfig = createServerFn({ method: "GET" })
 
     if (error) throw new Error(error.message);
 
+    // 🔒 DEBUG (2026-08-05): log para diagnosticar "Unregistered API key"
+    console.log("[obterIAConfig] DEBUG:", {
+      found: !!data,
+      provider: data?.provider,
+      model: data?.model,
+      base_url: data?.base_url,
+      key_prefix: data?.api_key_ciphertext?.substring(0, 15),
+      key_length: data?.api_key_ciphertext?.length,
+    });
+
     // Mascarar a chave antes de retornar ao cliente
     const safe = data ? { ...data, api_key_ciphertext: maskApiKey(data.api_key_ciphertext) } : null;
 

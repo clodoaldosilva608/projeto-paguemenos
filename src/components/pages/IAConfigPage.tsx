@@ -106,6 +106,18 @@ export default function IAConfigPage() {
       let cfg: any, perms: any, hist: any;
       try {
         cfg = await fnObterConfig();
+        // 🔒 DEBUG: mostrar o que obterIAConfig retornou
+        const debugConfig = cfg?.config;
+        console.log("[IAConfigPage] Config recebida:", {
+          found: !!debugConfig,
+          provider: debugConfig?.provider,
+          model: debugConfig?.model,
+          base_url: debugConfig?.base_url,
+          api_key_masked: debugConfig?.api_key_ciphertext,
+        });
+        if (debugConfig) {
+          toast.info(`Config: provider=${debugConfig.provider}, model=${debugConfig.model}, url=${debugConfig.base_url?.substring(0, 40)}`, { duration: 10000 });
+        }
       } catch (e: any) {
         throw new Error("obterIAConfig falhou: " + e.message);
       }
