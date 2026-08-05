@@ -22,6 +22,7 @@ export type Pagina =
   | "auditoria"
   | "ia"
   | "ia-config"
+  | "kanban"
   | "tour"
   | "dashboard-funcionario"
   | "curriculo"
@@ -208,6 +209,14 @@ const ITENS: ItemNav[] = [
       "M12 2a4 4 0 014 4v1h1a4 4 0 014 4v1h-2v-1a2 2 0 00-2-2h-3V6a2 2 0 00-4 0v1H6a2 2 0 00-2 2v1H2V8a4 4 0 014-4h1V6a2 2 0 004 0V4a4 4 0 014-4z M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2v-9a2 2 0 012-2h10a2 2 0 012 2v9a2 2 0 01-2 2z",
     perfilMinimo: "gerente",
     perfilMinimoEscrita: "admin",
+  },
+  {
+    id: "kanban",
+    label: "Kanban",
+    icone:
+      "M3 3h7v7H3V3zm11 0h7v7h-7V3zM3 14h7v7H3v-7zm11 0h7v7h-7v-7z",
+    perfilMinimo: "vendedor",
+    perfilMinimoEscrita: "vendedor",
   },
   {
     id: "planilha-interna",

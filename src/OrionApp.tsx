@@ -42,6 +42,7 @@ import ConfiguracoesPage from "./components/pages/ConfiguracoesPage";
 import AuditoriaPage from "./components/pages/AuditoriaPage";
 import IAPage from "./components/pages/IAPage";
 import IAConfigPage from "./components/pages/IAConfigPage";
+import KanbanPage from "./components/pages/KanbanPage";
 import DashboardAdminPage from "./components/pages/DashboardAdminPage";
 import FuncionariosPage from "./components/pages/FuncionariosPage";
 import MinhasMetasPage from "./components/pages/MinhasMetasPage";
@@ -178,6 +179,8 @@ export default function OrionApp() {
         return <IAPage />;
       case "ia-config":
         return <IAConfigPage />;
+      case "kanban":
+        return <KanbanPage />;
       case "dashboard-funcionario":
         return <DashboardFuncionarioPage />;
       case "curriculo":
