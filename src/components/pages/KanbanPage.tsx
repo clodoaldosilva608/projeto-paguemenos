@@ -363,9 +363,6 @@ export default function KanbanPage() {
       <AnimatePresence>
         {sugestoesIA.length > 0 && (
           <div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden border-b border-purple-200 bg-purple-50 dark:border-purple-900 dark:bg-purple-950/30"
           >
             <div className="p-3">
@@ -740,16 +737,10 @@ function CardModal({ card, colunaId, colunas, onClose, onSave, onDelete }: {
 
   return (
     <div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
       onClick={onClose}
     >
       <div
-        initial={{ scale: 0.95, y: 20 }}
-        animate={{ scale: 1, y: 0 }}
-        exit={{ scale: 0.95, y: 20 }}
         className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl dark:bg-slate-900"
         onClick={(e) => e.stopPropagation()}
       >
