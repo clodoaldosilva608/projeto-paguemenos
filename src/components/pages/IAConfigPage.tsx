@@ -54,7 +54,7 @@ export default function IAConfigPage() {
   // Config state
   const [config, setConfig] = useState<any>(null);
   const [form, setForm] = useState<any>({
-    provider: "lovable",
+    provider: "huggingface",
     model: "google/gemini-2.5-flash",
     base_url: "",
     provider_panel_url: "",
@@ -102,44 +102,19 @@ export default function IAConfigPage() {
   const reload = async () => {
     setLoading(true);
     try {
-      // 🔒 Fase 5 (2026-08-05): capturar qual função específica falha
-      let cfg: any, perms: any, hist: any;
-      try {
-        cfg = await fnObterConfig();
-        // 🔒 DEBUG: mostrar o que obterIAConfig retornou
-        const debugConfig = cfg?.config;
-        console.log("[IAConfigPage] Config recebida:", {
-          found: !!debugConfig,
-          provider: debugConfig?.provider,
-          model: debugConfig?.model,
-          base_url: debugConfig?.base_url,
-          api_key_masked: debugConfig?.api_key_ciphertext,
-        });
-        if (debugConfig) {
-          toast.info(`Config: provider=${debugConfig.provider}, model=${debugConfig.model}, url=${debugConfig.base_url?.substring(0, 40)}`, { duration: 10000 });
-        }
-      } catch (e: any) {
-        throw new Error("obterIAConfig falhou: " + e.message);
-      }
-      try {
-        perms = await fnObterPerms();
-      } catch (e: any) {
-        throw new Error("obterIAPermissoes falhou: " + e.message);
-      }
-      try {
-        hist = await fnListarHistorico();
-      } catch (e: any) {
-        throw new Error("listarPromptHistorico falhou: " + e.message);
-      }
-
+      const [cfg, perms, hist] = await Promise.all([
+        fnObterConfig(),
+        fnObterPerms(),
+        fnListarHistorico(),
+      ]);
       const c = cfg.config;
       setConfig(c);
       setPermissoes(perms);
       setHistorico(hist.versoes || []);
       if (c) {
         setForm({
-          provider: c.provider || "lovable",
-          model: c.model || "google/gemini-2.5-flash",
+          provider: c.provider || "huggingface",
+          model: c.model || "Qwen/Qwen2.5-7B-Instruct",
           base_url: c.base_url || "",
           provider_panel_url: c.provider_panel_url || "",
           api_key: "",
@@ -153,7 +128,7 @@ export default function IAConfigPage() {
         });
       }
     } catch (e: any) {
-      toast.error("ERRO_DEBUG_CARREGAR_CONFIG: " + e.message);
+      toast.error("Erro ao carregar: " + e.message);
     } finally {
       setLoading(false);
     }
@@ -300,7 +275,7 @@ export default function IAConfigPage() {
     }
   };
 
-  const provInfo = PROVIDERS[form.provider as keyof typeof PROVIDERS] || PROVIDERS.lovable;
+  const provInfo = PROVIDERS[form.provider as keyof typeof PROVIDERS] || PROVIDERS.huggingface;
 
   return (
     <div className="space-y-6 pb-24">

@@ -88,17 +88,6 @@ export const PROVIDERS = {
     base_url: "internal://demo",
     models: ["demo-local-v1"],
   },
-  lovable: {
-    label: "Lovable (gateway padrão)",
-    panel_url: "https://lovable.dev",
-    base_url: "https://ai.gateway.lovable.dev/v1/chat/completions",
-    models: [
-      "google/gemini-2.5-flash",
-      "openai/gpt-4o-mini",
-      "openai/gpt-4o",
-      "anthropic/claude-3-5-sonnet",
-    ],
-  },
   openai: {
     label: "OpenAI",
     panel_url: "https://platform.openai.com/api-keys",
@@ -185,16 +174,6 @@ export const obterIAConfig = createServerFn({ method: "GET" })
 
     if (error) throw new Error(error.message);
 
-    // 🔒 DEBUG (2026-08-05): log para diagnosticar "Unregistered API key"
-    console.log("[obterIAConfig] DEBUG:", {
-      found: !!data,
-      provider: data?.provider,
-      model: data?.model,
-      base_url: data?.base_url,
-      key_prefix: data?.api_key_ciphertext?.substring(0, 15),
-      key_length: data?.api_key_ciphertext?.length,
-    });
-
     // Mascarar a chave antes de retornar ao cliente
     const safe = data ? { ...data, api_key_ciphertext: maskApiKey(data.api_key_ciphertext) } : null;
 
@@ -205,7 +184,7 @@ export const obterIAConfig = createServerFn({ method: "GET" })
 // 2) Salvar config (Card 2-7)
 // ------------------------------------------------------------------
 const configSchema = z.object({
-  provider: z.enum(["demo", "lovable", "openai", "google", "anthropic", "azure", "openrouter", "huggingface"]),
+  provider: z.enum(["demo", "openai", "google", "anthropic", "azure", "openrouter", "huggingface"]),
   model: z.string().min(1).max(120),
   base_url: z.string().max(500).optional(),
   provider_panel_url: z.string().max(500).optional(),
@@ -368,14 +347,6 @@ export const testarConexaoIA = createServerFn({ method: "POST" })
       return { ok: false, erro: "Nenhuma configuração ativa encontrada." };
     }
 
-    // 🔒 DEBUG (2026-08-05): log detalhado para diagnosticar "Unregistered API key"
-    console.log("[testarConexaoIA] DEBUG:", {
-      provider: cfg.provider,
-      model: cfg.model,
-      base_url: cfg.base_url,
-      key_prefix: cfg.api_key_ciphertext?.substring(0, 15),
-      key_length: cfg.api_key_ciphertext?.length,
-    });
 
     // 🔬 MODO DEMO — responde localmente sem chamar API externa
     // Detecta pelo provider=demo OU model com prefixo "demo-"
@@ -455,7 +426,6 @@ export const testarConexaoIA = createServerFn({ method: "POST" })
           .eq("id", cfg.id);
 
         // 🔒 DEBUG: retornar detalhes completos do erro
-        return { ok: false, erro: `${resp.status}: ${txt.slice(0, 300)}`, tempo_ms, debug: { base_url: cfg.base_url, provider: cfg.provider, key_prefix: cfg.api_key_ciphertext?.substring(0, 15) } };
       }
 
       // Sucesso
@@ -499,7 +469,7 @@ export const testarConexaoIA = createServerFn({ method: "POST" })
 // 4) Validar chave (Card 2 — botão Validar)
 // ------------------------------------------------------------------
 const validarChaveSchema = z.object({
-  provider: z.enum(["demo", "lovable", "openai", "google", "anthropic", "azure", "openrouter", "huggingface"]),
+  provider: z.enum(["demo", "openai", "google", "anthropic", "azure", "openrouter", "huggingface"]),
   api_key: z.string().min(1).max(500),
   base_url: z.string().optional(),
   model: z.string().optional(),
@@ -582,14 +552,6 @@ export const testarChatIA = createServerFn({ method: "POST" })
       return { ok: false, erro: "Nenhuma configuração ativa encontrada." };
     }
 
-    // 🔒 DEBUG (2026-08-05): log detalhado para diagnosticar "Unregistered API key"
-    console.log("[testarConexaoIA] DEBUG:", {
-      provider: cfg.provider,
-      model: cfg.model,
-      base_url: cfg.base_url,
-      key_prefix: cfg.api_key_ciphertext?.substring(0, 15),
-      key_length: cfg.api_key_ciphertext?.length,
-    });
 
     // 🔬 MODO DEMO — gera resposta local baseada no prompt + pergunta
     if (cfg.provider === "demo" || cfg.model?.startsWith("demo-")) {

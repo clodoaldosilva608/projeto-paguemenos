@@ -14,11 +14,11 @@ export const Route = createFileRoute("/auth")({
       { name: "description", content: "Acesse sua conta Orion para acompanhar metas, vendas e performance da equipe em tempo real." },
       { property: "og:title", content: "Entrar — Orion Dashboard" },
       { property: "og:description", content: "Faça login no Orion para acompanhar metas, vendas e desempenho da sua equipe." },
-      { property: "og:url", content: "https://projeto-orionn.lovable.app/auth" },
+      { property: "og:url", content: "https://orion-vendas.vercel.app/auth" },
       { property: "og:type", content: "website" },
       { name: "robots", content: "noindex, nofollow" },
     ],
-    links: [{ rel: "canonical", href: "https://projeto-orionn.lovable.app/auth" }],
+    links: [{ rel: "canonical", href: "https://orion-vendas.vercel.app/auth" }],
   }),
 });
 

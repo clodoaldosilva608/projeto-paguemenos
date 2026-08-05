@@ -10,11 +10,11 @@ export const Route = createFileRoute("/reset-password")({
       { name: "description", content: "Defina uma nova senha para retomar o acesso ao seu painel Orion de metas e desempenho." },
       { property: "og:title", content: "Redefinir Senha — Orion Dashboard" },
       { property: "og:description", content: "Escolha uma nova senha e recupere o acesso à sua conta Orion." },
-      { property: "og:url", content: "https://projeto-orionn.lovable.app/reset-password" },
+      { property: "og:url", content: "https://orion-vendas.vercel.app/reset-password" },
       { property: "og:type", content: "website" },
       { name: "robots", content: "noindex, nofollow" },
     ],
-    links: [{ rel: "canonical", href: "https://projeto-orionn.lovable.app/reset-password" }],
+    links: [{ rel: "canonical", href: "https://orion-vendas.vercel.app/reset-password" }],
   }),
 });
 

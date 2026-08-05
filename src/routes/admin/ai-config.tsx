@@ -33,7 +33,6 @@ const columns: Column<AiConfig>[] = [
     searchable: true,
     render: (r) => {
       const colors: Record<string, string> = {
-        lovable: "bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300",
         openai: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300",
         anthropic: "bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300",
         google: "bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-300",
@@ -81,12 +80,12 @@ const fields: FormField[] = [
     label: "Provider",
     type: "select",
     options: [
-      { value: "lovable", label: "Lovable" },
+      
       { value: "openai", label: "OpenAI" },
       { value: "anthropic", label: "Anthropic" },
       { value: "google", label: "Google" },
     ],
-    defaultValue: "lovable",
+    defaultValue: "huggingface",
   },
   { key: "model", label: "Modelo", type: "text", required: true, placeholder: "Ex: gpt-4o, claude-3-5-sonnet" },
   { key: "base_url", label: "Base URL", type: "text", placeholder: "https://api.openai.com/v1" },

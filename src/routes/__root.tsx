@@ -11,7 +11,7 @@ import { useEffect, type ReactNode } from "react";
 import { Toaster } from "sonner";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
+
 import { TemaProvider } from "@/contexts/ThemeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 
@@ -41,7 +41,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
   useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
+    console.error("[root error]", error);
   }, [error]);
 
   return (
@@ -119,8 +119,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "img-src 'self' data: blob: https:",
           // fonts: self + Google Fonts CDN
           "font-src 'self' data: https://fonts.gstatic.com",
-          // connect: self + Supabase + Google AI + Lovable gateway (IA)
-          "connect-src 'self' https://*.supabase.co https://generativelanguage.googleapis.com https://ai.gateway.lovable.dev https://api.openai.com https://api.anthropic.com https://openrouter.ai",
+          // connect: self + Supabase + Hugging Face + Google AI
+          "connect-src 'self' https://*.supabase.co https://generativelanguage.googleapis.com https://router.huggingface.co https://api.openai.com https://api.anthropic.com",
           // media: self + data:
           "media-src 'self' data:",
           // object-src: bloqueia plugins (Flash/Java)
