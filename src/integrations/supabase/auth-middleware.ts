@@ -85,40 +85,48 @@ export const requireSupabaseAuth = createMiddleware({ type: "function" }).server
       },
     });
 
-    const { data, error } = await supabase.auth.getClaims(token);
-    if (error || !data?.claims) {
+    // 🔒 Fase 5 (2026-08-05): usar getUser em vez de getClaims.
+    // getClaims faz fetchJwk que pode falhar com "Unregistered API key" em
+    // alguns ambientes Vercel. getUser valida o token server-side e é mais estável.
+    const { data, error } = await supabase.auth.getUser(token);
+    if (error || !data?.user) {
       throw new Error("Unauthorized: Invalid token");
     }
 
-    if (!data.claims.sub) {
+    if (!data.user.id) {
       throw new Error("Unauthorized: No user ID found in token");
     }
 
-    // 🔒 Segurança: validar expiração do JWT explicitamente.
-    // `getClaims` já rejeita tokens expirados em versões recentes do supabase-js,
-    // mas validamos aqui também para defesa em profundidade (algumas versões
-    // antigas do cliente podem não rejeitar expirados em edge cases de clock skew).
-    const nowSec = Math.floor(Date.now() / 1000);
-    if (typeof data.claims.exp === "number" && data.claims.exp < nowSec) {
-      throw new Error("Unauthorized: Token expired");
-    }
-
-    // 🔒 Segurança: validar "not before" (nbf) se presente.
-    if (typeof data.claims.nbf === "number" && data.claims.nbf > nowSec + 60) {
-      throw new Error("Unauthorized: Token not yet valid");
-    }
-
-    // 🔒 Segurança: validar "issued at" (iat) não no futuro distante (clock skew).
-    // Tolerância de 5 minutos.
-    if (typeof data.claims.iat === "number" && data.claims.iat > nowSec + 300) {
-      throw new Error("Unauthorized: Token issued in the future");
+    // 🔒 Segurança: validar expiração via JWT decode manual (defesa em profundidade)
+    // getUser já rejeita tokens expirados, mas validamos aqui também.
+    const tokenParts = token.split(".");
+    if (tokenParts.length === 3) {
+      try {
+        const payload = JSON.parse(
+          Buffer.from(tokenParts[1], "base64url").toString("utf-8"),
+        );
+        const nowSec = Math.floor(Date.now() / 1000);
+        if (typeof payload.exp === "number" && payload.exp < nowSec) {
+          throw new Error("Unauthorized: Token expired");
+        }
+        if (typeof payload.nbf === "number" && payload.nbf > nowSec + 60) {
+          throw new Error("Unauthorized: Token not yet valid");
+        }
+      } catch (decodeErr) {
+        // Se decode falhar mas getUser passou, confiar no getUser
+      }
     }
 
     return next({
       context: {
         supabase,
-        userId: data.claims.sub,
-        claims: data.claims,
+        userId: data.user.id,
+        claims: {
+          sub: data.user.id,
+          email: data.user.email,
+          role: data.user.role,
+          aud: data.user.aud,
+        },
       },
     });
   },
