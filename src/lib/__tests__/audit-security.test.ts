@@ -229,16 +229,15 @@ describe("Audit Fase 6 — performance DB", () => {
 });
 
 describe("Audit Fase 7 — frontend memo + code splitting", () => {
-  it("routes/index.tsx deve usar React.lazy", async () => {
+  it("routes/index.tsx deve importar OrionApp e LandingPage", async () => {
     const fs = await import("fs/promises");
     const path = await import("path");
     const filePath = path.resolve(process.cwd(), "src/routes/index.tsx");
     const content = await fs.readFile(filePath, "utf-8");
 
-    expect(content).toContain("lazy(");
-    expect(content).toContain("Suspense");
-    expect(content).toMatch(/lazy\(\(\)\s*=>\s*import\(["']@\/OrionApp["']\)\)/);
-    expect(content).toMatch(/lazy\(\(\)\s*=>\s*import\(["']@\/components\/LandingPage["']\)\)/);
+    // Import estático (revertido de lazy — Vercel build não propagava lazy chunks)
+    expect(content).toContain('import OrionApp');
+    expect(content).toContain('import LandingPage');
   });
 
   it("AuthContext deve ter useMemo no value", async () => {

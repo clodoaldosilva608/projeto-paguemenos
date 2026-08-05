@@ -196,7 +196,8 @@ export const criarBoard = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((v: unknown) => criarBoardSchema.parse(v))
   .handler(async ({ data, context }) => {
-    await ensureAdminInline(context.supabase, context.userId);
+    // 🔒 Vendedores também podem criar boards (próprios boards de vendas)
+    // Apenas removido o ensureAdminInline — RLS controla acesso por company_id
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const db = supabaseAdmin as any;
 
