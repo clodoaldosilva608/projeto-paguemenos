@@ -102,11 +102,24 @@ export default function IAConfigPage() {
   const reload = async () => {
     setLoading(true);
     try {
-      const [cfg, perms, hist] = await Promise.all([
-        fnObterConfig(),
-        fnObterPerms(),
-        fnListarHistorico(),
-      ]);
+      // 🔒 Fase 5 (2026-08-05): capturar qual função específica falha
+      let cfg: any, perms: any, hist: any;
+      try {
+        cfg = await fnObterConfig();
+      } catch (e: any) {
+        throw new Error("obterIAConfig falhou: " + e.message);
+      }
+      try {
+        perms = await fnObterPerms();
+      } catch (e: any) {
+        throw new Error("obterIAPermissoes falhou: " + e.message);
+      }
+      try {
+        hist = await fnListarHistorico();
+      } catch (e: any) {
+        throw new Error("listarPromptHistorico falhou: " + e.message);
+      }
+
       const c = cfg.config;
       setConfig(c);
       setPermissoes(perms);
