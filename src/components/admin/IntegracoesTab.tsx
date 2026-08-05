@@ -178,9 +178,42 @@ function PowerBICard() {
   const [loading, setLoading] = useState(false);
   const [dados, setDados] = useState<any>(null);
   const [copiado, setCopiado] = useState(false);
+  const [tokens, setTokens] = useState<Array<{ id: string; token: string; escopo: string; ativo: boolean }>>([]);
+  const [tokenSelecionado, setTokenSelecionado] = useState<string>("");
+  const { usuario } = useAuth();
 
-  const apiUrl = "https://projeto-paguemenos.vercel.app/api/public/powerbi/vendas?token=orion-public-demo&format=json";
-  const csvUrl = "https://projeto-paguemenos.vercel.app/api/public/powerbi/vendas?token=orion-public-demo&format=csv";
+  // 🔒 Segurança: token hardcoded "orion-public-demo" foi REMOVIDO na Fase 1
+  // da auditoria. Agora buscamos tokens reais da tabela powerbi_tokens.
+  useEffect(() => {
+    async function carregarTokens() {
+      if (!usuario) return;
+      try {
+        const { data, error } = await supabase
+          .from("powerbi_tokens")
+          .select("id, token, escopo, ativo")
+          .eq("user_id", usuario.id)
+          .eq("ativo", true)
+          .order("criado_em", { ascending: false });
+        if (error) {
+          console.error("[powerbi] erro ao carregar tokens:", error);
+          return;
+        }
+        setTokens(data || []);
+        if (data && data.length > 0) setTokenSelecionado(data[0].token);
+      } catch (e) {
+        console.error("[powerbi] falha ao carregar tokens:", e);
+      }
+    }
+    carregarTokens();
+  }, [usuario]);
+
+  // URL dinâmica baseada no token selecionado (ou vazia se nenhum token)
+  const apiUrl = tokenSelecionado
+    ? `/api/public/powerbi/vendas?token=${encodeURIComponent(tokenSelecionado)}&format=json`
+    : "";
+  const csvUrl = tokenSelecionado
+    ? `/api/public/powerbi/vendas?token=${encodeURIComponent(tokenSelecionado)}&format=csv`
+    : "";
 
   useEffect(() => {
     const saved = localStorage.getItem("orion-powerbi-ativo");
@@ -188,6 +221,10 @@ function PowerBICard() {
   }, []);
 
   async function conectar() {
+    if (!apiUrl) {
+      toast.error("Nenhum token Power BI ativo. Gere um token na aba 'Credenciais'.");
+      return;
+    }
     setLoading(true);
     try {
       const r = await fetch(apiUrl);
@@ -208,6 +245,10 @@ function PowerBICard() {
   }
 
   async function atualizarDados() {
+    if (!apiUrl) {
+      toast.error("Nenhum token Power BI ativo.");
+      return;
+    }
     setLoading(true);
     try {
       const r = await fetch(apiUrl);

@@ -1,9 +1,15 @@
 // Cria a tabela login_matricula via server function usando supabaseAdmin.rpc
 // Solução temporária — contorna o erro do SQL Studio do Supabase
 import { createServerFn } from "@tanstack/react-start";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { ensureAdminOnly } from "@/lib/admin.functions";
 
 export const criarTabelaLoginMatricula = createServerFn({ method: "POST" })
-  .handler(async () => {
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    // 🔒 Segurança: apenas admin (não gerente) pode executar setup de tabela
+    await ensureAdminOnly(context.supabase, context.userId);
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // Tentar criar a tabela via função SQL personalizada

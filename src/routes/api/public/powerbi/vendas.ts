@@ -1,9 +1,43 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { applyRateLimit } from "@/lib/rate-limit";
+
+// 🔒 Segurança: domínios confiáveis para CORS.
+// Adicionar aqui domínios de clientes que consomem este endpoint via Power BI Service.
+const ALLOWED_ORIGINS = [
+  "https://orion-vendas.vercel.app",
+  "https://projeto-paguemenos.vercel.app",
+  // Power BI Service faz requests server-side (sem Origin header), então
+  // não é afetado por CORS. Apenas browsers enviam Origin.
+];
+
+function getCorsHeader(request: Request): Record<string, string> {
+  const origin = request.headers.get("origin");
+  if (origin && ALLOWED_ORIGINS.includes(origin)) {
+    return { "Access-Control-Allow-Origin": origin };
+  }
+  // Sem Origin (request server-side do Power BI) ou origem não autorizada:
+  // não incluir header CORS → browser bloqueia, server-side funciona.
+  return {};
+}
 
 export const Route = (createFileRoute as any)("/api/public/powerbi/vendas")({
   server: {
     handlers: {
       GET: async ({ request }: { request: Request }) => {
+        // 🔒 Segurança: rate limit para prevenir DoS (60 req/min/IP)
+        try {
+          await applyRateLimit(request, "powerbi", 60, 60_000);
+        } catch (e: any) {
+          return new Response(JSON.stringify({ error: e.message }), {
+            status: 429,
+            headers: {
+              "Content-Type": "application/json",
+              "Retry-After": "60",
+              ...getCorsHeader(request),
+            },
+          });
+        }
+
         const url = new URL(request.url);
         const token = url.searchParams.get("token");
         const format = (url.searchParams.get("format") ?? "csv").toLowerCase();
@@ -13,9 +47,12 @@ export const Route = (createFileRoute as any)("/api/public/powerbi/vendas")({
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-        // 1. Validar token na tabela powerbi_tokens (ou aceitar token público temporário)
+        // 1. Validar token na tabela powerbi_tokens.
+        // 🔒 CRÍTICO: token público hardcoded "orion-public-demo" foi REMOVIDO
+        //    na Fase 1 da auditoria (2026-08-04). Apenas tokens válidos na
+        //    tabela powerbi_tokens são aceitos.
         let userId: string | null = null;
-        let escopo = "todos";
+        let escopo = "proprio"; // default seguro: apenas próprio usuário
 
         try {
           const { data: tk } = await supabaseAdmin
@@ -25,20 +62,17 @@ export const Route = (createFileRoute as any)("/api/public/powerbi/vendas")({
             .eq("ativo", true)
             .maybeSingle();
 
-          if (tk) {
-            userId = tk.user_id;
-            escopo = tk.escopo || "proprio";
-          } else if (token === "orion-public-demo") {
-            // Token público de demonstração (para testes)
-            escopo = "todos";
-          } else {
+          if (!tk) {
             return new Response("Invalid or revoked token", { status: 401 });
           }
+
+          // TODO (Fase 6): adicionar coluna expires_at em powerbi_tokens e
+          // validar expiração aqui. Por ora, tokens ativos não expiram.
+          userId = tk.user_id;
+          escopo = tk.escopo || "proprio";
         } catch {
-          // Se a tabela não existe, aceitar token público
-          if (token !== "orion-public-demo") {
-            return new Response("Invalid token", { status: 401 });
-          }
+          // Tabela powerbi_tokens não existe ou erro — negar acesso (fail-closed)
+          return new Response("Token validation failed", { status: 401 });
         }
 
         // 2. Buscar dados das vendas_diarias
@@ -118,6 +152,8 @@ export const Route = (createFileRoute as any)("/api/public/powerbi/vendas")({
           vendasPorVendedor[v.vendedor] = (vendasPorVendedor[v.vendedor] || 0) + v.valor_venda;
         }
 
+        const corsHeaders = getCorsHeader(request);
+
         // 8. Retornar no formato solicitado
         if (format === "json") {
           const jsonData = {
@@ -141,7 +177,7 @@ export const Route = (createFileRoute as any)("/api/public/powerbi/vendas")({
             headers: {
               "Content-Type": "application/json",
               "Cache-Control": "no-store",
-              "Access-Control-Allow-Origin": "*",
+              ...corsHeaders,
             },
           });
         }
@@ -157,7 +193,7 @@ export const Route = (createFileRoute as any)("/api/public/powerbi/vendas")({
             "Content-Type": "text/csv; charset=utf-8",
             "Content-Disposition": `attachment; filename="vendas-powerbi.csv"`,
             "Cache-Control": "no-store",
-            "Access-Control-Allow-Origin": "*",
+            ...corsHeaders,
           },
         });
       },

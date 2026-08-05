@@ -40,3 +40,9 @@ dist-ssr
 .output
 .vercel
 .wrangler
+
+# Test artifacts (Fase 9)
+test-results/
+playwright-report/
+coverage/
+*.lcov

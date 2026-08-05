@@ -81,13 +81,9 @@ export default function CaptureVendaModal({ aberto, onClose }: Props) {
     const selecionadas = linhas.filter((l) => l.marcada);
     if (selecionadas.length === 0) return setErro("Selecione ao menos uma linha.");
 
-    const conflitos = selecionadas.filter((l) => vendasStore.existe(l.data, v.id));
-    if (conflitos.length > 0) {
-      if (!confirm(`${conflitos.length} linha(s) já existem para ${v.nome} e serão sobrescritas. Continuar?`)) return;
-    }
-
+    // Sem restrição de duplicata — funcionários podem lançar quantas vendas quiserem
     for (const l of selecionadas) {
-      vendasStore.upsert({
+      vendasStore.add({
         data: l.data,
         vendedorId: v.id,
         vendedorCodigo: v.codigo,

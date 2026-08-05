@@ -1,12 +1,18 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { applyRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
 // ------------------------------------------------------------------
 // Login por matrícula: recebe primeiro_nome + matricula
-// Valida na tabela login_matricula e retorna o email real do usuário
-// para o client fazer signInWithPassword com email + matricula (como senha)
+// Valida na tabela login_matricula e retorna APENAS o email real do usuário.
+//
+// 🔒 Segurança (Fase 2 da auditoria, 2026-08-04):
+// ANTES esta função retornava { email, senha, primeiroNome } — vazando a
+// senha (matrícula) ao client. Agora retorna apenas { email, primeiroNome }.
+// O client deve usar a matrícula que o usuário digitou como senha no
+// signInWithPassword — não precisa receber a senha de volta do servidor.
 // ------------------------------------------------------------------
 
 export const buscarEmailPorMatricula = createServerFn({ method: "POST" })
@@ -16,10 +22,10 @@ export const buscarEmailPorMatricula = createServerFn({ method: "POST" })
       matricula: z.string().min(4).max(20),
     }).parse(v),
   )
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data }) => {
     // Rate limit: 10 tentativas por minuto por IP (proteção contra força bruta)
     await applyRateLimit(
-      (context as any)?.request,
+      getRequest(),
       "matricula",
       RATE_LIMITS.matricula.max,
       RATE_LIMITS.matricula.windowMs,
@@ -47,9 +53,10 @@ export const buscarEmailPorMatricula = createServerFn({ method: "POST" })
       throw new Error("Usuário não encontrado no sistema de autenticação.");
     }
 
+    // 🔒 Não retornar a senha! O client já tem a matrícula (digitada pelo usuário).
+    // Retornar apenas o email para que o client possa fazer signInWithPassword.
     return {
       email: authUser.user.email,
-      senha: data.matricula.trim(),
       primeiroNome: registro.primeiro_nome,
     };
   });
@@ -147,9 +154,18 @@ async function ensureTargetNaMinhaFilial(
 // Modelo filial=loja:
 //   - admin vê TODOS os usuários de TODAS as filiais
 //   - gerente/supervisor vê APENAS os usuários da SUA filial (loja)
+// Fase 6.5 (2026-08-04): paginação server-side. Antes carregava TODOS os
+// profiles + roles + credenciais em memória (OOM em 100k usuários).
 export const listarUsuariosComCredenciais = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .validator((v: unknown) =>
+    z.object({
+      page: z.number().int().min(1).default(1),
+      pageSize: z.number().int().min(1).max(100).default(50),
+      search: z.string().optional(),
+    }).parse(v),
+  )
+  .handler(async ({ data, context }) => {
     await ensureGestao(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
@@ -172,49 +188,64 @@ export const listarUsuariosComCredenciais = createServerFn({ method: "GET" })
       minhaFilialId = myProfile?.filial_id || null;
       if (!minhaFilialId) {
         // Gerente/supervisor sem filial_id atribuída → não vê ninguém
-        return { usuarios: [] };
+        return { usuarios: [], pagination: { page: data.page, pageSize: data.pageSize, total: 0, totalPages: 0 } };
       }
     }
 
-    // Buscar profiles, user_roles e login_matricula em paralelo
-    // Para gerente/supervisor: filtrar por filial_id da SUA filial
-    // Para admin: sem filtro (vê todos)
-    const [
-      profRes,
-      rolesRes,
-      credsRes,
-    ] = await Promise.all([
-      isAdmin
-        ? supabaseAdmin.from("profiles").select("id, nome, email, filial_id").order("nome")
-        : supabaseAdmin.from("profiles").select("id, nome, email, filial_id").eq("filial_id", minhaFilialId).order("nome"),
-      supabaseAdmin.from("user_roles").select("user_id, role"),
-      // Para login_matricula, precisamos filtrar pelos user_ids da filial —
-      // mas como fazemos o join no código abaixo, trazemos todos e filtramos depois
-      // (em produção com muitos usuários, otimizar para trazer só os relevantes)
-      supabaseAdmin.from("login_matricula").select("*"),
+    // 🔒 Fase 6.5: queries paginadas com range + count exact
+    const from = (data.page - 1) * data.pageSize;
+    const to = from + data.pageSize - 1;
+
+    // Query base de profiles com filtro por filial (se não-admin)
+    let profQuery = supabaseAdmin
+      .from("profiles")
+      .select("id, nome, email, filial_id", { count: "exact" });
+
+    if (!isAdmin) {
+      profQuery = profQuery.eq("filial_id", minhaFilialId);
+    }
+
+    // Aplicar busca textual se houver
+    if (data.search && data.search.trim()) {
+      const s = data.search.trim();
+      profQuery = profQuery.or(`nome.ilike.%${s}%,email.ilike.%${s}%`);
+    }
+
+    profQuery = profQuery.order("nome").range(from, to);
+
+    const { data: profiles, error: profErr, count } = await profQuery;
+    if (profErr) throw new Error(profErr.message);
+
+    const profilesList = profiles || [];
+    const userIds = profilesList.map((p: any) => p.id);
+
+    // Buscar roles e credenciais APENAS para os user_ids da página atual
+    const [rolesRes, credsRes] = await Promise.all([
+      userIds.length > 0
+        ? supabaseAdmin
+            .from("user_roles")
+            .select("user_id, role")
+            .in("user_id", userIds)
+        : Promise.resolve({ data: [], error: null }),
+      userIds.length > 0
+        ? supabaseAdmin
+            .from("login_matricula")
+            .select("*")
+            .in("user_id", userIds)
+        : Promise.resolve({ data: [], error: null }),
     ]);
 
-    if (profRes.error) throw new Error(profRes.error.message);
     if (rolesRes.error) throw new Error(rolesRes.error.message);
     if (credsRes.error) throw new Error(credsRes.error.message);
 
-    const profiles = profRes.data || [];
     const roles = rolesRes.data || [];
     const creds = credsRes.data || [];
 
-    // Mapa de user_id -> filial_id (para filtrar credenciais quando não-admin)
-    const filialByUserId = new Map(profiles.map((p: any) => [p.id, p.filial_id]));
-
-    // Se gerente/supervisor, filtra credenciais para só as da sua filial
-    const credsFiltradas = isAdmin
-      ? creds
-      : creds.filter((c: any) => filialByUserId.get(c.user_id) === minhaFilialId);
-
     const roleMap = new Map(roles.map((r: any) => [r.user_id, r.role]));
-    const credMap = new Map(credsFiltradas.map((c: any) => [c.user_id, c]));
+    const credMap = new Map(creds.map((c: any) => [c.user_id, c]));
 
     // Monta lista combinada: profile + role + credencial (se houver)
-    const usuarios = profiles.map((p: any) => {
+    const usuarios = profilesList.map((p: any) => {
       const cred = credMap.get(p.id);
       return {
         user_id: p.id,
@@ -245,7 +276,15 @@ export const listarUsuariosComCredenciais = createServerFn({ method: "GET" })
       return (a.nome || "").localeCompare(b.nome || "");
     });
 
-    return { usuarios };
+    return {
+      usuarios,
+      pagination: {
+        page: data.page,
+        pageSize: data.pageSize,
+        total: count || 0,
+        totalPages: Math.ceil((count || 0) / data.pageSize),
+      },
+    };
   });
 
 // Mantido para compatibilidade — agora apenas chama listarUsuariosComCredenciais

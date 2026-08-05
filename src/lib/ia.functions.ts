@@ -129,7 +129,12 @@ export const chatIA = createServerFn({ method: "POST" })
         : "";
 
     try {
-      const resp = await fetch(baseUrl, {
+      // 🔒 Fase 8.2 (2026-08-04): fetch com timeout de 30s + 1 retry.
+      // ANTES: fetch sem timeout — se provedor IA ficasse lento, server function
+      // pendurava até Vercel timeout (10s) mas custo já era gerado.
+      // DEPOIS: timeout explícito + 1 retry em caso de 5xx.
+      const { fetchWithRetry } = await import("@/lib/fetch-with-timeout");
+      const resp = await fetchWithRetry(baseUrl, {
         method: "POST",
         headers,
         body: JSON.stringify({
@@ -139,7 +144,7 @@ export const chatIA = createServerFn({ method: "POST" })
           // max_tokens para respostas mais longas com análise de imagem
           max_tokens: 2000,
         }),
-      });
+      }, { retries: 1, timeout: 30_000, backoff: 1000 });
 
       if (!resp.ok) {
         const t = await resp.text().catch(() => "");

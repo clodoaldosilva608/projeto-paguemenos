@@ -11,14 +11,26 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as TvRouteImport } from './routes/tv'
+import { Route as StatusRouteImport } from './routes/status'
+import { Route as SobreRouteImport } from './routes/sobre'
 import { Route as SetupRouteImport } from './routes/setup'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as QuemSomosRouteImport } from './routes/quem-somos'
 import { Route as PlanilhaInternaRouteImport } from './routes/planilha-interna'
+import { Route as FaqRouteImport } from './routes/faq'
+import { Route as ContatoRouteImport } from './routes/contato'
+import { Route as CentralAjudaRouteImport } from './routes/central-ajuda'
+import { Route as CarreirasRouteImport } from './routes/carreiras'
+import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ApiCriarTabelasRouteImport } from './routes/api-criar-tabelas'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as LegalTermosRouteImport } from './routes/legal/termos'
+import { Route as LegalPrivacidadeRouteImport } from './routes/legal/privacidade'
+import { Route as LegalLgpdRouteImport } from './routes/legal/lgpd'
+import { Route as LegalCookiesRouteImport } from './routes/legal/cookies'
 import { Route as ApiSsoRouteImport } from './routes/api/sso'
 import { Route as AdminVendasRouteImport } from './routes/admin/vendas'
 import { Route as AdminTreinamentosRouteImport } from './routes/admin/treinamentos'
@@ -47,6 +59,16 @@ const TvRoute = TvRouteImport.update({
   path: '/tv',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StatusRoute = StatusRouteImport.update({
+  id: '/status',
+  path: '/status',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SobreRoute = SobreRouteImport.update({
+  id: '/sobre',
+  path: '/sobre',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SetupRoute = SetupRouteImport.update({
   id: '/setup',
   path: '/setup',
@@ -57,9 +79,39 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
   path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const QuemSomosRoute = QuemSomosRouteImport.update({
+  id: '/quem-somos',
+  path: '/quem-somos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PlanilhaInternaRoute = PlanilhaInternaRouteImport.update({
   id: '/planilha-interna',
   path: '/planilha-interna',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaqRoute = FaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContatoRoute = ContatoRouteImport.update({
+  id: '/contato',
+  path: '/contato',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CentralAjudaRoute = CentralAjudaRouteImport.update({
+  id: '/central-ajuda',
+  path: '/central-ajuda',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CarreirasRoute = CarreirasRouteImport.update({
+  id: '/carreiras',
+  path: '/carreiras',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogRoute = BlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -86,6 +138,26 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminRoute,
+} as any)
+const LegalTermosRoute = LegalTermosRouteImport.update({
+  id: '/legal/termos',
+  path: '/legal/termos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalPrivacidadeRoute = LegalPrivacidadeRouteImport.update({
+  id: '/legal/privacidade',
+  path: '/legal/privacidade',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalLgpdRoute = LegalLgpdRouteImport.update({
+  id: '/legal/lgpd',
+  path: '/legal/lgpd',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalCookiesRoute = LegalCookiesRouteImport.update({
+  id: '/legal/cookies',
+  path: '/legal/cookies',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiSsoRoute = ApiSsoRouteImport.update({
   id: '/api/sso',
@@ -178,9 +250,17 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/api-criar-tabelas': typeof ApiCriarTabelasRoute
   '/auth': typeof AuthRoute
+  '/blog': typeof BlogRoute
+  '/carreiras': typeof CarreirasRoute
+  '/central-ajuda': typeof CentralAjudaRoute
+  '/contato': typeof ContatoRoute
+  '/faq': typeof FaqRoute
   '/planilha-interna': typeof PlanilhaInternaRoute
+  '/quem-somos': typeof QuemSomosRoute
   '/reset-password': typeof ResetPasswordRoute
   '/setup': typeof SetupRoute
+  '/sobre': typeof SobreRoute
+  '/status': typeof StatusRoute
   '/tv': typeof TvRoute
   '/welcome': typeof WelcomeRoute
   '/admin/ai-config': typeof AdminAiConfigRoute
@@ -199,6 +279,10 @@ export interface FileRoutesByFullPath {
   '/admin/treinamentos': typeof AdminTreinamentosRoute
   '/admin/vendas': typeof AdminVendasRoute
   '/api/sso': typeof ApiSsoRoute
+  '/legal/cookies': typeof LegalCookiesRoute
+  '/legal/lgpd': typeof LegalLgpdRoute
+  '/legal/privacidade': typeof LegalPrivacidadeRoute
+  '/legal/termos': typeof LegalTermosRoute
   '/admin/': typeof AdminIndexRoute
   '/api/public/powerbi/vendas': typeof ApiPublicPowerbiVendasRoute
 }
@@ -206,9 +290,17 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api-criar-tabelas': typeof ApiCriarTabelasRoute
   '/auth': typeof AuthRoute
+  '/blog': typeof BlogRoute
+  '/carreiras': typeof CarreirasRoute
+  '/central-ajuda': typeof CentralAjudaRoute
+  '/contato': typeof ContatoRoute
+  '/faq': typeof FaqRoute
   '/planilha-interna': typeof PlanilhaInternaRoute
+  '/quem-somos': typeof QuemSomosRoute
   '/reset-password': typeof ResetPasswordRoute
   '/setup': typeof SetupRoute
+  '/sobre': typeof SobreRoute
+  '/status': typeof StatusRoute
   '/tv': typeof TvRoute
   '/welcome': typeof WelcomeRoute
   '/admin/ai-config': typeof AdminAiConfigRoute
@@ -227,6 +319,10 @@ export interface FileRoutesByTo {
   '/admin/treinamentos': typeof AdminTreinamentosRoute
   '/admin/vendas': typeof AdminVendasRoute
   '/api/sso': typeof ApiSsoRoute
+  '/legal/cookies': typeof LegalCookiesRoute
+  '/legal/lgpd': typeof LegalLgpdRoute
+  '/legal/privacidade': typeof LegalPrivacidadeRoute
+  '/legal/termos': typeof LegalTermosRoute
   '/admin': typeof AdminIndexRoute
   '/api/public/powerbi/vendas': typeof ApiPublicPowerbiVendasRoute
 }
@@ -236,9 +332,17 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/api-criar-tabelas': typeof ApiCriarTabelasRoute
   '/auth': typeof AuthRoute
+  '/blog': typeof BlogRoute
+  '/carreiras': typeof CarreirasRoute
+  '/central-ajuda': typeof CentralAjudaRoute
+  '/contato': typeof ContatoRoute
+  '/faq': typeof FaqRoute
   '/planilha-interna': typeof PlanilhaInternaRoute
+  '/quem-somos': typeof QuemSomosRoute
   '/reset-password': typeof ResetPasswordRoute
   '/setup': typeof SetupRoute
+  '/sobre': typeof SobreRoute
+  '/status': typeof StatusRoute
   '/tv': typeof TvRoute
   '/welcome': typeof WelcomeRoute
   '/admin/ai-config': typeof AdminAiConfigRoute
@@ -257,6 +361,10 @@ export interface FileRoutesById {
   '/admin/treinamentos': typeof AdminTreinamentosRoute
   '/admin/vendas': typeof AdminVendasRoute
   '/api/sso': typeof ApiSsoRoute
+  '/legal/cookies': typeof LegalCookiesRoute
+  '/legal/lgpd': typeof LegalLgpdRoute
+  '/legal/privacidade': typeof LegalPrivacidadeRoute
+  '/legal/termos': typeof LegalTermosRoute
   '/admin/': typeof AdminIndexRoute
   '/api/public/powerbi/vendas': typeof ApiPublicPowerbiVendasRoute
 }
@@ -267,9 +375,17 @@ export interface FileRouteTypes {
     | '/admin'
     | '/api-criar-tabelas'
     | '/auth'
+    | '/blog'
+    | '/carreiras'
+    | '/central-ajuda'
+    | '/contato'
+    | '/faq'
     | '/planilha-interna'
+    | '/quem-somos'
     | '/reset-password'
     | '/setup'
+    | '/sobre'
+    | '/status'
     | '/tv'
     | '/welcome'
     | '/admin/ai-config'
@@ -288,6 +404,10 @@ export interface FileRouteTypes {
     | '/admin/treinamentos'
     | '/admin/vendas'
     | '/api/sso'
+    | '/legal/cookies'
+    | '/legal/lgpd'
+    | '/legal/privacidade'
+    | '/legal/termos'
     | '/admin/'
     | '/api/public/powerbi/vendas'
   fileRoutesByTo: FileRoutesByTo
@@ -295,9 +415,17 @@ export interface FileRouteTypes {
     | '/'
     | '/api-criar-tabelas'
     | '/auth'
+    | '/blog'
+    | '/carreiras'
+    | '/central-ajuda'
+    | '/contato'
+    | '/faq'
     | '/planilha-interna'
+    | '/quem-somos'
     | '/reset-password'
     | '/setup'
+    | '/sobre'
+    | '/status'
     | '/tv'
     | '/welcome'
     | '/admin/ai-config'
@@ -316,6 +444,10 @@ export interface FileRouteTypes {
     | '/admin/treinamentos'
     | '/admin/vendas'
     | '/api/sso'
+    | '/legal/cookies'
+    | '/legal/lgpd'
+    | '/legal/privacidade'
+    | '/legal/termos'
     | '/admin'
     | '/api/public/powerbi/vendas'
   id:
@@ -324,9 +456,17 @@ export interface FileRouteTypes {
     | '/admin'
     | '/api-criar-tabelas'
     | '/auth'
+    | '/blog'
+    | '/carreiras'
+    | '/central-ajuda'
+    | '/contato'
+    | '/faq'
     | '/planilha-interna'
+    | '/quem-somos'
     | '/reset-password'
     | '/setup'
+    | '/sobre'
+    | '/status'
     | '/tv'
     | '/welcome'
     | '/admin/ai-config'
@@ -345,6 +485,10 @@ export interface FileRouteTypes {
     | '/admin/treinamentos'
     | '/admin/vendas'
     | '/api/sso'
+    | '/legal/cookies'
+    | '/legal/lgpd'
+    | '/legal/privacidade'
+    | '/legal/termos'
     | '/admin/'
     | '/api/public/powerbi/vendas'
   fileRoutesById: FileRoutesById
@@ -354,12 +498,24 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   ApiCriarTabelasRoute: typeof ApiCriarTabelasRoute
   AuthRoute: typeof AuthRoute
+  BlogRoute: typeof BlogRoute
+  CarreirasRoute: typeof CarreirasRoute
+  CentralAjudaRoute: typeof CentralAjudaRoute
+  ContatoRoute: typeof ContatoRoute
+  FaqRoute: typeof FaqRoute
   PlanilhaInternaRoute: typeof PlanilhaInternaRoute
+  QuemSomosRoute: typeof QuemSomosRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SetupRoute: typeof SetupRoute
+  SobreRoute: typeof SobreRoute
+  StatusRoute: typeof StatusRoute
   TvRoute: typeof TvRoute
   WelcomeRoute: typeof WelcomeRoute
   ApiSsoRoute: typeof ApiSsoRoute
+  LegalCookiesRoute: typeof LegalCookiesRoute
+  LegalLgpdRoute: typeof LegalLgpdRoute
+  LegalPrivacidadeRoute: typeof LegalPrivacidadeRoute
+  LegalTermosRoute: typeof LegalTermosRoute
   ApiPublicPowerbiVendasRoute: typeof ApiPublicPowerbiVendasRoute
 }
 
@@ -379,6 +535,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TvRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/status': {
+      id: '/status'
+      path: '/status'
+      fullPath: '/status'
+      preLoaderRoute: typeof StatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sobre': {
+      id: '/sobre'
+      path: '/sobre'
+      fullPath: '/sobre'
+      preLoaderRoute: typeof SobreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/setup': {
       id: '/setup'
       path: '/setup'
@@ -393,11 +563,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/quem-somos': {
+      id: '/quem-somos'
+      path: '/quem-somos'
+      fullPath: '/quem-somos'
+      preLoaderRoute: typeof QuemSomosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/planilha-interna': {
       id: '/planilha-interna'
       path: '/planilha-interna'
       fullPath: '/planilha-interna'
       preLoaderRoute: typeof PlanilhaInternaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/faq': {
+      id: '/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof FaqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contato': {
+      id: '/contato'
+      path: '/contato'
+      fullPath: '/contato'
+      preLoaderRoute: typeof ContatoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/central-ajuda': {
+      id: '/central-ajuda'
+      path: '/central-ajuda'
+      fullPath: '/central-ajuda'
+      preLoaderRoute: typeof CentralAjudaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/carreiras': {
+      id: '/carreiras'
+      path: '/carreiras'
+      fullPath: '/carreiras'
+      preLoaderRoute: typeof CarreirasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog': {
+      id: '/blog'
+      path: '/blog'
+      fullPath: '/blog'
+      preLoaderRoute: typeof BlogRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -434,6 +646,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/legal/termos': {
+      id: '/legal/termos'
+      path: '/legal/termos'
+      fullPath: '/legal/termos'
+      preLoaderRoute: typeof LegalTermosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/privacidade': {
+      id: '/legal/privacidade'
+      path: '/legal/privacidade'
+      fullPath: '/legal/privacidade'
+      preLoaderRoute: typeof LegalPrivacidadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/lgpd': {
+      id: '/legal/lgpd'
+      path: '/legal/lgpd'
+      fullPath: '/legal/lgpd'
+      preLoaderRoute: typeof LegalLgpdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/cookies': {
+      id: '/legal/cookies'
+      path: '/legal/cookies'
+      fullPath: '/legal/cookies'
+      preLoaderRoute: typeof LegalCookiesRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/sso': {
       id: '/api/sso'
@@ -602,12 +842,24 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   ApiCriarTabelasRoute: ApiCriarTabelasRoute,
   AuthRoute: AuthRoute,
+  BlogRoute: BlogRoute,
+  CarreirasRoute: CarreirasRoute,
+  CentralAjudaRoute: CentralAjudaRoute,
+  ContatoRoute: ContatoRoute,
+  FaqRoute: FaqRoute,
   PlanilhaInternaRoute: PlanilhaInternaRoute,
+  QuemSomosRoute: QuemSomosRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SetupRoute: SetupRoute,
+  SobreRoute: SobreRoute,
+  StatusRoute: StatusRoute,
   TvRoute: TvRoute,
   WelcomeRoute: WelcomeRoute,
   ApiSsoRoute: ApiSsoRoute,
+  LegalCookiesRoute: LegalCookiesRoute,
+  LegalLgpdRoute: LegalLgpdRoute,
+  LegalPrivacidadeRoute: LegalPrivacidadeRoute,
+  LegalTermosRoute: LegalTermosRoute,
   ApiPublicPowerbiVendasRoute: ApiPublicPowerbiVendasRoute,
 }
 export const routeTree = rootRouteImport

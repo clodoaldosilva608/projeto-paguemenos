@@ -311,14 +311,18 @@ CREATE POLICY companies_owner_all ON public.companies
   FOR ALL TO authenticated
   USING (company_id = public.get_user_company_id() OR public.has_role(auth.uid(), 'admin'::text));
 
-CREATE POLICY companies_members_owner_all ON public.companies_members
+-- 🔒 Fase 4 (2026-08-04): corrigido 'companies_members' → 'members' e
+-- 'usuario_id' → 'user_id' (nomes reais das colunas, ver migration 20260729000001).
+-- Nota: as policies de members foram reescritas em 20260804000500_fix_members_insert.sql
+-- com isolamento por company_id adequado. Esta policy é fallback.
+CREATE POLICY members_owner_all ON public.members
   FOR ALL TO authenticated
   USING (
-    usuario_id = auth.uid()
+    user_uuid = auth.uid()
     OR public.has_any_role(auth.uid(), ARRAY['admin','gerente']::text[])
   )
   WITH CHECK (
-    usuario_id = auth.uid()
+    user_uuid = auth.uid()
     OR public.has_any_role(auth.uid(), ARRAY['admin','gerente']::text[])
   );
 
@@ -331,9 +335,11 @@ CREATE POLICY ai_logs_admin_all ON public.ai_logs
   FOR ALL TO authenticated
   USING (public.has_role(auth.uid(), 'admin'::text))
   WITH CHECK (public.has_role(auth.uid(), 'admin'::text));
+-- 🔒 Fase 4 (2026-08-04): corrigido 'usuario_id' → 'user_id'
+-- (a coluna em ai_logs se chama 'user_id', não 'usuario_id' — ver migration 20260723100000)
 CREATE POLICY ai_logs_owner_select ON public.ai_logs
   FOR SELECT TO authenticated
-  USING (usuario_id = auth.uid() OR public.has_role(auth.uid(), 'admin'::text));
+  USING (user_id = auth.uid() OR public.has_role(auth.uid(), 'admin'::text));
 CREATE POLICY ai_prompt_versions_admin_all ON public.ai_prompt_versions
   FOR ALL TO authenticated
   USING (public.has_role(auth.uid(), 'admin'::text))

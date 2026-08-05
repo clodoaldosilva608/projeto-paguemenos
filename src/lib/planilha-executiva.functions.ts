@@ -1,5 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { ensureAdmin } from "@/lib/admin.functions";
 
 // ============================================================
 // PALETA E CONSTANTES — cópia exata do modelo /route.ts
@@ -658,8 +660,12 @@ const MANUAL: { titulo: string; icone: string; linhas: string[] }[] = [
 // SERVER FUNCTION — GERAÇÃO DA PLANILHA EXECUTIVA ORION
 // ============================================================
 export const gerarPlanilhaExecutiva = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((v: unknown) => z.object({}).parse(v))
-  .handler(async () => {
+  .handler(async ({ context }) => {
+    // 🔒 Segurança: apenas admin/gerente pode gerar planilha executiva
+    // (contém PII de todos os vendedores + matrículas).
+    await ensureAdmin(context.supabase, context.userId);
     const ExcelJS = await import("exceljs");
     const d = await getDashboardData();
 

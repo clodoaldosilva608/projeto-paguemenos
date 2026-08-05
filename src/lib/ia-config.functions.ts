@@ -88,17 +88,6 @@ export const PROVIDERS = {
     base_url: "internal://demo",
     models: ["demo-local-v1"],
   },
-  lovable: {
-    label: "Lovable (gateway padrão)",
-    panel_url: "https://lovable.dev",
-    base_url: "https://ai.gateway.lovable.dev/v1/chat/completions",
-    models: [
-      "google/gemini-2.5-flash",
-      "openai/gpt-4o-mini",
-      "openai/gpt-4o",
-      "anthropic/claude-3-5-sonnet",
-    ],
-  },
   openai: {
     label: "OpenAI",
     panel_url: "https://platform.openai.com/api-keys",
@@ -152,6 +141,18 @@ export const PROVIDERS = {
       "meta-llama/llama-3.1-70b-instruct",
     ],
   },
+  huggingface: {
+    label: "Hugging Face (gratuito)",
+    panel_url: "https://huggingface.co/settings/tokens",
+    base_url: "https://router.huggingface.co/v1/chat/completions",
+    models: [
+      "Qwen/Qwen2.5-7B-Instruct",
+      "Qwen/Qwen2.5-72B-Instruct",
+      "meta-llama/Meta-Llama-3.1-8B-Instruct",
+      "mistralai/Mistral-7B-Instruct-v0.3",
+      "HuggingFaceH4/zephyr-7b-beta",
+    ],
+  },
 } as const;
 
 export type AIProvider = keyof typeof PROVIDERS;
@@ -183,7 +184,7 @@ export const obterIAConfig = createServerFn({ method: "GET" })
 // 2) Salvar config (Card 2-7)
 // ------------------------------------------------------------------
 const configSchema = z.object({
-  provider: z.enum(["demo", "lovable", "openai", "google", "anthropic", "azure", "openrouter"]),
+  provider: z.enum(["demo", "openai", "google", "anthropic", "azure", "openrouter", "huggingface"]),
   model: z.string().min(1).max(120),
   base_url: z.string().max(500).optional(),
   provider_panel_url: z.string().max(500).optional(),
@@ -346,6 +347,7 @@ export const testarConexaoIA = createServerFn({ method: "POST" })
       return { ok: false, erro: "Nenhuma configuração ativa encontrada." };
     }
 
+
     // 🔬 MODO DEMO — responde localmente sem chamar API externa
     // Detecta pelo provider=demo OU model com prefixo "demo-"
     if (cfg.provider === "demo" || cfg.model?.startsWith("demo-")) {
@@ -423,7 +425,7 @@ export const testarConexaoIA = createServerFn({ method: "POST" })
           })
           .eq("id", cfg.id);
 
-        return { ok: false, erro: `${resp.status}: ${txt.slice(0, 300)}`, tempo_ms };
+        // 🔒 DEBUG: retornar detalhes completos do erro
       }
 
       // Sucesso
@@ -467,7 +469,7 @@ export const testarConexaoIA = createServerFn({ method: "POST" })
 // 4) Validar chave (Card 2 — botão Validar)
 // ------------------------------------------------------------------
 const validarChaveSchema = z.object({
-  provider: z.enum(["demo", "lovable", "openai", "google", "anthropic", "azure", "openrouter"]),
+  provider: z.enum(["demo", "openai", "google", "anthropic", "azure", "openrouter", "huggingface"]),
   api_key: z.string().min(1).max(500),
   base_url: z.string().optional(),
   model: z.string().optional(),
@@ -549,6 +551,7 @@ export const testarChatIA = createServerFn({ method: "POST" })
     if (!cfg) {
       return { ok: false, erro: "Nenhuma configuração ativa encontrada." };
     }
+
 
     // 🔬 MODO DEMO — gera resposta local baseada no prompt + pergunta
     if (cfg.provider === "demo" || cfg.model?.startsWith("demo-")) {
@@ -798,3 +801,4 @@ export const obterIAPermissoes = createServerFn({ method: "GET" })
       auditoria_habilitada: true,
     };
   });
+// FORÇAR NOVO BUILD 1785896216

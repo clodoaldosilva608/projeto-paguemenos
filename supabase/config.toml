@@ -40,9 +40,11 @@ shadow_port = 54320
 health_timeout = "2m"
 major_version = 17
 
-# Pooler (Supavisor) — útil para testes de concorrência
+# Pooler (Supavisor) — CRÍTICO para 100k usuários
+# Fase 6.6 (2026-08-04): habilitado para evitar exaustão de conexões.
+# Em produção cloud do Supabase, também habilitar via Dashboard → Database → Connection Pooling.
 [db.pooler]
-enabled = false
+enabled = true
 port = 54329
 pool_mode = "transaction"
 default_pool_size = 20

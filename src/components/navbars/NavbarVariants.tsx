@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import {
   LayoutDashboard, Target, Trophy, FileBarChart, ShoppingBag, Users2,
   Megaphone, Sparkles, Bot, Building2, ShieldCheck, Settings2, ClipboardList,
-  Menu,
+  Menu, BarChart3,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Perfil } from "@/types/core";
@@ -31,6 +31,7 @@ const ITEMS: Item[] = [
   { id: "usuarios", label: "Admin", Icon: ShieldCheck, perfilMinimo: "admin" },
   { id: "configuracoes", label: "Ajustes", Icon: Settings2, perfilMinimo: "gerente" },
   { id: "auditoria", label: "Auditoria", Icon: ClipboardList, perfilMinimo: "admin" },
+  { id: "planilha-interna", label: "Planilha", Icon: BarChart3, perfilMinimo: "vendedor" },
 ];
 
 function usePermitidos(): Item[] {
