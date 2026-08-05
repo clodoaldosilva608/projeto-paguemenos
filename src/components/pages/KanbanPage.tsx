@@ -4,6 +4,7 @@
 // ============================================================
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -424,25 +425,25 @@ export default function KanbanPage() {
         )}
       </div>
 
-      {/* MODAL: Novo Board */}
-      <AnimatePresence>
-        {modalNovoBoard && (
-          <ModalNovoBoard onClose={() => setModalNovoBoard(false)} onCreate={handleCriarBoard} />
-        )}
-      </AnimatePresence>
+      {/* MODAL: Novo Board — portal para escapar do clipPath do OrionApp */}
+      {modalNovoBoard && typeof document !== "undefined" && createPortal(
+        <ModalNovoBoard onClose={() => setModalNovoBoard(false)} onCreate={handleCriarBoard} />,
+        document.body
+      )}
 
-      {/* MODAL: Novo Card */}
-      {modalNovoCard && boardAtivo && (
+      {/* MODAL: Novo Card — portal */}
+      {modalNovoCard && boardAtivo && typeof document !== "undefined" && createPortal(
         <CardModal
           colunaId={modalNovoCard}
           colunas={colunas}
           onClose={() => setModalNovoCard(null)}
           onSave={handleCriarCard}
-        />
+        />,
+        document.body
       )}
 
-      {/* MODAL: Editar Card */}
-      {cardEditando && boardAtivo && (
+      {/* MODAL: Editar Card — portal */}
+      {cardEditando && boardAtivo && typeof document !== "undefined" && createPortal(
         <CardModal
           card={cardEditando}
           colunaId={cardEditando.coluna_id}
@@ -450,7 +451,8 @@ export default function KanbanPage() {
           onClose={() => setCardEditando(null)}
           onSave={handleEditarCard}
           onDelete={() => handleExcluirCard(cardEditando.id)}
-        />
+        />,
+        document.body
       )}
     </div>
   );
