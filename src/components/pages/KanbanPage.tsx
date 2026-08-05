@@ -362,7 +362,7 @@ export default function KanbanPage() {
       {/* SUGESTÕES IA */}
       <AnimatePresence>
         {sugestoesIA.length > 0 && (
-          <motion.div
+          <div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
@@ -389,7 +389,7 @@ export default function KanbanPage() {
                 ))}
               </div>
             </div>
-          </motion.div>
+          </div>
         )}
       </AnimatePresence>
 
@@ -622,19 +622,15 @@ function ModalNovoBoard({ onClose, onCreate }: {
   const [nome, setNome] = useState("");
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4"
       onClick={onClose}
+      style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0 }}
     >
-      <motion.div
-        initial={{ scale: 0.95, y: 20 }}
-        animate={{ scale: 1, y: 0 }}
-        exit={{ scale: 0.95, y: 20 }}
-        className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl dark:bg-slate-900"
+      <div
+        className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl dark:bg-slate-900"
         onClick={(e) => e.stopPropagation()}
+        style={{ position: "relative", zIndex: 10000 }}
       >
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-bold text-slate-800 dark:text-slate-200">Novo Board Kanban</h2>
@@ -685,8 +681,8 @@ function ModalNovoBoard({ onClose, onCreate }: {
             Criar Board
           </button>
         </div>
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 }
 
@@ -743,14 +739,14 @@ function CardModal({ card, colunaId, colunas, onClose, onSave, onDelete }: {
   };
 
   return (
-    <motion.div
+    <div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
       onClick={onClose}
     >
-      <motion.div
+      <div
         initial={{ scale: 0.95, y: 20 }}
         animate={{ scale: 1, y: 0 }}
         exit={{ scale: 0.95, y: 20 }}
@@ -868,7 +864,7 @@ function CardModal({ card, colunaId, colunas, onClose, onSave, onDelete }: {
             )}
           </div>
         </div>
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 }
