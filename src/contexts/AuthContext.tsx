@@ -1,7 +1,6 @@
 import { createContext, useContext, useEffect, useState, useCallback, useMemo, type ReactNode } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
 import type { Usuario, Perfil, Permissao } from "../types/core";
 import { gerarPermissoes } from "../data/store";
 import { criarUsuarioConfirmado } from "@/lib/auth.functions";
