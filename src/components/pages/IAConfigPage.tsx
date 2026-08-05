@@ -218,7 +218,9 @@ export default function IAConfigPage() {
       if (r.ok) {
         toast.success(`✅ Conexão realizada com sucesso! (${r.tempo_ms}ms)`);
       } else {
-        toast.error(`❌ Falha: ${r.erro}`);
+        // 🔒 DEBUG: mostrar detalhes completos do erro
+        const debugInfo = (r as any).debug ? ` | debug: ${JSON.stringify((r as any).debug)}` : "";
+        toast.error(`❌ Falha: ${r.erro}${debugInfo}`);
       }
       void reload();
     } catch (e: any) {

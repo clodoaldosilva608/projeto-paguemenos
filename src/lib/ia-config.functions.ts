@@ -358,6 +358,15 @@ export const testarConexaoIA = createServerFn({ method: "POST" })
       return { ok: false, erro: "Nenhuma configuração ativa encontrada." };
     }
 
+    // 🔒 DEBUG (2026-08-05): log detalhado para diagnosticar "Unregistered API key"
+    console.log("[testarConexaoIA] DEBUG:", {
+      provider: cfg.provider,
+      model: cfg.model,
+      base_url: cfg.base_url,
+      key_prefix: cfg.api_key_ciphertext?.substring(0, 15),
+      key_length: cfg.api_key_ciphertext?.length,
+    });
+
     // 🔬 MODO DEMO — responde localmente sem chamar API externa
     // Detecta pelo provider=demo OU model com prefixo "demo-"
     if (cfg.provider === "demo" || cfg.model?.startsWith("demo-")) {
@@ -435,7 +444,8 @@ export const testarConexaoIA = createServerFn({ method: "POST" })
           })
           .eq("id", cfg.id);
 
-        return { ok: false, erro: `${resp.status}: ${txt.slice(0, 300)}`, tempo_ms };
+        // 🔒 DEBUG: retornar detalhes completos do erro
+        return { ok: false, erro: `${resp.status}: ${txt.slice(0, 300)}`, tempo_ms, debug: { base_url: cfg.base_url, provider: cfg.provider, key_prefix: cfg.api_key_ciphertext?.substring(0, 15) } };
       }
 
       // Sucesso
@@ -561,6 +571,15 @@ export const testarChatIA = createServerFn({ method: "POST" })
     if (!cfg) {
       return { ok: false, erro: "Nenhuma configuração ativa encontrada." };
     }
+
+    // 🔒 DEBUG (2026-08-05): log detalhado para diagnosticar "Unregistered API key"
+    console.log("[testarConexaoIA] DEBUG:", {
+      provider: cfg.provider,
+      model: cfg.model,
+      base_url: cfg.base_url,
+      key_prefix: cfg.api_key_ciphertext?.substring(0, 15),
+      key_length: cfg.api_key_ciphertext?.length,
+    });
 
     // 🔬 MODO DEMO — gera resposta local baseada no prompt + pergunta
     if (cfg.provider === "demo" || cfg.model?.startsWith("demo-")) {
