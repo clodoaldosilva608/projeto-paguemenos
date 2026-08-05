@@ -152,6 +152,18 @@ export const PROVIDERS = {
       "meta-llama/llama-3.1-70b-instruct",
     ],
   },
+  huggingface: {
+    label: "Hugging Face (gratuito)",
+    panel_url: "https://huggingface.co/settings/tokens",
+    base_url: "https://router.huggingface.co/v1/chat/completions",
+    models: [
+      "Qwen/Qwen2.5-7B-Instruct",
+      "Qwen/Qwen2.5-72B-Instruct",
+      "meta-llama/Meta-Llama-3.1-8B-Instruct",
+      "mistralai/Mistral-7B-Instruct-v0.3",
+      "HuggingFaceH4/zephyr-7b-beta",
+    ],
+  },
 } as const;
 
 export type AIProvider = keyof typeof PROVIDERS;
@@ -183,7 +195,7 @@ export const obterIAConfig = createServerFn({ method: "GET" })
 // 2) Salvar config (Card 2-7)
 // ------------------------------------------------------------------
 const configSchema = z.object({
-  provider: z.enum(["demo", "lovable", "openai", "google", "anthropic", "azure", "openrouter"]),
+  provider: z.enum(["demo", "lovable", "openai", "google", "anthropic", "azure", "openrouter", "huggingface"]),
   model: z.string().min(1).max(120),
   base_url: z.string().max(500).optional(),
   provider_panel_url: z.string().max(500).optional(),
@@ -467,7 +479,7 @@ export const testarConexaoIA = createServerFn({ method: "POST" })
 // 4) Validar chave (Card 2 — botão Validar)
 // ------------------------------------------------------------------
 const validarChaveSchema = z.object({
-  provider: z.enum(["demo", "lovable", "openai", "google", "anthropic", "azure", "openrouter"]),
+  provider: z.enum(["demo", "lovable", "openai", "google", "anthropic", "azure", "openrouter", "huggingface"]),
   api_key: z.string().min(1).max(500),
   base_url: z.string().optional(),
   model: z.string().optional(),
