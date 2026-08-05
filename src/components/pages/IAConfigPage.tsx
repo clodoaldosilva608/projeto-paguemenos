@@ -141,7 +141,7 @@ export default function IAConfigPage() {
         });
       }
     } catch (e: any) {
-      toast.error("Erro ao carregar configuração: " + e.message);
+      toast.error("ERRO_DEBUG_CARREGAR_CONFIG: " + e.message);
     } finally {
       setLoading(false);
     }
