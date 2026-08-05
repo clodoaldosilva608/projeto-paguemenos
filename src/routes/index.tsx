@@ -1,14 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState, lazy, Suspense } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-
-// 🔒 Fase 7.1 (2026-08-04): code splitting.
-// ANTES: OrionApp e LandingPage eram importados estaticamente, fazendo
-// o bundle inicial carregar TODAS as 17 páginas admin mesmo para usuários
-// não logados que só veriam a landing page.
-// DEPOIS: lazy load — só carrega o que for necessário.
-const OrionApp = lazy(() => import("@/OrionApp"));
-const LandingPage = lazy(() => import("@/components/LandingPage"));
+import OrionApp from "@/OrionApp";
+import LandingPage from "@/components/LandingPage";
 
 // Fallback simples paraSuspense
 function LoadingScreen() {
@@ -43,11 +37,7 @@ function Index() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   if (!mounted) return <LoadingScreen />;
-  return (
-    <Suspense fallback={<LoadingScreen />}>
-      <IndexRouter />
-    </Suspense>
-  );
+  return <IndexRouter />;
 }
 
 function IndexRouter() {
