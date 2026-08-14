@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import FilialHeader from "./FilialHeader";
@@ -7,26 +7,63 @@ import MotivationalFooter from "./MotivationalFooter";
 import CountUp from "./CountUp";
 import ModalLancarVendas from "./ModalLancarVendas";
 import { brlMoeda, pct } from "../utils/format";
-import { Target, TrendingUp, Award, Loader2, AlertCircle, DollarSign } from "lucide-react";
+import { Target, TrendingUp, Award, Loader2, AlertCircle, DollarSign, Calendar } from "lucide-react";
 
 export default function DashboardView() {
   const { usuario } = useAuth();
   const [metas, setMetas] = useState<any[]>([]);
+  const [vendas, setVendas] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
   const [modalVendasAberto, setModalVendasAberto] = useState(false);
+  const [periodo, setPeriodo] = useState<string>("mes");
 
   useEffect(() => {
     if (!usuario) return;
     (async () => {
       setLoading(true);
       try {
-        const { data, error } = await (supabase as any).from("metas_individuais").select("*").eq("usuario_id", usuario.id).order("categoria, periodo");
-        if (error) throw error;
-        setMetas(data || []);
+        const [metasRes, vendasRes] = await Promise.all([
+          (supabase as any).from("metas_individuais").select("*").eq("usuario_id", usuario.id).order("categoria, periodo"),
+          (supabase as any).from("vendas_diarias").select("*").eq("usuario_id", usuario.id).order("data", { ascending: false }),
+        ]);
+        if (metasRes.error) throw metasRes.error;
+        if (vendasRes.error) throw vendasRes.error;
+        setMetas(metasRes.data || []);
+        setVendas(vendasRes.data || []);
       } catch (e: any) { setErro(e.message); } finally { setLoading(false); }
     })();
   }, [usuario]);
+
+  // Filtrar vendas por período
+  const vendasFiltradas = useMemo(() => {
+    if (!vendas.length) return [];
+    const now = new Date();
+    let dataInicio: Date;
+    switch (periodo) {
+      case "7d":
+        dataInicio = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        break;
+      case "15d":
+        dataInicio = new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000);
+        break;
+      case "30d":
+        dataInicio = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        break;
+      case "mes":
+        dataInicio = new Date(now.getFullYear(), now.getMonth(), 1);
+        break;
+      default:
+        dataInicio = new Date(now.getFullYear(), now.getMonth(), 1);
+    }
+    return vendas.filter((v) => new Date(v.data) >= dataInicio);
+  }, [vendas, periodo]);
+
+  // Calcular totais do período
+  const totalVendasPeriodo = vendasFiltradas.reduce((s, v) => s + Number(v.valor_venda || 0), 0);
+  const totalClientesPeriodo = vendasFiltradas.reduce((s, v) => s + Number(v.qtd_clientes || 0), 0);
+  const ticketMedioPeriodo = totalClientesPeriodo > 0 ? totalVendasPeriodo / totalClientesPeriodo : 0;
+  const qtdDiasComVenda = new Set(vendasFiltradas.map((v) => v.data)).size;
 
   if (loading) return <div className="flex min-h-[400px] items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-blue-600" /></div>;
   if (erro) return <div className="flex min-h-[400px] items-center justify-center"><AlertCircle className="h-8 w-8 text-red-500" /><p className="ml-2 text-red-600">{erro}</p></div>;
@@ -107,6 +144,83 @@ export default function DashboardView() {
           </table>
         </div>
       )}
+
+      {/* SEÇÃO: MINHAS VENDAS POR PERÍODO */}
+      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="mb-3 flex items-center justify-between">
+          <p className="flex items-center gap-2 text-sm font-bold text-slate-700">
+            <Calendar className="h-4 w-4 text-blue-500" /> Minhas Vendas
+          </p>
+          <div className="flex items-center gap-1">
+            {[
+              { v: "7d", l: "7d" },
+              { v: "15d", l: "15d" },
+              { v: "30d", l: "30d" },
+              { v: "mes", l: "Mês" },
+            ].map((opt) => (
+              <button
+                key={opt.v}
+                onClick={() => setPeriodo(opt.v)}
+                className={`rounded-md px-2.5 py-1 text-[11px] font-semibold transition ${
+                  periodo === opt.v
+                    ? "bg-blue-600 text-white"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                }`}
+              >
+                {opt.l}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* KPIs do período */}
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <div className="rounded-lg bg-slate-50 p-2.5 text-center">
+            <p className="text-[10px] font-semibold uppercase text-slate-500">Faturamento</p>
+            <p className="text-base font-extrabold text-slate-800">{brlMoeda(totalVendasPeriodo)}</p>
+          </div>
+          <div className="rounded-lg bg-slate-50 p-2.5 text-center">
+            <p className="text-[10px] font-semibold uppercase text-slate-500">Clientes</p>
+            <p className="text-base font-extrabold text-slate-800">{totalClientesPeriodo}</p>
+          </div>
+          <div className="rounded-lg bg-slate-50 p-2.5 text-center">
+            <p className="text-[10px] font-semibold uppercase text-slate-500">Ticket Médio</p>
+            <p className="text-base font-extrabold text-slate-800">{brlMoeda(ticketMedioPeriodo)}</p>
+          </div>
+          <div className="rounded-lg bg-slate-50 p-2.5 text-center">
+            <p className="text-[10px] font-semibold uppercase text-slate-500">Dias c/ Venda</p>
+            <p className="text-base font-extrabold text-slate-800">{qtdDiasComVenda}</p>
+          </div>
+        </div>
+
+        {/* Lista de vendas do período */}
+        {vendasFiltradas.length > 0 ? (
+          <div className="mt-3 max-h-[280px] space-y-1.5 overflow-y-auto">
+            {vendasFiltradas.slice(0, 20).map((v) => (
+              <div key={v.id} className="flex items-center justify-between rounded-lg border border-slate-100 bg-white px-3 py-2 text-xs">
+                <div className="flex items-center gap-2">
+                  <span className="rounded-md bg-blue-50 px-2 py-0.5 font-semibold text-blue-700">
+                    {new Date(v.data + "T00:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}
+                  </span>
+                  <span className="text-slate-500">{v.categoria || "faturamento"}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="font-bold text-slate-800">{brlMoeda(v.valor_venda)}</span>
+                  <span className="text-slate-400">{v.qtd_clientes} cl</span>
+                </div>
+              </div>
+            ))}
+            {vendasFiltradas.length > 20 && (
+              <p className="pt-1 text-center text-[10px] text-slate-400">+ {vendasFiltradas.length - 20} lançamentos...</p>
+            )}
+          </div>
+        ) : (
+          <div className="mt-3 rounded-lg border-2 border-dashed border-slate-200 p-6 text-center">
+            <p className="text-xs text-slate-400">Nenhuma venda lançada neste período</p>
+          </div>
+        )}
+      </div>
+
       <MotivationalFooter />
 
       {/* MODAL LANÇAR VENDAS */}
