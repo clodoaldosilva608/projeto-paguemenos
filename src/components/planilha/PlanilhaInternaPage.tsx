@@ -46,6 +46,10 @@ export default function PlanilhaInternaPage() {
   const { usuario } = useAuth();
   const { filialFiltro } = useFilial();
   const navigate = useNavigate();
+  const [periodo, setPeriodo] = useState<string>("7d");
+  const [inicio, setInicio] = useState("");
+  const [fim, setFim] = useState("");
+  const [vendedorId, setVendedorId] = useState<string>("");
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
@@ -58,6 +62,12 @@ export default function PlanilhaInternaPage() {
     if (!usuario) return;
     void carregar({ periodo: "7d" });
   }, [usuario, filialFiltro]);
+
+  function aplicarFiltro(patch: any) {
+    const p = patch.periodo ?? periodo;
+    setPeriodo(p);
+    void carregar({ periodo: p });
+  }
 
   async function carregar(input: DashboardFilterInput) {
     setLoading(true); setErro(null);
