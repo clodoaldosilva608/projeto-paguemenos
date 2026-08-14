@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Loader2, AlertCircle, ArrowLeft } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
-import { Loader2, AlertCircle, Menu, X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFilial } from "@/contexts/FilialContext";
 import { getDashboardData, type DashboardData } from "@/lib/planilha/data";
@@ -26,6 +25,14 @@ const TABS_FIXAS = [
   { slug: "gestao-metas", label: "07 - Gestão de Metas" },
 ] as const;
 
+const TABS = [
+  { slug: "dashboard", label: "Dashboard" },
+  { slug: "faturamento", label: "Faturamento" },
+  { slug: "marcas", label: "Marcas" },
+  { slug: "genericos", label: "Genéricos" },
+  { slug: "super-desconto", label: "Super Desconto" },
+  { slug: "historico", label: "Histórico" },
+] as const;
 const TABS_FINAIS = [
   { slug: "equipe", label: "Gestão de Equipe" },
   { slug: "auditoria", label: "Auditoria" },
@@ -120,67 +127,38 @@ export default function PlanilhaInternaPage() {
         </button>
         <div className="mx-1 h-4 w-px bg-white/10" />
         {TABS.map((t) => (
-    <div className="sheet-content min-h-[100dvh] bg-[#0a1f3d] text-slate-100">
-      {/* Header sticky compacto */}
-      <div className="sticky top-0 z-30 border-b border-white/5 bg-[#0d2640]">
-        {/* Linha única: menu + título + filtros + contador */}
-        <div className="flex items-center gap-1.5 px-2 py-1.5">
-          {/* Botão menu tabs — só ícone, compacto */}
           <button
-            onClick={() => setMenuTabsAberto(!menuTabsAberto)}
-            className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md bg-white/5 text-sky-300 hover:bg-white/10"
-            title={activeTab?.label || "Dashboard"}
+            key={t.slug}
+            onClick={() => setActive(t.slug)}
+            className={`whitespace-nowrap rounded-md px-2.5 py-1 text-[11px] font-medium transition-colors ${
+              active === t.slug ? "bg-sky-500/20 text-sky-300" : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
+            }`}
           >
-            {menuTabsAberto ? <X className="h-3.5 w-3.5" /> : <Menu className="h-3.5 w-3.5" />}
+            {t.label}
           </button>
+        ))}
+      </div>
 
-          {/* Título da aba ativa — flex-1 para ocupar espaço restante */}
-          <span className="flex-1 truncate text-[12px] font-semibold text-slate-200">
-            {activeTab?.label || "Dashboard"}
-          </span>
-
-          {/* Botão filtros — compacto */}
-          <button
-            onClick={() => setMenuFiltrosAberto(!menuFiltrosAberto)}
-            className="flex h-7 items-center gap-1 flex-shrink-0 rounded-md bg-white/5 px-2 text-[10px] font-medium text-slate-300 hover:bg-white/10"
-          >
-            <span className="text-[11px]">🗂️</span>
-            <span className="hidden sm:inline">Filtros</span>
-          </button>
-
-          {/* Contador — compacto */}
-          <span className="flex-shrink-0 text-[9px] text-slate-500 tabular-nums">
-            {data.atuais.length} reg.
-          </span>
-        </div>
-
-        {/* Linha 2: tabs (colapsável no mobile) */}
-        <div className={`px-2 pb-1.5 ${menuTabsAberto ? "block" : "hidden lg:block"}`}>
-          <div className="flex flex-wrap gap-0.5 max-h-[200px] overflow-y-auto">
-            {allTabs.map((t) => (
-              <button
-                key={t.slug}
-                onClick={() => { setActive(t.slug); setMenuTabsAberto(false); }}
-                className={`whitespace-nowrap rounded px-2 py-0.5 text-[10px] font-medium transition-colors ${
-                  active === t.slug
-                    ? "bg-sky-500/20 text-sky-300"
-                    : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
-                }`}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Linha 3: filtros (colapsável) */}
-        <div className={`px-3 pb-2 ${menuFiltrosAberto ? "block" : "hidden lg:block"}`}>
-          <FilterControls
-            filtros={filtros}
-            vendedores={data.vendedoresList.map(v => ({ id: v.id, nome: v.nome, cargo: v.cargo }))}
-            onChange={handleFiltroChange}
-          />
-        </div>
+      {/* Filtros slim */}
+      <div className="flex flex-wrap items-center gap-2 border-b border-white/5 bg-[#0d2640]/50 px-3 py-1.5">
+        <select value={periodo} onChange={(e) => aplicarFiltro({ periodo: e.target.value })} className="rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-[11px] text-slate-200">
+          <option value="3d" className="bg-slate-800">3 dias</option>
+          <option value="7d" className="bg-slate-800">7 dias</option>
+          <option value="mes" className="bg-slate-800">Mês</option>
+          <option value="custom" className="bg-slate-800">Personalizado</option>
+        </select>
+        {periodo === "custom" && (
+          <>
+            <input type="date" value={inicio} onChange={(e) => aplicarFiltro({ inicio: e.target.value })} className="rounded-md border border-white/10 bg-white/5 px-1.5 py-0.5 text-[11px] text-slate-200" />
+            <input type="date" value={fim} onChange={(e) => aplicarFiltro({ fim: e.target.value })} className="rounded-md border border-white/10 bg-white/5 px-1.5 py-0.5 text-[11px] text-slate-200" />
+          </>
+        )}
+        <select value={vendedorId} onChange={(e) => aplicarFiltro({ vendedorId: e.target.value })} className="rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-[11px] text-slate-200">
+          <option value="" className="bg-slate-800">Todos vendedores</option>
+          {data.vendedoresList.map((v) => (
+            <option key={v.id} value={v.id} className="bg-slate-800">{v.nome}</option>
+          ))}
+        </select>
       </div>
 
       {/* Conteúdo */}
