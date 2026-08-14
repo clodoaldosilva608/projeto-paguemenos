@@ -127,7 +127,7 @@ export default function PlanilhaInternaPage() {
       {/* TabBar slim */}
       <div className="sticky top-0 z-20 flex items-center gap-0.5 border-b border-white/5 bg-[#0d2640] px-2 py-1.5 overflow-x-auto">
         <button
-          onClick={() => { window.location.href = "/"; }}
+          onClick={() => { window.location.href = "/admin"; }}
           className="flex items-center gap-1 whitespace-nowrap rounded-md bg-white/5 px-2.5 py-1 text-[11px] font-medium text-slate-300 transition-colors hover:bg-white/10 hover:text-white"
           title="Voltar para Dashboard"
         >
