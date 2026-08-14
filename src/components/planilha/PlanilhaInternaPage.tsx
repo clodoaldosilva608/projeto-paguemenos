@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Loader2, AlertCircle, ArrowLeft } from "lucide-react";
-import { useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFilial } from "@/contexts/FilialContext";
 import { getDashboardData, type DashboardData } from "@/lib/planilha/data";
@@ -45,7 +44,6 @@ type TabSlug = string;
 export default function PlanilhaInternaPage() {
   const { usuario } = useAuth();
   const { filialFiltro } = useFilial();
-  const navigate = useNavigate();
   const [periodo, setPeriodo] = useState<string>("7d");
   const [inicio, setInicio] = useState("");
   const [fim, setFim] = useState("");
