@@ -1,11 +1,8 @@
 import { useEffect, useState } from "react";
-<<<<<<< HEAD
 import { motion } from "framer-motion";
 import { Loader2, AlertCircle, ArrowLeft } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
-=======
 import { Loader2, AlertCircle, Menu, X } from "lucide-react";
->>>>>>> 8d280bbb944ce7b4f21490adf4eb9be7875ead24
 import { useAuth } from "@/contexts/AuthContext";
 import { useFilial } from "@/contexts/FilialContext";
 import { getDashboardData, type DashboardData } from "@/lib/planilha/data";
@@ -111,7 +108,6 @@ export default function PlanilhaInternaPage() {
   else content = <DashboardGeral d={data} />;
 
   return (
-<<<<<<< HEAD
     <div className="min-h-[100dvh] bg-[#0a1f3d] text-slate-100">
       {/* TabBar slim */}
       <div className="sticky top-0 z-20 flex items-center gap-0.5 border-b border-white/5 bg-[#0d2640] px-2 py-1.5 overflow-x-auto">
@@ -124,14 +120,12 @@ export default function PlanilhaInternaPage() {
         </button>
         <div className="mx-1 h-4 w-px bg-white/10" />
         {TABS.map((t) => (
-=======
     <div className="sheet-content min-h-[100dvh] bg-[#0a1f3d] text-slate-100">
       {/* Header sticky compacto */}
       <div className="sticky top-0 z-30 border-b border-white/5 bg-[#0d2640]">
         {/* Linha única: menu + título + filtros + contador */}
         <div className="flex items-center gap-1.5 px-2 py-1.5">
           {/* Botão menu tabs — só ícone, compacto */}
->>>>>>> 8d280bbb944ce7b4f21490adf4eb9be7875ead24
           <button
             onClick={() => setMenuTabsAberto(!menuTabsAberto)}
             className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md bg-white/5 text-sky-300 hover:bg-white/10"

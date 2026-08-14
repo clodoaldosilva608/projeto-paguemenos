@@ -1,9 +1,6 @@
 import { motion } from "framer-motion";
-<<<<<<< HEAD
 import { useState, useEffect, useMemo } from "react";
-=======
 import { useState, useEffect, memo } from "react";
->>>>>>> 8d280bbb944ce7b4f21490adf4eb9be7875ead24
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import FilialHeader from "./FilialHeader";
