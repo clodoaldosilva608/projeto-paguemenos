@@ -5,6 +5,7 @@ import {
   Megaphone, Sparkles, Bot, Building2, ShieldCheck, Settings2, ClipboardList,
   Heart, HelpCircle, Award, FileText, BrainCircuit,
   Menu, X, Plus, Sun, Moon, LogOut, ChevronLeft, Scan, UserPlus, Home, TrendingUp,
+  BarChart3,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTema } from "@/contexts/ThemeContext";

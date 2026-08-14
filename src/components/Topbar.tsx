@@ -65,6 +65,8 @@ const titulos: Record<Pagina, { titulo: string; subtitulo: string }> = {
     subtitulo: "Histórico de cursos e treinamentos concluídos.",
   },
   documentos: { titulo: "Meus Documentos", subtitulo: "Crie e gerencie seus documentos." },
+  kanban: { titulo: "Kanban", subtitulo: "Pipeline de vendas e atendimento" },
+  "planilha-interna": { titulo: "Planilha Interna", subtitulo: "Dashboard executivo" },
 };
 
 interface TopbarProps {

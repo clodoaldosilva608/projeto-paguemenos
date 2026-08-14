@@ -1,6 +1,8 @@
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { useNavigate } from "@tanstack/react-router";
+import HeroSection from "./HeroSection";
+import KineticGrid from "./KineticGrid";
 import {
   LogIn,
   Tv,
@@ -151,15 +153,38 @@ function SpotlightText({ children }: { children: React.ReactNode }) {
       `radial-gradient(circle at ${x}% ${y}%, rgba(66,165,245,0.95) 0%, rgba(255,255,255,0.9) 35%, rgba(148,163,184,0.7) 70%)`,
   );
 
-  const onMove = (e: React.MouseEvent<HTMLHeadingElement>) => {
-    const el = ref.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    mx.set(Math.max(0, Math.min(100, x)));
-    my.set(Math.max(0, Math.min(100, y)));
-  };
+  // 🔒 Fase 7.5 (2026-08-04): throttle do onMouseMove via requestAnimationFrame.
+  // ANTES: cada pixel de mousemove disparava getBoundingClientRect + 2 useMotionValue.set.
+  // DEPOIS: no máximo 1 update por frame (60fps), eliminando jank em mousemove rápido.
+  const rafRef = useRef<number | null>(null);
+  const latestEventRef = useRef<React.MouseEvent<HTMLHeadingElement> | null>(null);
+
+  const onMove = useMemo(() => {
+    const processFrame = () => {
+      const e = latestEventRef.current;
+      const el = ref.current;
+      rafRef.current = null;
+      if (!e || !el) return;
+      const rect = el.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      mx.set(Math.max(0, Math.min(100, x)));
+      my.set(Math.max(0, Math.min(100, y)));
+    };
+
+    return (e: React.MouseEvent<HTMLHeadingElement>) => {
+      latestEventRef.current = e;
+      if (rafRef.current === null) {
+        rafRef.current = requestAnimationFrame(processFrame);
+      }
+    };
+  }, [mx, my]);
+
+  useEffect(() => {
+    return () => {
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
 
   return (
     <motion.h1
@@ -190,6 +215,15 @@ function ScrollIndicator({ onClick }: { onClick: () => void }) {
     </button>
   );
 }
+
+// ============================================================================
+// KINETIC GRID — agora usado como plano de fundo fixo de tela cheia
+// (declarado no componente LandingPage, não mais como seção dedicada).
+// ============================================================================
+
+// (Seção dedicada removida — o KineticGrid agora é renderizado como camada
+// de fundo fixa em <LandingPage />, com globalMouse=true para capturar
+// eventos em window sem bloquear cliques no conteúdo.)
 
 // ============================================================================
 // FEATURES
@@ -294,46 +328,81 @@ function Footer() {
   const navigate = useNavigate();
   return (
     <footer className="relative z-10 mt-auto border-t border-white/10 bg-black/40 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 py-8 text-xs text-slate-400 dark:text-slate-500 sm:flex-row">
-        <div className="flex items-center gap-2">
-          <div
-            className="flex h-7 w-7 items-center justify-center rounded-lg"
-            style={{ background: COLORS.blueOrion }}
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="white"
-              strokeWidth={1.5}
-              className="h-4 w-4"
-            >
-              <circle cx="12" cy="12" r="3" />
-              <path
-                d="M12 2v4M12 18v4M4.9 4.9l2.9 2.9M16.2 16.2l2.9 2.9M2 12h4M18 12h4M4.9 19.1l2.9-2.9M16.2 7.8l2.9-2.9"
-                strokeLinecap="round"
-              />
-            </svg>
+      <div className="mx-auto max-w-7xl px-6 py-10">
+        {/* Grid de seções */}
+        <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-6">
+          {/* Logo + descrição */}
+          <div className="col-span-2 sm:col-span-3 lg:col-span-2">
+            <img
+              src="/assets/images/orion_logo.png"
+              alt="ORION Logo"
+              className="h-8 w-auto"
+            />
+            <p className="mt-3 max-w-xs text-[11px] leading-relaxed text-slate-500">
+              Plataforma de gestão de vendas, metas e performance em tempo real para redes de farmácia e varejo.
+            </p>
           </div>
-          <span className="font-display text-sm tracking-wide text-white">ORION</span>
+
+          {/* Institucional */}
+          <div>
+            <h4 className="mb-3 text-[11px] font-bold uppercase tracking-wider text-slate-300">Institucional</h4>
+            <ul className="space-y-2 text-[11px] text-slate-500">
+              <li><a href="/sobre" className="hover:text-sky-400 transition-colors">Sobre o Orion</a></li>
+              <li><a href="/quem-somos" className="hover:text-sky-400 transition-colors">Quem Somos</a></li>
+              <li><a href="/blog" className="hover:text-sky-400 transition-colors">Blog</a></li>
+              <li><a href="/carreiras" className="hover:text-sky-400 transition-colors">Carreiras</a></li>
+            </ul>
+          </div>
+
+          {/* Suporte */}
+          <div>
+            <h4 className="mb-3 text-[11px] font-bold uppercase tracking-wider text-slate-300">Suporte</h4>
+            <ul className="space-y-2 text-[11px] text-slate-500">
+              <li><a href="/faq" className="hover:text-sky-400 transition-colors">FAQ</a></li>
+              <li><a href="/central-ajuda" className="hover:text-sky-400 transition-colors">Central de Ajuda</a></li>
+              <li><a href="/contato" className="hover:text-sky-400 transition-colors">Contato</a></li>
+              <li><a href="/status" className="hover:text-sky-400 transition-colors">Status do Sistema</a></li>
+            </ul>
+          </div>
+
+          {/* Legal */}
+          <div>
+            <h4 className="mb-3 text-[11px] font-bold uppercase tracking-wider text-slate-300">Legal</h4>
+            <ul className="space-y-2 text-[11px] text-slate-500">
+              <li><a href="/legal/termos" className="hover:text-sky-400 transition-colors">Termos de Serviço</a></li>
+              <li><a href="/legal/privacidade" className="hover:text-sky-400 transition-colors">Política de Privacidade</a></li>
+              <li><a href="/legal/lgpd" className="hover:text-sky-400 transition-colors">LGPD</a></li>
+              <li><a href="/legal/cookies" className="hover:text-sky-400 transition-colors">Cookies</a></li>
+            </ul>
+          </div>
+
+          {/* Admin */}
+          <div>
+            <h4 className="mb-3 text-[11px] font-bold uppercase tracking-wider text-slate-300">Acesso</h4>
+            <ul className="space-y-2 text-[11px] text-slate-500">
+              <li>
+                <button
+                  onClick={() => navigate({ to: "/admin/login" })}
+                  className="inline-flex items-center gap-1.5 text-slate-500 hover:text-sky-400 transition-colors"
+                >
+                  <ShieldCheck className="h-3 w-3" /> Painel Admin
+                </button>
+              </li>
+              <li><button onClick={() => navigate({ to: "/auth" })} className="hover:text-sky-400 transition-colors">Entrar no Sistema</button></li>
+              <li><button onClick={() => navigate({ to: "/tv" })} className="hover:text-sky-400 transition-colors">TV Mode</button></li>
+            </ul>
+          </div>
         </div>
-        <p className="text-center">© 2026 Orion · Sistema de Gestão Multi-Empresa</p>
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => navigate({ to: "/admin/login" })}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-white/10 hover:text-white"
-            title="Acesso restrito ao painel administrativo"
-          >
-            <ShieldCheck className="h-3.5 w-3.5" />
-            Painel Admin
-          </button>
-          <span>·</span>
-          <a href="https://supabase.com" target="_blank" rel="noreferrer" className="hover:text-white">
-            Supabase
-          </a>
-          <span>·</span>
-          <a href="https://vercel.com" target="_blank" rel="noreferrer" className="hover:text-white">
-            Vercel
-          </a>
+
+        {/* Linha inferior */}
+        <div className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-white/5 pt-6 sm:flex-row">
+          <p className="text-[10px] text-slate-600">© 2026 Orion · Plataforma de Gestão de Vendas e Performance</p>
+          <div className="flex items-center gap-4 text-[10px] text-slate-600">
+            <span>Powered by</span>
+            <a href="https://supabase.com" target="_blank" rel="noreferrer" className="hover:text-slate-400">Supabase</a>
+            <span>·</span>
+            <a href="https://vercel.com" target="_blank" rel="noreferrer" className="hover:text-slate-400">Vercel</a>
+          </div>
         </div>
       </div>
     </footer>
@@ -356,43 +425,59 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="relative flex min-h-screen flex-col overflow-hidden text-slate-100">
+    <div className="relative z-10 flex min-h-screen flex-col overflow-hidden text-slate-100">
       <style>{LANDING_STYLES}</style>
 
-      {/* Background layers */}
-      <div className="orion-aurora-bg pointer-events-none absolute inset-0" />
-      <GridMesh />
-      <FloatingParticles count={26} />
+      {/* ============================================================
+          PLANO DE FUNDO — Kinetic Grid (tela cheia, fixo, interativo)
+          - position: fixed; inset: 0 → cobre toda a viewport
+          - globalMouse → escuta mouse/touch em window
+          - pointer-events: none → não bloqueia cliques no conteúdo
+          - z-index: 0 → fica atrás de todo o conteúdo (z-10+)
+         ============================================================ */}
+      <div className="pointer-events-none fixed inset-0 z-0">
+        <KineticGrid
+          background="#0a192f"
+          dotColor="#7DD3FC"
+          lineColor="#22D3EE"
+          trailColor="#06B6D4"
+          spacing={36}
+          radius={420}
+          strength={4}
+          // 🔒 Fase 7.6 (2026-08-04): respeitar prefers-reduced-motion.
+          // Usuários com vestibular recebem trail=false (sem rastro do cursor).
+          trail={typeof window !== "undefined" && !window.matchMedia("(prefers-reduced-motion: reduce)").matches}
+          globalMouse={true}
+        />
+        {/* Camada de gradiente sutil para dar profundidade sobre o grid */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(circle at 50% 30%, rgba(8,47,73,0.35) 0%, rgba(10,25,47,0.55) 60%, rgba(2,8,23,0.75) 100%)",
+          }}
+        />
+      </div>
 
-      {/* Glows decorativos */}
+      {/* Glows decorativos (acima do grid, abaixo do conteúdo) */}
       <div
-        className="pointer-events-none absolute left-1/4 top-0 h-96 w-96 rounded-full blur-[140px]"
-        style={{ background: "rgba(21,101,192,0.35)" }}
+        className="pointer-events-none fixed left-1/4 top-0 z-0 h-96 w-96 rounded-full blur-[140px]"
+        style={{ background: "rgba(21,101,192,0.18)" }}
       />
       <div
-        className="pointer-events-none absolute bottom-0 right-1/4 h-96 w-96 rounded-full blur-[140px]"
-        style={{ background: "rgba(66,165,245,0.25)" }}
+        className="pointer-events-none fixed bottom-0 right-1/4 z-0 h-96 w-96 rounded-full blur-[140px]"
+        style={{ background: "rgba(66,165,245,0.14)" }}
       />
 
       {/* HEADER */}
       <header className="relative z-20 mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-5">
         <div className="flex items-center gap-2">
-          <div
-            className="flex h-9 w-9 items-center justify-center rounded-xl shadow-lg"
-            style={{
-              background: `linear-gradient(135deg, ${COLORS.blueLight}, ${COLORS.blueOrion})`,
-              boxShadow: `0 8px 24px -8px ${COLORS.blueOrion}`,
-            }}
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={1.5} className="h-5 w-5">
-              <circle cx="12" cy="12" r="3" />
-              <path
-                d="M12 2v4M12 18v4M4.9 4.9l2.9 2.9M16.2 16.2l2.9 2.9M2 12h4M18 12h4M4.9 19.1l2.9-2.9M16.2 7.8l2.9-2.9"
-                strokeLinecap="round"
-              />
-            </svg>
-          </div>
-          <span className="font-display text-xl font-black tracking-wide text-white">ORION</span>
+          <img
+            src="/assets/images/orion_logo.png"
+            alt="ORION Logo"
+            className="h-9 w-auto"
+            loading="eager"
+          />
         </div>
 
         <nav className="flex items-center gap-2">
@@ -418,64 +503,8 @@ export default function LandingPage() {
         </nav>
       </header>
 
-      {/* HERO */}
-      <section className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col justify-center px-6 pb-16 pt-10 sm:pt-16">
-        <motion.div
-          initial={{ opacity: 0, y: 28 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="max-w-3xl"
-        >
-          <span className="inline-flex items-center gap-2 rounded-full border border-blue-400/20 bg-blue-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-blue-300">
-            <Activity className="h-3.5 w-3.5" /> Plataforma multi-empresa
-          </span>
-
-          <div className="mt-6">
-            <SpotlightText>ORION</SpotlightText>
-            <p className="orion-spotlight-text font-display mt-2 text-2xl font-bold sm:text-4xl">
-              Sistema de Gestão Multi-Empresa e Performance
-            </p>
-          </div>
-
-          <p className="mt-6 max-w-2xl text-base text-slate-300 sm:text-lg">
-            Centralize vendas, metas, campanhas, equipes e relatórios com IA em uma única plataforma.
-            Acompanhe o desempenho do seu time em tempo real, em qualquer dispositivo.
-          </p>
-
-          <div className="mt-8 flex flex-wrap gap-3">
-            <button
-              onClick={irParaAuth}
-              className="orion-glow-pulse inline-flex items-center gap-2 rounded-xl px-6 py-3.5 text-sm font-bold text-white transition-transform hover:scale-[1.03]"
-              style={{
-                background: `linear-gradient(135deg, ${COLORS.blueOrion}, ${COLORS.blueLight})`,
-              }}
-            >
-              <LogIn className="h-4 w-4" /> Entrar no Sistema
-            </button>
-            <button
-              onClick={irParaTV}
-              className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/5 px-6 py-3.5 text-sm font-bold text-white backdrop-blur transition-colors hover:bg-white/10"
-            >
-              <Tv className="h-4 w-4" /> Painel em Tempo Real
-            </button>
-          </div>
-
-          <p className="mt-3 text-xs text-slate-400 dark:text-slate-500">
-            Acesso para admin · gerente · supervisor · vendedor
-          </p>
-          <p className="mt-1 text-xs text-slate-500">
-            💡 Dica: acesse{" "}
-            <button onClick={irParaTV} className="font-semibold text-blue-300 underline hover:text-blue-200">
-              /tv
-            </button>{" "}
-            diretamente para abrir o painel TV em tela cheia (favorito para monitor na parede).
-          </p>
-        </motion.div>
-
-        <div className="mt-16">
-          <ScrollIndicator onClick={rolarParaFeatures} />
-        </div>
-      </section>
+      {/* HERO — nova seção com partículas 3D */}
+      <HeroSection />
 
       {/* FEATURES */}
       <div ref={featuresRef as React.RefObject<HTMLDivElement>}>

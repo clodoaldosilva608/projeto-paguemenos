@@ -42,6 +42,7 @@ import ConfiguracoesPage from "./components/pages/ConfiguracoesPage";
 import AuditoriaPage from "./components/pages/AuditoriaPage";
 import IAPage from "./components/pages/IAPage";
 import IAConfigPage from "./components/pages/IAConfigPage";
+import KanbanPage from "./components/pages/KanbanPage";
 import DashboardAdminPage from "./components/pages/DashboardAdminPage";
 import FuncionariosPage from "./components/pages/FuncionariosPage";
 import MinhasMetasPage from "./components/pages/MinhasMetasPage";
@@ -178,6 +179,8 @@ export default function OrionApp() {
         return <IAPage />;
       case "ia-config":
         return <IAConfigPage />;
+      case "kanban":
+        return <KanbanPage />;
       case "dashboard-funcionario":
         return <DashboardFuncionarioPage />;
       case "curriculo":
@@ -284,10 +287,9 @@ export default function OrionApp() {
         <AnimatePresence mode="wait">
           <motion.div
             key={paginaEfetiva}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.2 }}
+            initial={{ opacity: 0, clipPath: "polygon(0 0, 100% 0, 100% 100%, 0% 100%)" }}
+            animate={{ opacity: 1, clipPath: "polygon(0 0, 100% 0, 100% 100%, 0% 100%)", transition: { duration: 0.4, ease: [0.33, 1, 0.68, 1] } }}
+            exit={{ opacity: 0, clipPath: "polygon(50% 0, 50% 0, 50% 100%, 50% 100%)", transition: { duration: 0.3, ease: [0.65, 0, 0.35, 1] } }}
           >
             {renderPagina()}
           </motion.div>
@@ -371,3 +373,6 @@ export default function OrionApp() {
     </FilialProvider>
   );
 }
+// FORCE_REBUILD_$(date +%s)
+// FORCE_KANBAN_VISIBLE_1785945322
+// KANBAN_VISIBLE_1785947289

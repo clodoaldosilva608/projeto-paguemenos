@@ -1,0 +1,63 @@
+version: 2
+
+# Dependabot — monitora dependências e abre PRs automaticamente
+# quando há updates de segurança ou minor versions disponíveis.
+
+updates:
+  # Dependências npm — semanal
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Sao_Paulo"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "clodoaldosilva608"
+    labels:
+      - "dependencies"
+      - "automated"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+    # Agrupar updates de devDependencies em um único PR
+    groups:
+      dev-dependencies:
+        patterns:
+          - "@types/*"
+          - "eslint*"
+          - "prettier*"
+          - "vitest*"
+          - "@testing-library/*"
+          - "@playwright/*"
+          - "typescript"
+        update-types:
+          - "minor"
+          - "patch"
+    # Ignorar major updates de pacotes críticos (podem quebrar)
+    ignore:
+      - dependency-name: "nitro"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@tanstack/react-start"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-dom"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "vite"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@supabase/supabase-js"
+        update-types: ["version-update:semver-major"]
+
+  # GitHub Actions — mensal
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    labels:
+      - "github-actions"
+      - "automated"
+    commit-message:
+      prefix: "chore(ci)"
+      include: "scope"

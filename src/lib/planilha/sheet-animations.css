@@ -1,0 +1,311 @@
+@import "tailwindcss";
+
+:root {
+  --sheet-zoom: 1;
+}
+
+.sheet-content > div {
+  zoom: var(--sheet-zoom);
+}
+
+/* ══ Animações base ═══════════════════════════════════════════════════════ */
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes modal-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes rise-left {
+  from { opacity: 0; transform: translateX(-14px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+
+.animate-fade-in { animation: fade-in 160ms ease-out both; }
+.animate-modal-in { animation: modal-in 200ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-toast-in { animation: toast-in 220ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-slide-up { animation: slide-up 280ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
+.rise-in { animation: rise-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.rise-left { animation: rise-left 380ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* ══ Entradas de gráfico (SVG) ════════════════════════════════════════════ */
+@keyframes draw-line { to { stroke-dashoffset: 0; } }
+@keyframes grow-up { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes grow-right { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes pop-in {
+  0% { opacity: 0; transform: scale(0.4); }
+  60% { opacity: 1; transform: scale(1.18); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes donut-in {
+  from { opacity: 0; transform: scale(0.5) rotate(-40deg); }
+  to { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+@keyframes needle-in {
+  0% { transform: rotate(var(--sweep, -90deg)); }
+  70% { transform: rotate(6deg); }
+  85% { transform: rotate(-3deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.svg-grow-up { transform-box: fill-box; transform-origin: bottom; animation: grow-up 720ms cubic-bezier(0.16,1,0.3,1) both; }
+.svg-grow-right { transform-box: fill-box; transform-origin: left center; animation: grow-right 720ms cubic-bezier(0.16,1,0.3,1) both; }
+.svg-pop { transform-box: fill-box; transform-origin: center; animation: pop-in 460ms cubic-bezier(0.16,1,0.3,1) both; }
+.donut-slice { transform-box: view-box; transform-origin: 50% 50%; animation: donut-in 720ms cubic-bezier(0.16,1,0.3,1) both; }
+.draw-line { stroke-dasharray: 2400; stroke-dashoffset: 2400; animation: draw-line 1300ms cubic-bezier(0.4,0,0.2,1) both; }
+.draw-arc { stroke-dasharray: 900; stroke-dashoffset: 900; animation: draw-line 1200ms cubic-bezier(0.4,0,0.2,1) both; }
+.gauge-needle { animation: needle-in 1400ms cubic-bezier(0.22,1,0.28,1) both; }
+.svg-fade { animation: fade-in 620ms ease-out both; }
+
+/* ══ Micro-interações contínuas ═══════════════════════════════════════════ */
+/* Anel de pulso que expande (usado no último ponto da linha / item novo) */
+@keyframes ripple-ring {
+  0% { r: 5; opacity: 0.55; stroke-width: 2.5; }
+  100% { r: 15; opacity: 0; stroke-width: 0.5; }
+}
+.ripple-ring {
+  animation: ripple-ring 2.1s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+}
+
+/* Brilho que varre da esquerda para a direita (barras e cards) */
+@keyframes sheen {
+  0% { transform: translateX(-130%) skewX(-18deg); }
+  55%, 100% { transform: translateX(320%) skewX(-18deg); }
+}
+.sheen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent);
+  animation: sheen 3.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Brilho em SVG (retângulo translúcido que percorre a barra) */
+@keyframes sheen-x {
+  0% { transform: translateX(-40px); opacity: 0; }
+  25% { opacity: 0.75; }
+  60%, 100% { transform: translateX(560px); opacity: 0; }
+}
+.sheen-x { animation: sheen-x 3.4s ease-in-out infinite; }
+
+/* Glow pulsante (valor central do velocímetro, destaques) */
+@keyframes glow-pulse {
+  0%, 100% { filter: drop-shadow(0 0 0 rgba(26,86,197,0)); }
+  50% { filter: drop-shadow(0 0 6px rgba(26,86,197,0.45)); }
+}
+.glow-pulse { animation: glow-pulse 2.6s ease-in-out infinite; }
+
+/* Flutuação suave (ícones de insight, coroa do pódio) */
+@keyframes float-y {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3.5px); }
+}
+.float-y { animation: float-y 3s ease-in-out infinite; }
+
+/* Brilho radial expandindo (1º lugar do pódio) */
+@keyframes sparkle {
+  0%, 100% { opacity: 0.25; transform: scale(0.85) rotate(0deg); }
+  50% { opacity: 0.75; transform: scale(1.12) rotate(180deg); }
+}
+.sparkle { animation: sparkle 3.4s ease-in-out infinite; }
+
+/* Batimento discreto (badge "novo", ponto ao vivo) */
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  35% { transform: scale(1.28); opacity: 0.75; }
+  70% { transform: scale(1); opacity: 1; }
+}
+.heartbeat { animation: heartbeat 1.9s ease-in-out infinite; }
+
+/* ══ MOVIMENTO CONTÍNUO DOS ELEMENTOS DE GRÁFICO ═════════════════════════ */
+
+/* Ponteiro do velocímetro: entra varrendo e depois oscila para sempre.
+   Duas camadas: <g> externo faz a varredura, <g> interno vibra em loop. */
+@keyframes gauge-arrive {
+  0% { transform: rotate(0deg); }
+  58% { transform: rotate(calc(var(--target-angle, 0deg) + 10deg)); }
+  76% { transform: rotate(calc(var(--target-angle, 0deg) - 4deg)); }
+  90% { transform: rotate(calc(var(--target-angle, 0deg) + 1.8deg)); }
+  100% { transform: rotate(var(--target-angle, 0deg)); }
+}
+@keyframes gauge-live-wobble {
+  0%, 100% { transform: rotate(-4.2deg); }
+  18% { transform: rotate(3deg); }
+  41% { transform: rotate(-2.2deg); }
+  67% { transform: rotate(4deg); }
+  83% { transform: rotate(-1.5deg); }
+}
+@keyframes gauge-rev-pulse {
+  0% { transform: rotate(0deg); }
+  34% { transform: rotate(var(--rev-angle, 48deg)); }
+  52% { transform: rotate(calc(var(--rev-angle, 48deg) - 12deg)); }
+  72% { transform: rotate(8deg); }
+  100% { transform: rotate(0deg); }
+}
+.gauge-arrive { animation: gauge-arrive 1500ms cubic-bezier(0.22, 1, 0.28, 1) both; }
+.gauge-live-wobble { animation: gauge-live-wobble 2.4s ease-in-out 1500ms infinite; }
+.gauge-rev-pulse { animation: gauge-rev-pulse 1900ms cubic-bezier(0.2, 0.9, 0.3, 1) both; }
+
+/* Compatibilidade com nomes antigos usados em validações/trechos anteriores */
+.needle-sweep { animation: gauge-arrive 1500ms cubic-bezier(0.22, 1, 0.28, 1) both; }
+.needle-wobble { animation: gauge-live-wobble 2.4s ease-in-out 1500ms infinite; }
+.needle-rev { animation: gauge-rev-pulse 1900ms cubic-bezier(0.2, 0.9, 0.3, 1) both; }
+
+/* Ponto que corre ao longo da linha do gráfico (motion path) */
+@keyframes travel {
+  from { offset-distance: 0%; }
+  to { offset-distance: 100%; }
+}
+.travel-dot {
+  offset-rotate: 0deg;
+  animation: travel 4.5s linear infinite;
+}
+
+/* Respiração de barras (escala vertical sutil, em loop) */
+@keyframes breathe-y {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(1.035); }
+}
+.breathe-y {
+  transform-box: fill-box;
+  transform-origin: bottom;
+  animation: breathe-y 3.2s ease-in-out infinite;
+}
+
+/* Respiração de barras horizontais */
+@keyframes breathe-x {
+  0%, 100% { transform: scaleX(1); }
+  50% { transform: scaleX(1.012); }
+}
+.breathe-x {
+  transform-box: fill-box;
+  transform-origin: left center;
+  animation: breathe-x 3.4s ease-in-out infinite;
+}
+
+/* Rotação lenta e contínua da rosca */
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.spin-slow {
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+  animation: spin-slow 46s linear infinite;
+}
+
+/* Pulsação de escala (pontos, células, medalhas) */
+@keyframes throb {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.16); }
+}
+.throb {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: throb 2.4s ease-in-out infinite;
+}
+
+/* Balanço vertical suave em SVG (rótulos de valor) */
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2.5px); }
+}
+.bob {
+  transform-box: fill-box;
+  animation: bob 3s ease-in-out infinite;
+}
+
+/* Linha tracejada em movimento (grades e conectores "vivos") */
+@keyframes dash-march {
+  to { stroke-dashoffset: -24; }
+}
+.dash-march { animation: dash-march 1.6s linear infinite; }
+
+/* Onda contínua percorrendo o preenchimento da área do gráfico de linha */
+@keyframes wave-shift {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(-14px); }
+}
+.wave-shift { animation: wave-shift 6s ease-in-out infinite; }
+
+/* Gradiente animado (usado no traço da linha) */
+@keyframes hue-slide {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.78; }
+}
+.hue-slide { animation: hue-slide 3.4s ease-in-out infinite; }
+
+/* Shimmer de carregamento/realce em barras de progresso */
+@keyframes shimmer-bar {
+  0% { background-position: -180px 0; }
+  100% { background-position: 260px 0; }
+}
+.shimmer-bar {
+  background-image: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+  background-size: 180px 100%;
+  background-repeat: no-repeat;
+  animation: shimmer-bar 2.4s ease-in-out infinite;
+}
+
+/* Barras de progresso HTML preenchendo da esquerda */
+.bar-fill { transform-origin: left center; animation: grow-right 820ms cubic-bezier(0.16,1,0.3,1) both; }
+
+/* Elevação no hover para linhas de tabela e cards */
+.hover-lift { transition: transform 220ms cubic-bezier(0.16,1,0.3,1), box-shadow 220ms ease; }
+.hover-lift:hover { transform: translateY(-2px); box-shadow: 0 10px 24px -8px rgba(13,43,87,0.28); }
+
+/* Realce de linha de tabela deslizando */
+@keyframes row-in {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.row-in { animation: row-in 420ms cubic-bezier(0.16,1,0.3,1) both; }
+
+/* Zoom leve em células de calendário */
+.cell-zoom { transition: transform 200ms cubic-bezier(0.16,1,0.3,1), filter 200ms ease; transform-box: fill-box; transform-origin: center; }
+.cell-zoom:hover { transform: scale(1.14); filter: brightness(1.08); }
+
+/* Fatia da rosca "explodindo" no hover */
+.slice-hover { transition: transform 260ms cubic-bezier(0.16,1,0.3,1), opacity 200ms ease, stroke-width 200ms ease; transform-box: view-box; transform-origin: 50% 50%; }
+
+/* Barra que "cresce" um pouco no hover */
+.bar-hover { transition: transform 220ms cubic-bezier(0.16,1,0.3,1), filter 220ms ease; transform-box: fill-box; }
+.bar-hover:hover { filter: brightness(1.12) saturate(1.1); }
+
+/* ══ Scrollbar ════════════════════════════════════════════════════════════ */
+.sheet-content ::-webkit-scrollbar { width: 10px; height: 10px; }
+.sheet-content ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+.sheet-content ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+.sheet-content ::-webkit-scrollbar-track { background: transparent; }
+
+/* ══ Acessibilidade ═══════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ══ Impressão ════════════════════════════════════════════════════════════ */
+@media print {
+  @page { size: landscape; margin: 8mm; }
+  .sheet-chrome, .no-print { display: none !important; }
+  .sheet-content { overflow: visible !important; border: 0 !important; }
+  .sheet-content > div { zoom: 0.78 !important; min-height: auto !important; }
+  body { background: white !important; }
+  * { animation: none !important; }
+}

@@ -145,8 +145,9 @@ export default function IAAssistantFAB() {
         title="Assistente IA"
         className="group fixed bottom-24 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-xl shadow-blue-600/40 transition hover:scale-110 sm:bottom-28 sm:right-8"
       >
-        <span className="pointer-events-none absolute inset-0 animate-ping rounded-full bg-blue-500/40" />
-        <span className="pointer-events-none absolute -inset-1 animate-pulse rounded-full bg-indigo-500/20 blur" />
+        {/* 🔒 Fase 7.8 (2026-08-04): animações infinitas (ping + pulse) removidas
+            para reduzir consumo de CPU/GPU em sessões longas (TV mode, dashboards).
+            O gradient + shadow já dão destaque suficiente ao botão. */}
         <Bot className="relative h-7 w-7" />
       </button>
 

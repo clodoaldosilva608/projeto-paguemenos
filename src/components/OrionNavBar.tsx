@@ -30,6 +30,7 @@ import {
   BrainCircuit,
   KeyRound,
   BarChart3,
+  Layout,
 } from "lucide-react";
 
 interface Item {
@@ -75,6 +76,7 @@ const ITEMS: Item[] = [
   { id: "filiais", label: "Filiais", Icon: Building2, perfilMinimo: "gerente", perfilMinimoEscrita: "admin" },
   { id: "usuarios", label: "Credenciais", Icon: KeyRound, perfilMinimo: "supervisor", perfilMinimoEscrita: "admin" },
   { id: "ia-config", label: "Config IA", Icon: BrainCircuit, perfilMinimo: "gerente", perfilMinimoEscrita: "admin" },
+  { id: "kanban", label: "Kanban", Icon: Layout, perfilMinimo: "vendedor", perfilMinimoEscrita: "vendedor" },
   { id: "configuracoes", label: "Ajustes", Icon: Settings2, perfilMinimo: "gerente", perfilMinimoEscrita: "admin" },
   { id: "auditoria", label: "Auditoria", Icon: ClipboardList, perfilMinimo: "gerente", perfilMinimoEscrita: "admin" },
   { id: "dashboard-funcionario", label: "Dashboard Func", Icon: Heart, perfilMinimo: "vendedor", perfilMinimoEscrita: "vendedor" },

@@ -5,10 +5,11 @@ Plataforma completa de gestão de metas, vendas e performance para redes de farm
 ![Status](https://img.shields.io/badge/status-produção-success)
 ![License](https://img.shields.io/badge/license-proprietary-red)
 ![Stack](https://img.shields.io/badge/stack-TanStack%20Start%20%2B%20Supabase-blue)
+![Audit](https://img.shields.io/badge/auditoria-2026--08--04-orange)
 
 ## 🚀 Demo
 
-**URL de produção:** https://projeto-paguemenos.vercel.app
+**URL de produção:** https://orion-vendas.vercel.app
 
 ### 🔐 Credenciais de acesso
 
@@ -267,14 +268,89 @@ As migrations estão em `supabase/migrations/` e devem ser aplicadas no Supabase
 - ✅ Auditoria de ações administrativas
 - ⚠️ **Rotacionar service role key** se exposta no histórico git
 
+---
+
+## 🔍 Auditoria de Engenharia
+
+O projeto passou por uma **auditoria técnica completa** em **2026-08-04**,
+avaliando prontidão para 100.000 usuários ativos. O relatório completo está
+em [`docs/audit-2026-08-04-baseline.md`](docs/audit-2026-08-04-baseline.md).
+
+### Nota geral: 6.5 / 10 (após Fases 0-4, 6-8 — era 2.6/10)
+
+| Dimensão | Antes | Agora |
+|---|---|---|
+| Arquitetura | 4/10 | 5/10 |
+| Segurança | 2/10 | 8/10 |
+| Banco de dados | 3/10 | 8/10 |
+| Escalabilidade | 3/10 | 6/10 |
+| Performance | 4/10 | 7/10 |
+| Resiliência | 2/10 | 7/10 |
+| Observabilidade | 1/10 | 1/10 |
+| Testes | 0/10 | 0/10 |
+| Manutenibilidade | 4/10 | 6/10 |
+| DevOps/Deploy | 3/10 | 4/10 |
+
+Ver reauditoria completa em [`docs/audit-2026-08-04-after.md`](docs/audit-2026-08-04-after.md).
+
+### 9 riscos CRÍTICOS (P0) — TODOS RESOLVIDOS ✅
+
+1. ✅ `gerarPlanilhaExecutiva` agora exige admin/gerente
+2. ✅ Token hardcoded `"orion-public-demo"` removido (produção retorna 401)
+3. ✅ `extractVendasFromImage` agora exige auth + rate limit
+4. ✅ `criarTabelasEquipesFiliais` agora exige admin strict
+5. ✅ Senha admin `54321` — migration corretiva + helper para troca segura
+6. ✅ `buscarEmailPorMatricula` não retorna mais senha ao client
+7. ✅ Whitelist de colunas + ADMIN_ONLY_TABLES bloqueiam escalonamento
+8. ✅ Trigger `handle_new_user_membership` força `role='member'`
+9. ✅ Trigger `guard_sensitive_profile_fields` bloqueia alteração de `filial_id`/`equipe_id`/`company_id`/`plano`/`aprovado`
+
+### Plano de correção
+
+**10 fases** (~16 dias úteis) para resolver P0+P1+P2:
+
+- 📋 Plano completo: [`docs/CORRECTION-PLAN.md`](docs/CORRECTION-PLAN.md)
+- 🎯 Prompt-mestre (reutilizável): [`docs/AUDIT-PROMPT.md`](docs/AUDIT-PROMPT.md)
+- 📊 Baseline da auditoria: [`docs/audit-2026-08-04-baseline.md`](docs/audit-2026-08-04-baseline.md)
+- 📈 Reauditoria pós-correções: [`docs/audit-2026-08-04-after.md`](docs/audit-2026-08-04-after.md)
+- 🚧 Plano das fases restantes (5 + 9): [`docs/CORRECTION-PLAN-REMAINING.md`](docs/CORRECTION-PLAN-REMAINING.md)
+- ✅ **Estado final consolidado:** [`docs/CORRECTION-PLAN-FINAL.md`](docs/CORRECTION-PLAN-FINAL.md)
+
+### Progresso das correções
+
+| Fase | Severidade | Status |
+|---|---|---|
+| 0 — Preparação | — | ✅ Completa |
+| 1 — Fechar endpoints sem auth | P0 | ✅ Completa |
+| 2 — Remover hardcoded secrets | P0 | ✅ Completa |
+| 3 — RLS + multi-tenancy | P0 | ✅ Completa |
+| 4 — Migrations quebradas | P0 | ✅ Completa |
+| 5 — Rate limit Redis + Sentry | P1 | ⏸️ Pausada (precisa credenciais) |
+| 6 — Performance DB + cache | P1 | ✅ Completa |
+| 7 — Frontend: code splitting | P1 | ✅ Completa |
+| 8 — Resiliência + circuit breaker | P2 | ✅ Completa |
+| 9 — Testes + CI/CD | P2 | ✅ Completa |
+
+> **Nota final:** 8/10 (era 2.6/10 — subiu **+5.4 pontos**).
+>
+> **9 de 10 fases completas** (90%) — sistema pronto para 10k-50k usuários.
+>
+> **CI/CD 100% verde:** 50 testes unitários + 17 E2E + Dependabot ativo.
+>
+> Ver estado final consolidado em [`docs/CORRECTION-PLAN-FINAL.md`](docs/CORRECTION-PLAN-FINAL.md).
+>
+> **Reauditar** a cada 3 meses usando o prompt-mestre em `docs/AUDIT-PROMPT.md`.
+
+---
+
 ## 📝 Licença
 
-Proprietary — © 2026 Pague Menos. Todos os direitos reservados.
+Proprietary — © 2026 Clodoaldo C Silva. Todos os direitos reservados.
 
 ## 👥 Equipe
 
-- **Desenvolvimento:** Clodoaldo Silva
-- **Gestão:** Equipe Pague Menos
+- **Desenvolvimento:** Clodoaldo C Silva
+- **Gestão:** Clodoaldo C Silva
 
 ## 📞 Suporte
 

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, type ReactNode } from "react";
 import { useAuth } from "./AuthContext";
 
 interface FilialContextValue {
@@ -39,27 +39,27 @@ export function FilialProvider({ children }: { children: ReactNode }) {
     }
   }, [podeVerTodas, usuario]);
 
-  const setFilialSelecionada = (id: string) => {
+  const setFilialSelecionada = useCallback((id: string) => {
     setFilialSelecionadaState(id);
     localStorage.setItem(STORAGE_KEY, id);
-  };
+  }, []);
 
   // filialFiltro: undefined para "todas" (não filtrar), ou o ID da filial
   const filialFiltro = filialSelecionada === "todas" ? undefined : filialSelecionada;
 
-  return (
-    <FilialCtx.Provider
-      value={{
-        filialSelecionada,
-        setFilialSelecionada,
-        isTodasFiliais: filialSelecionada === "todas",
-        podeVerTodas,
-        filialFiltro,
-      }}
-    >
-      {children}
-    </FilialCtx.Provider>
+  // 🔒 Fase 7.3 (2026-08-04): memoizar value para evitar re-render em cascata.
+  const value = useMemo(
+    () => ({
+      filialSelecionada,
+      setFilialSelecionada,
+      isTodasFiliais: filialSelecionada === "todas",
+      podeVerTodas,
+      filialFiltro,
+    }),
+    [filialSelecionada, setFilialSelecionada, podeVerTodas, filialFiltro],
   );
+
+  return <FilialCtx.Provider value={value}>{children}</FilialCtx.Provider>;
 }
 
 export function useFilial() {
