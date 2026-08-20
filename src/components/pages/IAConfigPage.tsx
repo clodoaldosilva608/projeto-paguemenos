@@ -54,7 +54,7 @@ export default function IAConfigPage() {
   // Config state
   const [config, setConfig] = useState<any>(null);
   const [form, setForm] = useState<any>({
-    provider: "lovable",
+    provider: "huggingface",
     model: "google/gemini-2.5-flash",
     base_url: "",
     provider_panel_url: "",
@@ -113,8 +113,8 @@ export default function IAConfigPage() {
       setHistorico(hist.versoes || []);
       if (c) {
         setForm({
-          provider: c.provider || "lovable",
-          model: c.model || "google/gemini-2.5-flash",
+          provider: c.provider || "huggingface",
+          model: c.model || "Qwen/Qwen2.5-7B-Instruct",
           base_url: c.base_url || "",
           provider_panel_url: c.provider_panel_url || "",
           api_key: "",
@@ -128,7 +128,7 @@ export default function IAConfigPage() {
         });
       }
     } catch (e: any) {
-      toast.error("Erro ao carregar configuração: " + e.message);
+      toast.error("Erro ao carregar: " + e.message);
     } finally {
       setLoading(false);
     }
@@ -205,7 +205,9 @@ export default function IAConfigPage() {
       if (r.ok) {
         toast.success(`✅ Conexão realizada com sucesso! (${r.tempo_ms}ms)`);
       } else {
-        toast.error(`❌ Falha: ${r.erro}`);
+        // 🔒 DEBUG: mostrar detalhes completos do erro
+        const debugInfo = (r as any).debug ? ` | debug: ${JSON.stringify((r as any).debug)}` : "";
+        toast.error(`❌ Falha: ${r.erro}${debugInfo}`);
       }
       void reload();
     } catch (e: any) {
@@ -273,7 +275,7 @@ export default function IAConfigPage() {
     }
   };
 
-  const provInfo = PROVIDERS[form.provider as keyof typeof PROVIDERS] || PROVIDERS.lovable;
+  const provInfo = PROVIDERS[form.provider as keyof typeof PROVIDERS] || PROVIDERS.huggingface;
 
   return (
     <div className="space-y-6 pb-24">
@@ -1044,3 +1046,5 @@ function Step({ n, children }: { n: number; children: React.ReactNode }) {
     </li>
   );
 }
+// BUILD_MARKER_1785894508
+// FORÇAR NOVO BUILD 1785896216

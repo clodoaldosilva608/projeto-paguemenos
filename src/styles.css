@@ -1,6 +1,10 @@
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
+@import "./lib/planilha/sheet-animations.css";
+
+/* Fontes tecnológicas (Inter + Fira Code) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&family=Fira+Code:wght@300;400;500;600;700&display=swap');
 
 @custom-variant dark (&:is(.dark *));
 
@@ -160,13 +164,155 @@
 html, body, #root { height: 100%; }
 
 body {
-  font-family: "DM Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-family: "Inter", "DM Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
   background: #eef1f7;
   color: #1a1a2e;
   color: #0f172a;
   -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
 }
 .dark body { background: #0a0f1c; color: #e2e8f0; }
+
+/* === Paleta tecnológica ORION === */
+:root {
+  --orion-dark-bg: #0A192F;
+  --orion-dark-card: #1A2B42;
+  --orion-accent-cyan: #00FFFF;
+  --orion-accent-blue: #00BFFF;
+}
+
+/* Efeito de brilho para elementos interativos */
+.glow-effect {
+  box-shadow: 0 0 5px #00FFFF, 0 0 10px #00FFFF, 0 0 15px #00FFFF;
+}
+
+/* Focus ring tecnológico */
+a, button {
+  outline: none;
+}
+a:focus-visible, button:focus-visible {
+  box-shadow: 0 0 0 2px rgba(0, 255, 255, 0.5);
+}
+
+/* Font monospace para números/código */
+.font-mono-tech {
+  font-family: "Fira Code", ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* === Suporte a rotação de tela em mobile === */
+@media (orientation: landscape) and (max-height: 500px) {
+  html, body, #root {
+    height: 100vh;
+    height: 100dvh;
+  }
+  .sheet-content { padding: 0.5rem !important; }
+}
+
+@supports (-webkit-touch-callout: none) {
+  input, select, textarea { font-size: 16px; }
+}
+
+@media screen and (orientation: landscape) {
+  .min-h-full, .min-h-screen { min-height: 100dvh; }
+  .grid { width: 100%; }
+}
+
+/* === Responsividade da Planilha Interna === */
+/* SVGs responsivos */
+.sheet-content svg {
+  max-width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* Tabelas com scroll horizontal no mobile */
+.sheet-content table {
+  width: 100%;
+  font-size: 10px;
+}
+@media (max-width: 640px) {
+  .sheet-content table {
+    font-size: 9px;
+  }
+  .sheet-content th, .sheet-content td {
+    padding: 4px 6px;
+  }
+}
+
+/* Gráficos não estouram container */
+.sheet-content .overflow-x-auto {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Painéis com padding menor no mobile */
+@media (max-width: 640px) {
+  .sheet-content .rounded-lg {
+    padding: 0.5rem !important;
+  }
+  .sheet-content .shadow-md {
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;
+  }
+}
+
+/* Charts SVG: prevenir overflow de texto */
+.sheet-content svg text {
+  font-size: 9px !important;
+}
+
+/* Panels com overflow controlado */
+.sheet-content .bg-white,
+.sheet-content [class*="bg-"] {
+  overflow: hidden;
+}
+
+/* Garantir que containers de gráficos não quebrem */
+.sheet-content .flex.items-center.gap-4 {
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+@media (max-width: 640px) {
+  .sheet-content svg {
+    width: 100% !important;
+    height: auto !important;
+  }
+  .sheet-content svg[viewBox] {
+    width: 100% !important;
+    height: auto !important;
+  }
+}
+
+/* === TV Mode — responsividade em landscape mobile === */
+@media (orientation: landscape) and (max-height: 500px) {
+  /* TV Mode: compactar header e KPIs em landscape */
+  .orion-tv-panel header {
+    padding: 4px 8px !important;
+  }
+  .orion-tv-panel .text-2xl,
+  .orion-tv-panel .text-3xl {
+    font-size: 1rem !important;
+  }
+  .orion-tv-panel .text-xl {
+    font-size: 0.875rem !important;
+  }
+  .orion-tv-panel .text-lg {
+    font-size: 0.75rem !important;
+  }
+  .orion-tv-panel .gap-2,
+  .orion-tv-panel .gap-3 {
+    gap: 4px !important;
+  }
+  .orion-tv-panel .p-3,
+  .orion-tv-panel .p-4 {
+    padding: 4px 6px !important;
+  }
+  .orion-tv-panel .py-2,
+  .orion-tv-panel .py-3 {
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+  }
+}
 
 .font-display { font-family: "Archivo Black", "Archivo", ui-sans-serif, system-ui, sans-serif; letter-spacing: -0.01em; }
 .font-cond { font-family: "Archivo", ui-sans-serif, system-ui, sans-serif; font-weight: 800; letter-spacing: 0.02em; }

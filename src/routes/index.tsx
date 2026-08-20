@@ -1,8 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import OrionApp from "@/OrionApp";
 import { useAuth } from "@/contexts/AuthContext";
+import OrionApp from "@/OrionApp";
 import LandingPage from "@/components/LandingPage";
+
+// Fallback simples paraSuspense
+function LoadingScreen() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-[#0a0f1c] text-slate-300">
+      <div className="font-display text-2xl tracking-wide animate-pulse">Orion</div>
+    </div>
+  );
+}
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -27,23 +36,13 @@ export const Route = createFileRoute("/")({
 function Index() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
-  if (!mounted)
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#0a0f1c] text-slate-300">
-        <div className="font-display text-2xl tracking-wide">Orion</div>
-      </div>
-    );
+  if (!mounted) return <LoadingScreen />;
   return <IndexRouter />;
 }
 
 function IndexRouter() {
   const { autenticado, carregando } = useAuth();
-  if (carregando)
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#0a0f1c] text-slate-300">
-        <div className="font-display text-2xl tracking-wide">Orion</div>
-      </div>
-    );
+  if (carregando) return <LoadingScreen />;
   if (autenticado) return <OrionApp />;
   return <LandingPage />;
 }

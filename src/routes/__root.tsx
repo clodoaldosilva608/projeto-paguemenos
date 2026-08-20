@@ -11,7 +11,7 @@ import { useEffect, type ReactNode } from "react";
 import { Toaster } from "sonner";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
+
 import { TemaProvider } from "@/contexts/ThemeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 
@@ -41,7 +41,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
   useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
+    console.error("[root error]", error);
   }, [error]);
 
   return (
@@ -75,7 +75,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover" },
       { title: "Orion Dashboard — Metas & Performance" },
       {
         name: "description",
@@ -119,8 +119,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "img-src 'self' data: blob: https:",
           // fonts: self + Google Fonts CDN
           "font-src 'self' data: https://fonts.gstatic.com",
-          // connect: self + Supabase + Google AI + Lovable gateway (IA)
-          "connect-src 'self' https://*.supabase.co https://generativelanguage.googleapis.com https://ai.gateway.lovable.dev https://api.openai.com https://api.anthropic.com https://openrouter.ai",
+          // connect: self + Supabase + Hugging Face + Google AI
+          "connect-src 'self' https://*.supabase.co https://generativelanguage.googleapis.com https://router.huggingface.co https://api.openai.com https://api.anthropic.com",
           // media: self + data:
           "media-src 'self' data:",
           // object-src: bloqueia plugins (Flash/Java)
@@ -143,6 +143,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { httpEquiv: "X-XSS-Protection", content: "1; mode=block" },
       // X-DNS-Prefetch-Control: não fazer prefetch cross-origin (evita vazamento)
       { httpEquiv: "X-DNS-Prefetch-Control", content: "off" },
+      // 🔒 Cache control: evitar cache de HTML em browsers (forçar revalidação)
+      { httpEquiv: "Cache-Control", content: "no-cache, no-store, must-revalidate" },
+      { httpEquiv: "Pragma", content: "no-cache" },
+      { httpEquiv: "Expires", content: "0" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },

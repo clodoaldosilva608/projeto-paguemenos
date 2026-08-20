@@ -78,42 +78,18 @@ export default function ModalLancarVendas({ aberto, onClose, onSalvou }: Props) 
     }
     setSalvando(true);
     try {
-      // Verificar se já existe venda para essa data/categoria
-      const { data: existente } = await supabase
-        .from("vendas_diarias")
-        .select("id")
-        .eq("usuario_id", usuario.id)
-        .eq("data", form.data)
-        .eq("categoria", form.categoria)
-        .maybeSingle();
-
-      if (existente?.id) {
-        // Update
-        const { error } = await supabase
-          .from("vendas_diarias")
-          .update({
-            valor_venda: form.valor_venda,
-            qtd_clientes: form.qtd_clientes,
-            observacao: form.observacao,
-            atualizado_em: new Date().toISOString(),
-          })
-          .eq("id", existente.id);
-        if (error) throw new Error(error.message);
-        toast.success(`✅ Venda de ${formatData(form.data)} atualizada!`);
-      } else {
-        // Insert
-        const { error } = await supabase.from("vendas_diarias").insert({
-          usuario_id: usuario.id,
-          filial_id: usuario.filialId || "7537",
-          data: form.data,
-          categoria: form.categoria,
-          valor_venda: form.valor_venda,
-          qtd_clientes: form.qtd_clientes,
-          observacao: form.observacao,
-        });
-        if (error) throw new Error(error.message);
-        toast.success(`✅ Venda de ${formatData(form.data)} lançada!`);
-      }
+      // Sempre INSERT — funcionários podem lançar múltiplas vendas por dia/categoria
+      const { error } = await supabase.from("vendas_diarias").insert({
+        usuario_id: usuario.id,
+        filial_id: usuario.filialId || "7537",
+        data: form.data,
+        categoria: form.categoria,
+        valor_venda: form.valor_venda,
+        qtd_clientes: form.qtd_clientes,
+        observacao: form.observacao,
+      });
+      if (error) throw new Error(error.message);
+      toast.success(`✅ Venda de ${formatData(form.data)} lançada!`);
 
       setForm({
         data: hoje,
@@ -390,7 +366,7 @@ export default function ModalLancarVendas({ aberto, onClose, onSalvou }: Props) 
                 <ul className="ml-4 mt-1 list-disc space-y-0.5">
                   <li>Para cada dia, você pode lançar até 4 categorias (Faturamento, ME, Genéricos, SD).</li>
                   <li>O Ticket Médio é calculado automaticamente: Valor ÷ Clientes.</li>
-                  <li>Se já existe um lançamento na mesma data/categoria, ele será atualizado.</li>
+                  <li>Você pode lançar quantas vendas quiser por dia e categoria.</li>
                   <li>Os valores lançados alimentam o painel Resultados e o dashboard do admin.</li>
                 </ul>
               </div>
