@@ -185,13 +185,9 @@ export default function OrionApp() {
       case "documentos":
         return <DocumentosPage />;
       case "planilha-interna":
-        // Planilha Interna tem rota própria — redireciona para /planilha-interna
-        if (typeof window !== "undefined") {
-          window.location.href = "/planilha-interna";
-        }
         return (
           <div className="flex min-h-[400px] items-center justify-center bg-[#0a1f3d]">
-            <div className="text-sky-300 text-sm">Abrindo Planilha Interna...</div>
+            <a href="/planilha-interna" className="rounded-lg bg-sky-600 px-6 py-3 text-sm font-bold text-white hover:bg-sky-500">Abrir Planilha Interna →</a>
           </div>
         );
       case "funcionarios":
